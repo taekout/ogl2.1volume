@@ -71,7 +71,23 @@ void UserInput::MouseMotion(int x, int y)
 void UserInput::Keyboard(unsigned char key, int x, int y)
 {
 	// Exit on escape.
-    if (key == 27) exit(0);
+	switch(key) 
+	{
+	case 27:
+		exit(0);
+		break;
+	case GLUT_KEY_LEFT:
+		break;
+	case GLUT_KEY_RIGHT:
+		break;
+	case GLUT_KEY_DOWN:
+		break;
+	case GLUT_KEY_UP:
+		break;
+	default:
+		std::cout << "unknown key " << key << std::endl;
+		break;
+	}
 }
 
 float MouseHistory::MouseMotionVelocityX()

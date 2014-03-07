@@ -2,8 +2,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <ctime>
-#include "glm/glm/glm.hpp"
-#include "glm/glm/gtc/matrix_transform.hpp"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
 
 class MouseHistory
 {
@@ -29,6 +29,7 @@ public:
 	inline double GetGlobalAngleY() {
 		return globalAngleY;
 	}
+
 public:
 	void NewHistory(int x, int y) {
 		if(currentIndexX == MOUSE_HISTORY_SIZE - 1) currentIndexX = -1;

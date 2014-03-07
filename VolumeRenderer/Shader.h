@@ -5,7 +5,6 @@
 #include <GL/glew.h>
 #include "glut.h"
 
-using namespace std;
 
 class ShaderFileTimeStampDiff
 {
@@ -40,14 +39,14 @@ public:
 class Shader
 {
 private:
-	string vertFilename;
-	string fragFilename;
+	std::string vertFilename;
+	std::string fragFilename;
 
 	ShaderFileTimeStampDiff vertTimeStamp;
 	ShaderFileTimeStampDiff fragTimeStamp;
 protected:
 	char *textFileRead(char *fn);
-	string *textProcess(string data);
+	std::string *textProcess(std::string data);
 public:
 	Shader(void);
 	~Shader(void);
@@ -55,9 +54,9 @@ public:
 	virtual void setShaders(char * vertShader, char *fragShader);
 	virtual void LinkShaders();
 	int textFileWrite(char *fn, char *s);
-	string *ShaderFileRead(string filename, string shaderKind);
+	std::string *ShaderFileRead(std::string filename, std::string shaderKind);
 	void ShaderFileChangeWatcher(void);
-	void ReloadVertShader(string vertShader);
+	void ReloadVertShader(std::string vertShader);
 	// Get Functions
 	GLuint GetProgram(void) { return p; }
 	// Log Functions

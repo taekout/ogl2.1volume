@@ -10,6 +10,7 @@
 #include "glm/glm/gtc/type_ptr.hpp"
 
 #include "Shader.h"
+#include "UserInput.h"
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
@@ -38,11 +39,21 @@ GLuint vboID;
 GLuint colorID;
 
 Shader *shader = NULL;
+UserInput * gInput = NULL;
 
 void renderScene(void) {
 
 	
 	printOpenGLError();
+
+	if(gInput) {
+		gInput->UpdateGlobalRotation();
+		
+		double angle[3];
+		angle[0] = gInput->GetAngleX();
+		angle[1] = gInput->GetAngleY();
+		angle[2] = gInput->GetAngleZ();
+	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -59,10 +70,22 @@ void renderScene(void) {
 	//glDisableVertexAttribArray(0);
 }
 
-void ProcessKey(unsigned char key, int x, int y)
+void Keyboard(unsigned char key, int x, int y)
 {
-	// Exit on escape.
-	if (key == 27) exit(0);
+	if(gInput)
+		gInput->Keyboard(key, x, y);
+}
+
+void Mouse(int button, int state, int x, int y)
+{
+	if(gInput)
+		gInput->Mouse(button, state, x, y);
+}
+
+void MouseMotion(int x, int y)
+{
+	if(gInput)
+		gInput->MouseMotion(x, y);
 }
 
 void InitGL()
@@ -75,9 +98,13 @@ void InitGL()
 	glutDisplayFunc(renderScene);
 	glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
-	glutKeyboardFunc(ProcessKey);
-	//glutMouseFunc(mouseDown);
-	//glutMotionFunc(mouseMotion);
+
+	if(!gInput) {
+		gInput = new UserInput();
+	}
+	glutKeyboardFunc(Keyboard);
+	glutMouseFunc(Mouse);
+	glutMotionFunc(MouseMotion);
 	glewInit();
 
 	//glDisable(GL_CULL_FACE);

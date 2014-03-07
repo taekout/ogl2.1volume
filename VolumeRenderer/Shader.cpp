@@ -65,10 +65,10 @@ char * Shader::textFileRead(char  *fn) {
 	return content;*/
 }
 
-string *Shader::ShaderFileRead(string filename, string shaderKind)
+std::string *Shader::ShaderFileRead(std::string filename, std::string shaderKind)
 {
-	string data = textFileRead((char *)filename.c_str());
-	string *final = textProcess(data);
+	std::string data = textFileRead((char *)filename.c_str());
+	std::string *final = textProcess(data);
 	if(shaderKind == "vertex shader") {
 		vertFilename = filename;
 	}
@@ -80,21 +80,21 @@ string *Shader::ShaderFileRead(string filename, string shaderKind)
 	return final;
 }
 
-string *Shader::textProcess(string stringData)
+std::string *Shader::textProcess(std::string stringData)
 {
-	string *final = new string;
+	std::string *final = new std::string;
 	size_t pos, filenamePos, filenamePos2;
-	while(stringData.find("#include", 0) != string::npos)
+	while(stringData.find("#include", 0) != std::string::npos)
 	{	// Parse #include and get the file name
 		pos = stringData.find("#include", 0);
 		filenamePos = stringData.find("\"", pos);
 		filenamePos ++;
 		filenamePos2 = stringData.find("\"", filenamePos);
-		string filename = stringData.substr(filenamePos, filenamePos2-filenamePos);
+		std::string filename = stringData.substr(filenamePos, filenamePos2-filenamePos);
 		*final += stringData.substr(0, pos);
 		stringData.erase(0, filenamePos2+1);
 		// Add the corresponding file content.
-		string contentToAdd = textFileRead((char*)filename.c_str());
+		std::string contentToAdd = textFileRead((char*)filename.c_str());
 		stringData.insert(0, contentToAdd);
 	}
 	// There is still the remaining part after having found the tokens. So add it.
@@ -102,7 +102,7 @@ string *Shader::textProcess(string stringData)
 
 	// Now step1(find #include and insert the file content after removing the include syntax) is done.
 	// Step 2 - find @# and remove @ token.
-	while(final ->find("@#", 0) != string::npos) {
+	while(final ->find("@#", 0) != std::string::npos) {
 		size_t pos = final ->find("@#", 0);
 		final ->erase(pos, 1);
 	}
@@ -204,7 +204,7 @@ void Shader::ShaderFileChangeWatcher(void)
 	}
 }
 
-void Shader::ReloadVertShader(string vertShader)
+void Shader::ReloadVertShader(std::string vertShader)
 {
 }
 
@@ -224,10 +224,10 @@ void Shader::setShaders(char *vertShader, char * fragShader) {
 	f = glCreateShader(GL_FRAGMENT_SHADER);
 	//f2 = glCreateShader(GL_FRAGMENT_SHADER);
 
-	string *vertData = ShaderFileRead(vertShader, "vertex shader");
+	std::string *vertData = ShaderFileRead(vertShader, "vertex shader");
 	vs = new char[vertData ->length() + 1];
 	strcpy_s( vs, vertData ->length() + 1, vertData ->c_str() );
-	string *fragData = ShaderFileRead(fragShader, "fragment shader");
+	std::string *fragData = ShaderFileRead(fragShader, "fragment shader");
 	fs = new char[fragData ->length() + 1];
 	strcpy_s( fs, fragData ->length() + 1, fragData ->c_str() );
 

@@ -43,10 +43,7 @@ void Camera::Move(direction dir)
 		break;
 
 	case right: {
-		float * mat = glm::value_ptr(fViewMat);
-		glm::vec3 rightvec(mat[0], mat[4], mat[8]);
-
-		SetCamera(fEyePos + rightvec);
+		SetCamera(fEyePos + glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]));
 		}
 		break;
 

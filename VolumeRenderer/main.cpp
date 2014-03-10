@@ -11,6 +11,7 @@
 
 #include "Shader.h"
 #include "UserInput.h"
+#include "Camera.h"
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
@@ -40,21 +41,29 @@ GLuint colorID;
 
 Shader *shader = NULL;
 UserInput * gInput = NULL;
+Camera *gCamera = NULL;
+
+void UpdateRenderMat()
+{
+	glm::mat4 model(1.0f);
+	glm::mat4 view = gCamera->GetView();
+	glm::mat4 proj = gCamera->GetProj();
+
+	GLuint projID = glGetUniformLocation(shader->GetProgram(), "Proj");
+	GLuint viewID = glGetUniformLocation(shader->GetProgram(), "View");
+	GLuint modelID = glGetUniformLocation(shader->GetProgram(), "Model");
+
+	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
+	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
+}
+
 
 void renderScene(void) {
-
-	
 	printOpenGLError();
 
-	if(gInput) {
-		gInput->UpdateGlobalRotation();
-		
-		double angle[3];
-		angle[0] = gInput->GetAngleX();
-		angle[1] = gInput->GetAngleY();
-		angle[2] = gInput->GetAngleZ();
-	}
-
+	UpdateRenderMat();
+	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glBindVertexArray(vertexArrayID);
@@ -71,6 +80,12 @@ void renderScene(void) {
 }
 
 void Keyboard(unsigned char key, int x, int y)
+{
+	if(gInput)
+		gInput->Keyboard(key, x, y);
+}
+
+void Keyboard(int key, int x, int y)
 {
 	if(gInput)
 		gInput->Keyboard(key, x, y);
@@ -99,10 +114,12 @@ void InitGL()
 	glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
 
+	gCamera = new Camera;
 	if(!gInput) {
-		gInput = new UserInput();
+		gInput = new UserInput(gCamera);
 	}
 	glutKeyboardFunc(Keyboard);
+	glutSpecialFunc(Keyboard);
 	glutMouseFunc(Mouse);
 	glutMotionFunc(MouseMotion);
 	glewInit();
@@ -115,6 +132,8 @@ void InitGL()
 	//glEnable(GL_TEXTURE_2D);
 
 	glClearColor(0.0, 1.0, 0.0, 1.0);
+
+	
 }
 
 void EndGL() 
@@ -259,25 +278,16 @@ int main(int argc, char **argv) {
 	//GLfloat * data = (GLfloat *)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 	//glUnmapBuffer.
 
-	glm::mat4 model(1.0f);
-	glm::mat4 view = glm::lookAt(
-		glm::vec3(4,3,3),
-		glm::vec3(0,0,0),
-		glm::vec3(0,1,0));
-	glm::mat4 proj = glm::perspective(45.0f, 1.0f, 0.1f, 100.f);
-
-	GLuint projID = glGetUniformLocation(shader->GetProgram(), "Proj");
-	GLuint viewID = glGetUniformLocation(shader->GetProgram(), "View");
-	GLuint modelID = glGetUniformLocation(shader->GetProgram(), "Model");
-
-	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
-	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
-
+	UpdateRenderMat();
 
 	glutMainLoop();
 
 	EndGL();
+
+	if(gCamera)
+		delete gCamera;
+	if(gInput)
+		delete gInput;
 
 	return 0;
 }

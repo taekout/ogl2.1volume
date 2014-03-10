@@ -1,8 +1,12 @@
 #include "Camera.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
-
-Camera::Camera(void)
+Camera::Camera(void) : fEyePos(glm::vec3(4,3,3))
 {
+	SetCamera(fEyePos);
+	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 100.f);
 }
 
 
@@ -11,9 +15,50 @@ Camera::~Camera(void)
 }
 
 
+glm::mat4 Camera::GetProj()
+{
+	return fProjMat;
+}
+
+glm::mat4 Camera::GetView()
+{
+	return fViewMat;
+}
+
 void Camera::SetCamera(glm::vec3 eyePos)
 {
 	fEyePos = eyePos;
+	fViewMat = glm::lookAt(
+						fEyePos,
+						glm::vec3(0,0,0),
+						glm::vec3(0,1,0));
+}
+
+void Camera::Move(direction dir)
+{
+	switch(dir) {
+
+	case left: {
+		}
+		break;
+
+	case right: {
+		float * mat = glm::value_ptr(fViewMat);
+		glm::vec3 rightvec(mat[0], mat[4], mat[8]);
+
+		SetCamera(fEyePos + rightvec);
+		}
+		break;
+
+	case up: {
+		}
+		break;
+
+	case down: {
+		}
+		break;
+	}
+	//fEyePos += inMov;
 }
 
 #if 0 

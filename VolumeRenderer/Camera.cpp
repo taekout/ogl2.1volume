@@ -81,6 +81,7 @@ void Camera::Rotate(const glm::vec2 & degree)
 {
 	glm::mat4 rotm(1.0f);
 	rotm = glm::rotate(rotm, degree.x * 0.1f, glm::vec3(0.0, 1.0, 0.0));
+	rotm = glm::rotate(rotm, degree.y * 0.1f, glm::vec3(0.0, 0.0, 1.0));
 	fViewDir = glm::mat3(rotm) * fViewDir;
 	SetCamera();
 }

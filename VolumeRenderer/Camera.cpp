@@ -5,7 +5,7 @@
 
 Camera::Camera(void) : fEyePos(glm::vec3(4,3,3)), fViewDir(glm::vec3(0-4, 0-3, 0-3))
 {
-	SetCamera(fEyePos);
+	SetCamera();
 	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 100.f);
 }
 
@@ -29,13 +29,20 @@ glm::mat4 Camera::GetView()
 	return fViewMat;
 }
 
-void Camera::SetCamera(glm::vec3 eyePos)
+void Camera::SetCamera()
 {
-	fEyePos = eyePos;
 	fViewMat = glm::lookAt(
 						fEyePos,
 						fEyePos + fViewDir,
 						glm::vec3(0,1,0));
+}
+
+void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
+{
+	fViewMat = glm::lookAt(
+		eyePos,
+		eyePos + viewDir,
+		glm::vec3(0,1,0));
 }
 
 void Camera::Move(direction dir)
@@ -43,22 +50,26 @@ void Camera::Move(direction dir)
 	switch(dir) {
 
 	case left: {
-		SetCamera(fEyePos + glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]));
+		fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]);
+		SetCamera();
 		}
 		break;
 
 	case right: {
-		SetCamera(fEyePos + glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]));
+		fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]);
+		SetCamera();
 		}
 		break;
 
 	case up: {
-		SetCamera(fEyePos + glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]));
+		fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]);
+		SetCamera();
 		}
 		break;
 
 	case down: {
-		SetCamera(fEyePos + glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]));
+		fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]);
+		SetCamera();
 		}
 		break;
 	}
@@ -68,8 +79,10 @@ void Camera::Move(direction dir)
 // Rotate view based on quaternion.
 void Camera::Rotate(const glm::vec2 & degree)
 {
-	fModelMat = glm::rotate(fModelMat, degree.x, glm::vec3(0.0, 1.0, 0.0));
-	fModelMat = glm::rotate(fModelMat, degree.y, glm::vec3(1.0, 0.0, 0.0));
+	glm::mat4 rotm(1.0f);
+	rotm = glm::rotate(rotm, degree.x * 0.1f, glm::vec3(0.0, 1.0, 0.0));
+	fViewDir = glm::mat3(rotm) * fViewDir;
+	SetCamera();
 }
 
 #if 0 

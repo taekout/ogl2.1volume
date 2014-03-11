@@ -12,7 +12,9 @@ public:
 	glm::mat4 GetProj();
 	glm::mat4 GetView();
 
-	void SetCamera(glm::vec3 eyePos);
+	void SetCamera();
+	void SetCamera(glm::vec3 eyePos, glm::vec3 viewDir);
+
 	enum direction {
 		left,
 		right,

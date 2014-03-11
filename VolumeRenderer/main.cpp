@@ -45,7 +45,7 @@ Camera *gCamera = NULL;
 
 void UpdateRenderMat()
 {
-	glm::mat4 model(1.0f);
+	glm::mat4 model = gCamera->GetModel();
 	glm::mat4 view = gCamera->GetView();
 	glm::mat4 proj = gCamera->GetProj();
 

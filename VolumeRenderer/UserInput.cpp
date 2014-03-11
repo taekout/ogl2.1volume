@@ -6,6 +6,8 @@ UserInput::UserInput(Camera * curCamera)
 {
 	fMouseHistory = new MouseHistory;
 	fCamera = curCamera;
+	fButtonPressed = -1;
+	fAngles = glm::vec2(0.0f, 0.0f);
 }
 
 UserInput::~UserInput(void)
@@ -16,10 +18,22 @@ UserInput::~UserInput(void)
 
 void UserInput::Mouse(int button, int state, int x, int y)
 {
+	if(button == GLUT_LEFT_BUTTON) {
+		fMousePos = glm::vec2(x, y);
+		fButtonPressed = button;
+	}
+	
 }
 
 void UserInput::MouseMotion(int x, int y)
 {
+	glm::vec2 delta(x - fMousePos.x, y - fMousePos.y);
+
+	switch(fButtonPressed) {
+	case GLUT_LEFT_BUTTON:
+		fCamera->Rotate(delta);
+		break;
+	}
 }
 
 void UserInput::Keyboard(unsigned char key, int x, int y)

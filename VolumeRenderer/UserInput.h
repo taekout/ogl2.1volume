@@ -55,6 +55,10 @@ public:
 	void MouseMotion(int x, int y);
 	~UserInput(void);
 
+protected:
+	glm::vec2 fMousePos;
+	int fButtonPressed;
+	glm::vec2 fAngles;
 
 };
 

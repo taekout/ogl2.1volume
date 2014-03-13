@@ -45,30 +45,32 @@ void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
 		glm::vec3(0,1,0));
 }
 
+#define MOVE_SCALE  0.1f
+
 void Camera::Move(direction dir)
 {
 	switch(dir) {
 
 	case left: {
-		fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]);
+		fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
 	case right: {
-		fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]);
+		fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
 	case up: {
-		fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]);
+		fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
 	case down: {
-		fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]);
+		fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;

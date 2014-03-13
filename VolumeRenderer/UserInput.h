@@ -51,6 +51,7 @@ protected:
 public:
 	UserInput(Camera * curCamera);
 	void Keyboard(unsigned char key, int x, int y);
+	void Keyboard(int key, int x, int y);
 	void Mouse(int button, int state, int x, int y);
 	void MouseMotion(int x, int y);
 	~UserInput(void);

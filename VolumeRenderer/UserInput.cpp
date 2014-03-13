@@ -27,7 +27,8 @@ void UserInput::Mouse(int button, int state, int x, int y)
 
 void UserInput::MouseMotion(int x, int y)
 {
-	glm::vec2 delta(x - fMousePos.x, y - fMousePos.y);
+	glm::vec2 delta(fMousePos.x - x, y - fMousePos.y);
+	fMousePos = glm::vec2(x, y);
 
 	switch(fButtonPressed) {
 	case GLUT_LEFT_BUTTON:
@@ -44,6 +45,32 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 	case 27:
 		exit(0);
 		break;
+	case 'a':
+	case 'A':
+		fCamera->Move(Camera::direction::left);
+		break;
+	case 'd':
+	case 'D':
+		fCamera->Move(Camera::direction::right);
+		break;
+	case 's':
+	case 'S':
+		fCamera->Move(Camera::direction::down);
+		break;
+	case 'w':
+	case 'W':
+		fCamera->Move(Camera::direction::up);
+		break;
+	default:
+		std::cout << "unknown key " << key << std::endl;
+		break;
+	}
+}
+
+void UserInput::Keyboard(int key, int x, int y)
+{
+	switch(key) 
+	{
 	case GLUT_KEY_LEFT:
 		fCamera->Move(Camera::direction::left);
 		break;

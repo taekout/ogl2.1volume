@@ -83,24 +83,28 @@ void Keyboard(unsigned char key, int x, int y)
 {
 	if(gInput)
 		gInput->Keyboard(key, x, y);
+	glutPostRedisplay();
 }
 
 void Keyboard(int key, int x, int y)
 {
 	if(gInput)
 		gInput->Keyboard(key, x, y);
+	glutPostRedisplay();
 }
 
 void Mouse(int button, int state, int x, int y)
 {
 	if(gInput)
 		gInput->Mouse(button, state, x, y);
+	glutPostRedisplay();
 }
 
 void MouseMotion(int x, int y)
 {
 	if(gInput)
 		gInput->MouseMotion(x, y);
+	glutPostRedisplay();
 }
 
 void InitGL()
@@ -111,7 +115,7 @@ void InitGL()
 	glutCreateWindow("Volume Raycasting 3D");
 
 	glutDisplayFunc(renderScene);
-	glutIdleFunc(renderScene);
+	//glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
 
 	gCamera = new Camera;

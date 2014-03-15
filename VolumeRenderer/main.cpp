@@ -135,7 +135,7 @@ void InitGL()
 	//glEnable(GL_TEXTURE_3D);
 	//glEnable(GL_TEXTURE_2D);
 
-	glClearColor(0.0, 1.0, 0.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 
 	
 }

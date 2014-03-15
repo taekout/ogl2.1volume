@@ -152,6 +152,7 @@
     <ClCompile Include="UserInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="litfog.frag" />
     <None Include="test.frag" />
     <None Include="test.vert" />
   </ItemGroup>

@@ -12,7 +12,7 @@
 
 namespace tinyobj {
 
-typedef struct
+struct material_t
 {
     std::string name;
 
@@ -29,22 +29,22 @@ typedef struct
     std::string specular_texname;
     std::string normal_texname;
     std::map<std::string, std::string> unknown_parameter;
-} material_t;
+};
 
-typedef struct
+struct mesh_t
 {
     std::vector<float>          positions;
     std::vector<float>          normals;
     std::vector<float>          texcoords;
     std::vector<unsigned int>   indices;
-} mesh_t;
+};
 
-typedef struct
+struct shape_t
 {
     std::string  name;
     material_t   material;
     mesh_t       mesh;
-} shape_t;
+};
 
 /// Loads .obj from a file.
 /// 'shapes' will be filled with parsed shape data
@@ -55,6 +55,10 @@ std::string LoadObj(
     std::vector<shape_t>& shapes,   // [output]
     const char* filename,
     const char* mtl_basepath = NULL);
+
+
+static bool TestLoadObj(const char* filename, const char* basepath = NULL);
+
 
 };
 

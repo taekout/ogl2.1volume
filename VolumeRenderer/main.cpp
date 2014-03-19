@@ -12,6 +12,7 @@
 #include "Shader.h"
 #include "UserInput.h"
 #include "Camera.h"
+#include "MeshAccess.h"
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
@@ -232,6 +233,8 @@ static const GLfloat g_cube_colors[] = {
 };
 
 int main(int argc, char **argv) {
+	try {
+
 	glutInit(&argc, argv);
 	InitGL();
 	if (glewIsSupported("GL_VERSION_3_1"))
@@ -241,7 +244,8 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	
+	IMeshAccess * meshAccess = new MeshAccess;
+	meshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
 	shader = new Shader();
 	shader->setShaders("test.vert", "test.frag");
@@ -292,6 +296,13 @@ int main(int argc, char **argv) {
 		delete gCamera;
 	if(gInput)
 		delete gInput;
+	if(meshAccess)
+		delete meshAccess;
 
+	}
+
+	catch(char * e) {
+		std::cout << e << std::endl;
+	}
 	return 0;
 }

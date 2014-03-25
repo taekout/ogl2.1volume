@@ -10,7 +10,7 @@ class IMeshAccess
 public:
 
 	virtual void LoadOBJFile(std::string & name, std::string &mtl_basepath) = 0;
-	virtual void Vertex() = 0;
+	virtual void Vertices(float * & verts, float * & inds, float * & normals) = 0;
 };
 
 class MeshAccess : public IMeshAccess
@@ -21,10 +21,11 @@ public:
 
 	void LoadOBJFile(std::string & name, std::string &mtl_basepath);
 
-	virtual void Vertex();
+	virtual void Vertices(float * & verts, float * & inds, float * & normals);
 
-private:
+protected:
 
-	std::vector<tinyobj::shape_t *> fShapes;
+	std::vector<tinyobj::shape_t> fShapes;
+	std::vector<float *> fArrays;
 };
 

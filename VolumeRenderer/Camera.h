@@ -5,7 +5,7 @@
 class Camera
 {
 public:
-	Camera(void);
+	Camera(const glm::vec3 & eyepos, const glm::vec3 & viewdir);
 	~Camera(void);
 
 	glm::mat4 GetModel();

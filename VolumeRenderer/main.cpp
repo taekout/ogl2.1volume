@@ -40,9 +40,10 @@ GLuint vertexArrayID;
 GLuint vboID;
 GLuint colorID;
 
-Shader *shader = NULL;
+Shader *gShader = NULL;
 UserInput * gInput = NULL;
 Camera *gCamera = NULL;
+IMeshAccess *gMeshAccess = NULL;
 
 void UpdateRenderMat()
 {
@@ -50,9 +51,9 @@ void UpdateRenderMat()
 	glm::mat4 view = gCamera->GetView();
 	glm::mat4 proj = gCamera->GetProj();
 
-	GLuint projID = glGetUniformLocation(shader->GetProgram(), "Proj");
-	GLuint viewID = glGetUniformLocation(shader->GetProgram(), "View");
-	GLuint modelID = glGetUniformLocation(shader->GetProgram(), "Model");
+	GLuint projID = glGetUniformLocation(gShader->GetProgram(), "Proj");
+	GLuint viewID = glGetUniformLocation(gShader->GetProgram(), "View");
+	GLuint modelID = glGetUniformLocation(gShader->GetProgram(), "Model");
 
 	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
@@ -119,7 +120,8 @@ void InitGL()
 	//glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
 
-	gCamera = new Camera;
+	glm::vec3 eyepos(10,9,9);
+	gCamera = new Camera(eyepos, glm::vec3(0) - eyepos);
 	if(!gInput) {
 		gInput = new UserInput(gCamera);
 	}
@@ -244,22 +246,26 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	IMeshAccess * meshAccess = new MeshAccess;
-	meshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
+	gMeshAccess = new MeshAccess;
+	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
+	float * verts = NULL;
+	float * inds = NULL;
+	float * normals = NULL;
+	gMeshAccess->Vertices(verts, inds, normals);
 
-	shader = new Shader();
-	shader->setShaders("test.vert", "test.frag");
-	glBindFragDataLocation(shader->GetProgram(), 0, "out_Color");
-	glBindAttribLocation(shader->GetProgram(), 0, "in_Position");
-	glBindAttribLocation(shader->GetProgram(), 1, "colors");
+	gShader = new Shader();
+	gShader->setShaders("test.vert", "test.frag");
+	glBindFragDataLocation(gShader->GetProgram(), 0, "out_Color");
+	glBindAttribLocation(gShader->GetProgram(), 0, "in_Position");
+	glBindAttribLocation(gShader->GetProgram(), 1, "colors");
 
 	printOpenGLError();
 
-	shader->LinkShaders();
+	gShader->LinkShaders();
 
 	printOpenGLError();
 
-	GLuint attrloc = glGetAttribLocation(shader->GetProgram(), "in_Position");
+	GLuint attrloc = glGetAttribLocation(gShader->GetProgram(), "in_Position");
 
 	// create vbo
 	glGenBuffers(1, &vboID);
@@ -271,11 +277,13 @@ int main(int argc, char **argv) {
 	glEnableVertexAttribArray(0);
 	
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 3 * 2 * 6, g_cube, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 3 * 2 * 6, g_cube, GL_STATIC_DRAW);
 	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
+	//GL_MAX_ELEMENTS_VERTICES;
 	glGenBuffers(1, &colorID);
 	glBindBuffer(GL_ARRAY_BUFFER, colorID);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube_colors), g_cube_colors, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube_colors), g_cube_colors, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -296,8 +304,8 @@ int main(int argc, char **argv) {
 		delete gCamera;
 	if(gInput)
 		delete gInput;
-	if(meshAccess)
-		delete meshAccess;
+	if(gMeshAccess)
+		delete gMeshAccess;
 
 	}
 

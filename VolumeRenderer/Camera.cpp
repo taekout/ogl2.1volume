@@ -3,7 +3,7 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-Camera::Camera(void) : fEyePos(glm::vec3(4,3,3)), fViewDir(glm::vec3(0-4, 0-3, 0-3))
+Camera::Camera(const glm::vec3 & eyepos, const glm::vec3 & viewdir) : fEyePos(eyepos), fViewDir(viewdir)
 {
 	SetCamera();
 	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 100.f);

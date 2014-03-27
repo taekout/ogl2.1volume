@@ -47,6 +47,9 @@
     <None Include="litfog.frag">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="phong.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

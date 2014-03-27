@@ -39,11 +39,13 @@ int width, height;
 GLuint vertexArrayID;
 GLuint vboID;
 GLuint colorID;
+GLuint indexID;
 
 Shader *gShader = NULL;
 UserInput * gInput = NULL;
 Camera *gCamera = NULL;
 IMeshAccess *gMeshAccess = NULL;
+std::vector<unsigned int> gIndices;
 
 void UpdateRenderMat()
 {
@@ -70,6 +72,7 @@ void renderScene(void) {
 	
 	glBindVertexArray(vertexArrayID);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
+	//glDrawElements(GL_TRIANGLES, gIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 	glBindVertexArray(0);
 	glutSwapBuffers();
 
@@ -246,18 +249,25 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+#if 1
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
-	float * verts = NULL;
-	float * inds = NULL;
-	float * normals = NULL;
-	gMeshAccess->Vertices(verts, inds, normals);
 
+	std::vector<float> vertices;
+	std::vector<float> normals;
+	std::vector<float> colors;
+	gIndices.clear();
+	gMeshAccess->Vertices(vertices, gIndices, normals);
+#endif
+
+	const unsigned int kOutColorID = 0;
+	const unsigned int kInPosID= 0;
+	const unsigned int kInColorID = 0;
 	gShader = new Shader();
-	gShader->setShaders("test.vert", "test.frag");
-	glBindFragDataLocation(gShader->GetProgram(), 0, "out_Color");
-	glBindAttribLocation(gShader->GetProgram(), 0, "in_Position");
-	glBindAttribLocation(gShader->GetProgram(), 1, "colors");
+	gShader->setShaders("phong.vert", "test.frag");
+	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "out_Color");
+	glBindAttribLocation(gShader->GetProgram(), kInPosID, "in_Position");
+	//glBindAttribLocation(gShader->GetProgram(), kInColorID, "colors");
 
 	printOpenGLError();
 
@@ -265,7 +275,8 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
-	GLuint attrloc = glGetAttribLocation(gShader->GetProgram(), "in_Position");
+	GLuint posAttribLoc = glGetAttribLocation(gShader->GetProgram(), "in_Position");
+	//GLuint colorAttribLoc = glGetAttribLocation(gShader->GetProgram(), "in_Colors");
 
 	// create vbo
 	glGenBuffers(1, &vboID);
@@ -273,20 +284,44 @@ int main(int argc, char **argv) {
 	glGenVertexArrays(1, &vertexArrayID);
 	// bind vao
 	glBindVertexArray(vertexArrayID);
-	// enable 0.
-	glEnableVertexAttribArray(0);
+	// enable attrib location.
+	glEnableVertexAttribArray(posAttribLoc);
 	
+#if 1
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 3 * 2 * 6, g_cube, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	//GL_MAX_ELEMENTS_VERTICES;
+#else
+	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 3 * 2 * 6, g_cube, GL_STATIC_DRAW);
 	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//GL_MAX_ELEMENTS_VERTICES;
+#endif
+
+#if DEBUG
+	GLfloat * data = (GLfloat *)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+#endif
+	
+#if 1
+	glGenBuffers(1, &indexID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * gIndices.size(), &gIndices[0], GL_STATIC_DRAW); // XXX: I should make this short to be more performant.
+	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+#else
 	glGenBuffers(1, &colorID);
 	glBindBuffer(GL_ARRAY_BUFFER, colorID);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube_colors), g_cube_colors, GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube_colors), g_cube_colors, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer((GLuint)1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(colorAttribLoc);
+	glVertexAttribPointer((GLuint)colorAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+#endif
+
+#if DEBUG
+	GLuint * data2 = (GLuint *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
+	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+#endif
+
+
 
 
 	printOpenGLError();

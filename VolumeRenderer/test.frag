@@ -3,10 +3,10 @@
 precision highp float;
 
 in vec3 fragColor;
-out vec4 out_Color;
+out vec4 outColor;
 
 void main()
 {
-	//out_Color = vec4(0.0, 0.0, 0.0, 1.0);
-	out_Color = vec4(fragColor, 1.0);
+	//outColor = vec4(0.0, 0.0, 0.0, 1.0);
+	outColor = vec4(fragColor, 1.0);
 }

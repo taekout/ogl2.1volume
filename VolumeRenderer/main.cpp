@@ -14,6 +14,8 @@
 #include "Camera.h"
 #include "MeshAccess.h"
 
+#define MODELLOADING 0
+
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
 int printOglError(char *file, int line)
@@ -47,6 +49,8 @@ Camera *gCamera = NULL;
 IMeshAccess *gMeshAccess = NULL;
 std::vector<unsigned int> gIndices;
 
+unsigned int testindices[5000];
+
 void UpdateRenderMat()
 {
 	glm::mat4 model = gCamera->GetModel();
@@ -71,7 +75,7 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glBindVertexArray(vertexArrayID);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 72);
 	//glDrawElements(GL_TRIANGLES, gIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 	glBindVertexArray(0);
 	glutSwapBuffers();
@@ -249,7 +253,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-#if 1
+#if MODELLOADING
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
@@ -262,12 +266,12 @@ int main(int argc, char **argv) {
 
 	const unsigned int kOutColorID = 0;
 	const unsigned int kInPosID= 0;
-	const unsigned int kInColorID = 0;
+	const unsigned int kInColorID = 1;
 	gShader = new Shader();
-	gShader->setShaders("phong.vert", "test.frag");
-	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "out_Color");
-	glBindAttribLocation(gShader->GetProgram(), kInPosID, "in_Position");
-	//glBindAttribLocation(gShader->GetProgram(), kInColorID, "colors");
+	gShader->setShaders("test.vert", "test.frag");
+	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(gShader->GetProgram(), kInColorID, "inColors");
 
 	printOpenGLError();
 
@@ -275,8 +279,8 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
-	GLuint posAttribLoc = glGetAttribLocation(gShader->GetProgram(), "in_Position");
-	//GLuint colorAttribLoc = glGetAttribLocation(gShader->GetProgram(), "in_Colors");
+	GLuint posAttribLoc = glGetAttribLocation(gShader->GetProgram(), "inPositions");
+	GLuint colorAttribLoc = glGetAttribLocation(gShader->GetProgram(), "inColors");
 
 	// create vbo
 	glGenBuffers(1, &vboID);
@@ -287,15 +291,23 @@ int main(int argc, char **argv) {
 	// enable attrib location.
 	glEnableVertexAttribArray(posAttribLoc);
 	
-#if 1
+#if MODELLOADING
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
 	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	//GL_MAX_ELEMENTS_VERTICES;
 #else
 	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 3 * 3 * 2 * 6, g_cube, GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube), g_cube, GL_STATIC_DRAW);
+	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	for(size_t i = 0;  i < sizeof(g_cube) / 3 / sizeof(GLfloat) ; i++) {
+		testindices[i] = i;
+	}
+	glGenBuffers(1, &indexID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 36, testindices, GL_STATIC_DRAW); // XXX: I should make this short to be more performant.
+	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
 #endif
 
 #if DEBUG
@@ -303,7 +315,7 @@ int main(int argc, char **argv) {
 	glUnmapBuffer(GL_ARRAY_BUFFER);
 #endif
 	
-#if 1
+#if MODELLOADING
 	glGenBuffers(1, &indexID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * gIndices.size(), &gIndices[0], GL_STATIC_DRAW); // XXX: I should make this short to be more performant.
@@ -316,6 +328,7 @@ int main(int argc, char **argv) {
 	glVertexAttribPointer((GLuint)colorAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 #endif
 
+
 #if DEBUG
 	GLuint * data2 = (GLuint *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
@@ -326,9 +339,7 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
-	//GLfloat * data = (GLfloat *)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
-	//glUnmapBuffer.
-
+	
 	UpdateRenderMat();
 
 	glutMainLoop();

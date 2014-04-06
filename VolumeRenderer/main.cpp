@@ -14,7 +14,7 @@
 #include "Camera.h"
 #include "MeshAccess.h"
 
-#define MODELLOADING 0
+#define MODELLOADING 1
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
@@ -48,7 +48,7 @@ std::vector<glm::vec3> gColors;
 std::vector<unsigned short> gInds;
 
 GLuint gVertexPos;
-GLuint gColorPos;
+//GLuint gColorPos;
 GLuint gIndexBuffer;
 GLuint gVAO_ID;
 
@@ -121,7 +121,7 @@ void InitGL()
 	//glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
 
-	glm::vec3 eyepos(10,9,9);
+	glm::vec3 eyepos(50,45,45);
 	gCamera = new Camera(eyepos, glm::vec3(0) - eyepos);
 	if(!gInput) {
 		gInput = new UserInput(gCamera);
@@ -263,23 +263,20 @@ int main(int argc, char **argv) {
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
-	std::vector<float> vertices;
-	std::vector<float> normals;
-	std::vector<float> colors;
-	gIndices.clear();
-	gMeshAccess->Vertices(vertices, gIndices, normals);
-#endif
-
+	std::vector<glm::vec3> normals;
+	gMeshAccess->Vertices(gVerts, gInds, normals);
+#else
 	LoadCube();
+#endif
 
 	const unsigned int kOutColorID = 0;
 	const unsigned int kInPosID= 0;
-	const unsigned int kInColorID = 1;
+	//const unsigned int kInColorID = 1;
 	gShader = new Shader();
 	gShader->setShaders("test.vert", "test.frag");
 	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(gShader->GetProgram(), kInColorID, "inColors");
+	//glBindAttribLocation(gShader->GetProgram(), kInColorID, "inColors");
 
 	printOpenGLError();
 
@@ -299,21 +296,22 @@ int main(int argc, char **argv) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gInds.size() * sizeof(unsigned short), &gInds[0], GL_STATIC_DRAW);
 
-	GLuint colorBuffer;
+	/*GLuint colorBuffer;
 	glGenBuffers(1, &colorBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
+*/
 
 	gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
-	gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
+	//gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
 	
 	glEnableVertexAttribArray(gVertexPos);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-	glEnableVertexAttribArray(gColorPos);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	//glEnableVertexAttribArray(gColorPos);
+	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+	//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 
 	printOpenGLError();

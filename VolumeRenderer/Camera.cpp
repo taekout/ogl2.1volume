@@ -45,7 +45,7 @@ void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
 		glm::vec3(0,1,0));
 }
 
-#define MOVE_SCALE  0.1f
+#define MOVE_SCALE  1.f
 
 void Camera::Move(direction dir)
 {

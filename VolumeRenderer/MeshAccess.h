@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "tiny_obj_loader.h"
+#include <glm.hpp>
 
 
 
@@ -10,7 +11,7 @@ class IMeshAccess
 public:
 
 	virtual void LoadOBJFile(std::string & name, std::string &mtl_basepath) = 0;
-	virtual void Vertices(std::vector<float> & vertices, std::vector<unsigned int> & indices, std::vector<float> & normals) = 0;
+	virtual void Vertices(std::vector<glm::vec3> & vertices, std::vector<unsigned short> & indices, std::vector<glm::vec3> & normals) = 0;
 };
 
 class MeshAccess : public IMeshAccess
@@ -21,7 +22,7 @@ public:
 
 	void LoadOBJFile(std::string & name, std::string &mtl_basepath);
 
-	void Vertices(std::vector<float> & vertices, std::vector<unsigned int> & indices, std::vector<float> & normals);
+	void Vertices(std::vector<glm::vec3> & vertices, std::vector<unsigned short> & indices, std::vector<glm::vec3> & normals);
 
 	void Colors(size_t nColors, std::vector<float> & colors);
 

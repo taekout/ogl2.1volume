@@ -80,12 +80,6 @@ void renderScene(void) {
 	glBindVertexArray(0);
 	glutSwapBuffers();
 
-	//glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//
-	//glDisableVertexAttribArray(0);
 }
 
 void Keyboard(unsigned char key, int x, int y)
@@ -320,66 +314,6 @@ int main(int argc, char **argv) {
 	glEnableVertexAttribArray(gColorPos);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
-
-	/*GLuint posAttribLoc = glGetAttribLocation(gShader->GetProgram(), "inPositions");
-	GLuint colorAttribLoc = glGetAttribLocation(gShader->GetProgram(), "inColors");
-
-	// create vbo
-	glGenBuffers(1, &vboID);
-	// create vao
-	glGenVertexArrays(1, &vertexArrayID);
-	// bind vao
-	glBindVertexArray(vertexArrayID);
-	// enable attrib location.
-	glEnableVertexAttribArray(posAttribLoc);
-	
-#if MODELLOADING
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), &vertices[0], GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//GL_MAX_ELEMENTS_VERTICES;
-#else
-	glBindBuffer(GL_ARRAY_BUFFER, vboID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube), g_cube, GL_STATIC_DRAW);
-	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	for(size_t i = 0;  i < sizeof(g_cube) / 3 / sizeof(GLfloat) ; i++) {
-		gIndices.push_back(i);
-	}
-	glGenBuffers(1, &indexID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 36, &gIndices[0], GL_STATIC_DRAW); // XXX: I should make this short to be more performant.
-	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-#endif
-
-
-#ifdef DEBUG
-	GLfloat * data = (GLfloat *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-#endif
-	
-#if MODELLOADING
-	glGenBuffers(1, &indexID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * gIndices.size(), &gIndices[0], GL_STATIC_DRAW); // XXX: I should make this short to be more performant.
-	glVertexAttribPointer((GLuint)posAttribLoc, 3, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
-#else
-	glGenBuffers(1, &colorID);
-	glBindBuffer(GL_ARRAY_BUFFER, colorID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_cube_colors), g_cube_colors, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(colorAttribLoc);
-	glVertexAttribPointer((GLuint)colorAttribLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-#endif
-
-
-#ifdef DEBUG
-	GLuint * data2 = (GLuint *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-#endif
-*/
-
-
 
 
 	printOpenGLError();

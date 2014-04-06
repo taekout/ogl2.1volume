@@ -47,9 +47,10 @@ std::vector<glm::vec3> gVerts;
 std::vector<glm::vec3> gColors;
 std::vector<unsigned int> gInds;
 
-GLuint gVertexID;
-GLuint gColorID;
+GLuint gVertexPos;
+GLuint gColorPos;
 GLuint gIndexBuffer;
+GLuint gVAO_ID;
 
 void UpdateRenderMat()
 {
@@ -74,9 +75,9 @@ void renderScene(void) {
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+	glBindVertexArray(gVAO_ID);
 	glDrawElements(GL_TRIANGLES, gInds.size(), GL_UNSIGNED_INT, (void *) 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 	glutSwapBuffers();
 
 	//glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID);
@@ -292,6 +293,9 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
+	glGenVertexArrays(1, &gVAO_ID);
+	glBindVertexArray(gVAO_ID);
+
 	GLuint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -306,16 +310,16 @@ int main(int argc, char **argv) {
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
 
-	gVertexID = glGetAttribLocation(gShader->GetProgram(), "inPositions");
-	gColorID = glGetAttribLocation(gShader->GetProgram(), "inColors");
+	gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
+	gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
 	
-	glEnableVertexAttribArray(gVertexID);
+	glEnableVertexAttribArray(gVertexPos);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(gVertexID, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-	glEnableVertexAttribArray(gColorID);
+	glEnableVertexAttribArray(gColorPos);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glVertexAttribPointer(gColorID, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 
 	/*GLuint posAttribLoc = glGetAttribLocation(gShader->GetProgram(), "inPositions");

@@ -49,6 +49,7 @@ std::vector<unsigned int> gInds;
 
 GLuint gVertexID;
 GLuint gColorID;
+GLuint gIndexBuffer;
 
 void UpdateRenderMat()
 {
@@ -73,13 +74,9 @@ void renderScene(void) {
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	//glBindVertexArray(vertexArrayID);
-	//glBindVertexArray(indexID);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexID);
-	glBindBuffer(GL_ARRAY_BUFFER, gVertexID);
-	//glDrawArrays(GL_TRIANGLES, 0, gVerts.size());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
 	glDrawElements(GL_TRIANGLES, gInds.size(), GL_UNSIGNED_INT, (void *) 0);
-	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glutSwapBuffers();
 
 	//glBindBuffer(GL_ARRAY_BUFFER, vertexArrayID);
@@ -300,9 +297,8 @@ int main(int argc, char **argv) {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, gVerts.size() * sizeof(glm::vec3), &gVerts[0], GL_STATIC_DRAW);
 
-	GLuint indexBuffer;
-	glGenBuffers(1, &indexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+	glGenBuffers(1, &gIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gInds.size() * sizeof(glm::vec3), &gInds[0], GL_STATIC_DRAW);
 
 	GLuint colorBuffer;

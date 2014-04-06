@@ -45,7 +45,7 @@ IMeshAccess *gMeshAccess = NULL;
 
 std::vector<glm::vec3> gVerts;
 std::vector<glm::vec3> gColors;
-std::vector<unsigned int> gInds;
+std::vector<unsigned short> gInds;
 
 GLuint gVertexPos;
 GLuint gColorPos;
@@ -76,7 +76,7 @@ void renderScene(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glBindVertexArray(gVAO_ID);
-	glDrawElements(GL_TRIANGLES, gInds.size(), GL_UNSIGNED_INT, (void *) 0);
+	glDrawElements(GL_TRIANGLES, gInds.size(), GL_UNSIGNED_SHORT, (void *) 0);
 	glBindVertexArray(0);
 	glutSwapBuffers();
 
@@ -303,7 +303,7 @@ int main(int argc, char **argv) {
 
 	glGenBuffers(1, &gIndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gInds.size() * sizeof(glm::vec3), &gInds[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gInds.size() * sizeof(unsigned short), &gInds[0], GL_STATIC_DRAW);
 
 	GLuint colorBuffer;
 	glGenBuffers(1, &colorBuffer);

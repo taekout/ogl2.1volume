@@ -43,13 +43,14 @@ UserInput * gInput = NULL;
 Camera *gCamera = NULL;
 IMeshAccess *gMeshAccess = NULL;
 
-std::vector<glm::vec3> gVerts;
 std::vector<glm::vec3> gColors;
 std::vector<unsigned short> gInds;
 
 GLuint gVertexPos;
+GLuint gNormalPos;
 //GLuint gColorPos;
 GLuint gIndexBuffer;
+GLuint gNormalBuffer;
 GLuint gVAO_ID;
 
 void UpdateRenderMat()
@@ -62,9 +63,13 @@ void UpdateRenderMat()
 	GLuint viewID = glGetUniformLocation(gShader->GetProgram(), "View");
 	GLuint modelID = glGetUniformLocation(gShader->GetProgram(), "Model");
 
+	GLuint lightID = glGetUniformLocation(gShader->GetProgram(), "lightPos");
+
 	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
+
+	glUniform3f(lightID, 100.0, 100.0, 100.0);
 }
 
 
@@ -230,11 +235,11 @@ static const GLfloat g_cube_colors[] = {
 };
 
 
-void LoadCube()
+void LoadCube(std::vector<glm::vec3> & verts)
 {
 	for(size_t i = 0 ; i < sizeof(g_cube) / sizeof(float) ; i+=3) {
 		// is the index correct?
-		gVerts.push_back(glm::vec3(g_cube[i], g_cube[i+1], g_cube[i+2]));
+		verts.push_back(glm::vec3(g_cube[i], g_cube[i+1], g_cube[i+2]));
 	}
 
 	for(size_t i = 0 ; i < sizeof(g_cube_colors) / sizeof(float) ; i+=3) {
@@ -263,19 +268,23 @@ int main(int argc, char **argv) {
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
+	std::vector<glm::vec3> verts;
 	std::vector<glm::vec3> normals;
-	gMeshAccess->Vertices(gVerts, gInds, normals);
+	gMeshAccess->Vertices(verts, gInds, normals);
 #else
-	LoadCube();
+	std::vector<glm::vec3> verts;
+	LoadCube(verts);
 #endif
 
 	const unsigned int kOutColorID = 0;
 	const unsigned int kInPosID= 0;
+	const unsigned int kInNormals = 1;
 	//const unsigned int kInColorID = 1;
 	gShader = new Shader();
 	gShader->setShaders("test.vert", "test.frag");
 	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(gShader->GetProgram(), kInNormals, "inNormals");
 	//glBindAttribLocation(gShader->GetProgram(), kInColorID, "inColors");
 
 	printOpenGLError();
@@ -290,11 +299,15 @@ int main(int argc, char **argv) {
 	GLuint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, gVerts.size() * sizeof(glm::vec3), &gVerts[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(glm::vec3), &verts[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &gIndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gInds.size() * sizeof(unsigned short), &gInds[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &gNormalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, verts.size(), &normals[0], GL_STATIC_DRAW);
 
 	/*GLuint colorBuffer;
 	glGenBuffers(1, &colorBuffer);
@@ -303,11 +316,16 @@ int main(int argc, char **argv) {
 */
 
 	gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
+	gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
 	//gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
 	
 	glEnableVertexAttribArray(gVertexPos);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+	glEnableVertexAttribArray(gNormalPos);
+	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+	glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 	//glEnableVertexAttribArray(gColorPos);
 	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);

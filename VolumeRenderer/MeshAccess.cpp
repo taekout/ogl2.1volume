@@ -18,23 +18,30 @@ MeshAccess::~MeshAccess(void)
 	}
 }
 
-void MeshAccess::Vertices(std::vector<glm::vec3> & vertices, std::vector<unsigned short> & indices, std::vector<glm::vec3> & normals)
+void MeshAccess::Vertices(std::vector<Mesh> & outMeshes)
 {
 	for(size_t i = 0 ; i < fShapes.size() ; i++) {
 		tinyobj::shape_t & sp = fShapes[i];
 		tinyobj::mesh_t & mh = sp.mesh;
 
+		Mesh outM;
+
+		std::vector<glm::vec3> & verts = outM.fVertices;
 		for(size_t j = 0 ; j < mh.positions.size() ; j+=3) {
-			vertices.push_back(glm::vec3(mh.positions[j], mh.positions[j+1], mh.positions[j+2]));
+			verts.push_back(glm::vec3(mh.positions[j], mh.positions[j+1], mh.positions[j+2]));
 		}
 
+		std::vector<unsigned short> & inds = outM.fIndices;
 		for(size_t j = 0 ; j < mh.indices.size() ; j++) {
-			indices.push_back(mh.indices[j]);
+			inds.push_back(mh.indices[j]);
 		}
 
+		std::vector<glm::vec3> & norms = outM.fNormals;
 		for(size_t j = 0 ; j < mh.normals.size() ; j+=3) {
-			normals.push_back(glm::vec3(mh.normals[j], mh.normals[j+1], mh.normals[j+2]));
+			norms.push_back(glm::vec3(mh.normals[j], mh.normals[j+1], mh.normals[j+2]));
 		}
+
+		outMeshes.push_back(outM);
 	}
 }
 

@@ -5,13 +5,19 @@
 #include <glm.hpp>
 
 
+struct Mesh
+{
+	std::vector<glm::vec3> fVertices;
+	std::vector<unsigned short> fIndices;
+	std::vector<glm::vec3> fNormals;
+};
 
 class IMeshAccess
 {
 public:
 
 	virtual void LoadOBJFile(std::string & name, std::string &mtl_basepath) = 0;
-	virtual void Vertices(std::vector<glm::vec3> & vertices, std::vector<unsigned short> & indices, std::vector<glm::vec3> & normals) = 0;
+	virtual void Vertices(std::vector<Mesh> & outMeshes) = 0;
 };
 
 class MeshAccess : public IMeshAccess
@@ -22,7 +28,7 @@ public:
 
 	void LoadOBJFile(std::string & name, std::string &mtl_basepath);
 
-	void Vertices(std::vector<glm::vec3> & vertices, std::vector<unsigned short> & indices, std::vector<glm::vec3> & normals);
+	virtual void Vertices(std::vector<Mesh> & outMeshes);
 
 	void Colors(size_t nColors, std::vector<float> & colors);
 

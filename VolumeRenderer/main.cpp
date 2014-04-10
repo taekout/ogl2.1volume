@@ -44,14 +44,14 @@ Camera *gCamera = NULL;
 IMeshAccess *gMeshAccess = NULL;
 
 std::vector<glm::vec3> gColors;
-std::vector<unsigned short> gInds;
+std::vector<Mesh> gMeshes;
 
 GLuint gVertexPos;
 GLuint gNormalPos;
 //GLuint gColorPos;
 GLuint gIndexBuffer;
 GLuint gNormalBuffer;
-GLuint gVAO_ID;
+GLuint gVAO_ID[100];
 
 void UpdateRenderMat()
 {
@@ -80,9 +80,12 @@ void renderScene(void) {
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	glBindVertexArray(gVAO_ID);
-	glDrawElements(GL_TRIANGLES, gInds.size(), GL_UNSIGNED_SHORT, (void *) 0);
-	glBindVertexArray(0);
+	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
+		glBindVertexArray(gVAO_ID[i]);
+		glDrawElements(GL_TRIANGLES, gMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
+		glBindVertexArray(0);
+	}
+
 	glutSwapBuffers();
 
 }
@@ -248,7 +251,7 @@ void LoadCube(std::vector<glm::vec3> & verts)
 	}
 
 	for(size_t i = 0 ; i < sizeof(g_cube) / sizeof(float) / 3 ; i++) {
-		gInds.push_back(i);
+		//gInds.push_back(i);
 	}
 }
 
@@ -268,9 +271,7 @@ int main(int argc, char **argv) {
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
-	std::vector<glm::vec3> verts;
-	std::vector<glm::vec3> normals;
-	gMeshAccess->Vertices(verts, gInds, normals);
+	gMeshAccess->Vertices(gMeshes);
 #else
 	std::vector<glm::vec3> verts;
 	LoadCube(verts);
@@ -293,41 +294,50 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
-	glGenVertexArrays(1, &gVAO_ID);
-	glBindVertexArray(gVAO_ID);
+	if(gMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
 
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, verts.size() * sizeof(glm::vec3), &verts[0], GL_STATIC_DRAW);
+	glGenVertexArrays(gMeshes.size(), gVAO_ID);
 
-	glGenBuffers(1, &gIndexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, gInds.size() * sizeof(unsigned short), &gInds[0], GL_STATIC_DRAW);
+	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 
-	glGenBuffers(1, &gNormalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+		Mesh & mesh = gMeshes.at(i);
+		glBindVertexArray(gVAO_ID[i]);
 
-	/*GLuint colorBuffer;
-	glGenBuffers(1, &colorBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
-*/
+		GLuint vertexBuffer;
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, mesh.fVertices.size() * sizeof(glm::vec3), &mesh.fVertices[0], GL_STATIC_DRAW);
 
-	gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
-	gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
-	//gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
-	
-	glEnableVertexAttribArray(gVertexPos);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glGenBuffers(1, &gIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.fIndices.size() * sizeof(unsigned short), &mesh.fIndices[0], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(gNormalPos);
-	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
-	glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glGenBuffers(1, &gNormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, mesh.fNormals.size() * sizeof(glm::vec3), &mesh.fNormals[0], GL_STATIC_DRAW);
 
-	glBindVertexArray(0);
+		/*GLuint colorBuffer;
+		glGenBuffers(1, &colorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
+		*/
+
+		gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
+		gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
+		//gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
+
+		glEnableVertexAttribArray(gVertexPos);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		glEnableVertexAttribArray(gNormalPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+		glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+
+	}
 	//glEnableVertexAttribArray(gColorPos);
 	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);

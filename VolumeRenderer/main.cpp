@@ -307,7 +307,7 @@ int main(int argc, char **argv) {
 
 	glGenBuffers(1, &gNormalBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, verts.size(), &normals[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
 
 	/*GLuint colorBuffer;
 	glGenBuffers(1, &colorBuffer);
@@ -327,6 +327,7 @@ int main(int argc, char **argv) {
 	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
 	glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
+	glBindVertexArray(0);
 	//glEnableVertexAttribArray(gColorPos);
 	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);

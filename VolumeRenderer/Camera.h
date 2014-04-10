@@ -18,6 +18,8 @@ public:
 	enum direction {
 		left,
 		right,
+		forward,
+		backward,
 		up,
 		down
 	};

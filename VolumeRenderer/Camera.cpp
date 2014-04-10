@@ -63,14 +63,24 @@ void Camera::Move(direction dir)
 		}
 		break;
 
-	case up: {
+	case forward: {
 		fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
-	case down: {
+	case backward: {
 		fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
+		SetCamera();
+		}
+		break;
+	case up: {
+		fEyePos += glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]) * MOVE_SCALE;
+		SetCamera();
+		}
+		break;
+	case down: {
+		fEyePos += glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;

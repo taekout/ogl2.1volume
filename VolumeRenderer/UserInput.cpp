@@ -55,11 +55,23 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 		break;
 	case 's':
 	case 'S':
-		fCamera->Move(Camera::direction::down);
+		fCamera->Move(Camera::direction::backward);
 		break;
 	case 'w':
 	case 'W':
+		fCamera->Move(Camera::direction::forward);
+		break;
+	case 'e':
+	case 'E':
+	case 'q':
+	case 'Q':
 		fCamera->Move(Camera::direction::up);
+		break;
+	case 'c':
+	case 'C':
+	case 'z':
+	case 'Z':
+		fCamera->Move(Camera::direction::down);
 		break;
 	default:
 		std::cout << "unknown key " << key << std::endl;
@@ -78,10 +90,10 @@ void UserInput::Keyboard(int key, int x, int y)
 		fCamera->Move(Camera::direction::right);
 		break;
 	case GLUT_KEY_DOWN:
-		fCamera->Move(Camera::direction::down);
+		fCamera->Move(Camera::direction::backward);
 		break;
 	case GLUT_KEY_UP:
-		fCamera->Move(Camera::direction::up);
+		fCamera->Move(Camera::direction::forward);
 		break;
 	default:
 		std::cout << "unknown key " << key << std::endl;

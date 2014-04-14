@@ -150,6 +150,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshAccess.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
     <ClCompile Include="UserInput.cpp" />
   </ItemGroup>
@@ -163,6 +164,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="MeshAccess.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="UserInput.h" />
   </ItemGroup>

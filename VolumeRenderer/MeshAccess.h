@@ -10,6 +10,7 @@ struct Mesh
 	std::vector<glm::vec3> fVertices;
 	std::vector<unsigned short> fIndices;
 	std::vector<glm::vec3> fNormals;
+	std::vector<glm::vec2> fUVs;
 };
 
 class IMeshAccess

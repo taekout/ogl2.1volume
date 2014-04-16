@@ -48,10 +48,14 @@ std::vector<Mesh> gMeshes;
 
 GLuint gVertexPos;
 GLuint gNormalPos;
+GLuint gUVPos;
 //GLuint gColorPos;
 GLuint gIndexBuffer;
 GLuint gNormalBuffer;
+GLuint gUVBuffer;
 GLuint gVAO_ID[100];
+
+GLuint gTextureID;
 
 void UpdateRenderMat()
 {
@@ -255,6 +259,68 @@ void LoadCube(std::vector<glm::vec3> & verts)
 	}
 }
 
+GLuint loadBMP_custom(const char * imagepath)
+{
+	// Data read from the header of the BMP file
+	unsigned char header[54]; // Each BMP file begins by a 54-bytes header
+	unsigned int dataPos;     // Position in the file where the actual data begins
+	unsigned int width, height;
+	unsigned int imageSize;   // = width*height*3
+	// Actual RGB data
+	unsigned char * data;
+
+	// Open the file
+	FILE * file = fopen(imagepath,"rb");
+	if (!file) {
+		printf("Image could not be opened\n");
+		return 0;
+	}
+
+	if ( fread(header, 1, 54, file)!=54 ){ // If not 54 bytes read : problem
+		printf("Not a correct BMP file\n");
+		return false;
+	}
+
+	if ( header[0]!='B' || header[1]!='M' ){
+		printf("Not a correct BMP file\n");
+		return 0;
+	}
+
+	// Read ints from the byte array
+	dataPos    = *(int*)&(header[0x0A]);
+	imageSize  = *(int*)&(header[0x22]);
+	width      = *(int*)&(header[0x12]);
+	height     = *(int*)&(header[0x16]);
+
+	// Some BMP files are misformatted, guess missing information
+	if (imageSize==0)    imageSize=width*height*3; // 3 : one byte for each Red, Green and Blue component
+	if (dataPos==0)      dataPos=54; // The BMP header is done that way
+
+	// Create a buffer
+	data = new unsigned char [imageSize];
+
+	// Read the actual data from the file into the buffer
+	fread(data,1,imageSize,file);
+
+	//Everything is in memory now, the file can be closed
+	fclose(file);
+
+	// Create one OpenGL texture
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	// Give the image to OpenGL
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	return textureID;
+}
+
 int main(int argc, char **argv) {
 	try {
 
@@ -268,6 +334,8 @@ int main(int argc, char **argv) {
 	}
 
 #if MODELLOADING
+	gTextureID = loadBMP_custom("./models/L200-OBJ/truck_color.bmp");
+
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
@@ -280,12 +348,14 @@ int main(int argc, char **argv) {
 	const unsigned int kOutColorID = 0;
 	const unsigned int kInPosID= 0;
 	const unsigned int kInNormals = 1;
+	const unsigned int kInUV = 2;
 	//const unsigned int kInColorID = 1;
 	gShader = new Shader();
 	gShader->setShaders("test.vert", "test.frag");
 	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(gShader->GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(gShader->GetProgram(), kInUV, "inUV");
 	//glBindAttribLocation(gShader->GetProgram(), kInColorID, "inColors");
 
 	printOpenGLError();
@@ -316,6 +386,10 @@ int main(int argc, char **argv) {
 		glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, mesh.fNormals.size() * sizeof(glm::vec3), &mesh.fNormals[0], GL_STATIC_DRAW);
 
+		glGenBuffers(1, &gUVBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gUVBuffer);
+		glBufferData(GL_ARRAY_BUFFER, mesh.fUVs.size() * sizeof(glm::vec2), &mesh.fUVs[0], GL_STATIC_DRAW);
+
 		/*GLuint colorBuffer;
 		glGenBuffers(1, &colorBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
@@ -324,6 +398,7 @@ int main(int argc, char **argv) {
 
 		gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
 		gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
+		gUVPos = glGetAttribLocation(gShader->GetProgram(), "inUV");
 		//gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
 
 		glEnableVertexAttribArray(gVertexPos);
@@ -333,6 +408,10 @@ int main(int argc, char **argv) {
 		glEnableVertexAttribArray(gNormalPos);
 		glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
 		glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		glEnableVertexAttribArray(gUVPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gUVBuffer);
+		glVertexAttribPointer(gUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);

@@ -41,6 +41,11 @@ void MeshAccess::Vertices(std::vector<Mesh> & outMeshes)
 			norms.push_back(glm::vec3(mh.normals[j], mh.normals[j+1], mh.normals[j+2]));
 		}
 
+		std::vector<glm::vec2> & UVs = outM.fUVs;
+		for(size_t j = 0 ; j < mh.texcoords.size() ; j+=2) {
+			UVs.push_back(glm::vec2(mh.texcoords[j], mh.texcoords[j+1]));
+		}
+
 		outMeshes.push_back(outM);
 	}
 }

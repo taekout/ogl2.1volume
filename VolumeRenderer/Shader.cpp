@@ -147,7 +147,7 @@ void Shader::printShaderInfoLog(GLuint obj)
 
     if (infologLength > 0)
     {
-        infoLog = (char *)malloc(infologLength);
+        infoLog = (char *)malloc(infologLength);	
         glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
 		printf("%s\n",infoLog);
         free(infoLog);

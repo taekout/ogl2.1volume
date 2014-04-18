@@ -4,6 +4,7 @@
 #include <vector>
 #include <time.h>
 #include <stdio.h>
+#include "gtc/type_ptr.hpp"
 
 MeshAccess::MeshAccess(void)
 {
@@ -25,6 +26,29 @@ void MeshAccess::Vertices(std::vector<Mesh> & outMeshes)
 		tinyobj::mesh_t & mh = sp.mesh;
 
 		Mesh outM;
+
+		Material & mat = outM.fMat;
+
+		/*
+		std::string name;
+
+		float ambient[3];
+		float diffuse[3];
+		float specular[3];
+		float transmittance[3];
+		float emission[3];
+		float shininess;
+		float ior;                // index of refraction
+
+		std::string ambient_texname;
+		std::string diffuse_texname;
+		std::string specular_texname;
+		std::string normal_texname;
+		*/
+		tinyobj::material_t & refMat = sp.material;
+		mat = Material(refMat.name, glm::make_vec3(refMat.ambient), glm::make_vec3(refMat.diffuse), glm::make_vec3(refMat.specular),
+			glm::make_vec3(refMat.transmittance), glm::make_vec3(refMat.emission), refMat.shininess, refMat.ior,
+			refMat.ambient_texname, refMat.diffuse_texname, refMat.specular_texname, refMat.normal_texname);
 
 		std::vector<glm::vec3> & verts = outM.fVertices;
 		for(size_t j = 0 ; j < mh.positions.size() ; j+=3) {

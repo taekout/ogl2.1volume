@@ -4,6 +4,32 @@
 #include "tiny_obj_loader.h"
 #include <glm.hpp>
 
+struct Material
+{
+	Material() : fDiffuse(1.0, 1.0, 1.0), fSpecular(1.0, 1.0, 1.0), fTransmittance(1.0, 1.0, 1.0), fEmission(1.0, 1.0, 1.0), fShininess(0.0f), fIndexRefract(0.f) {}
+	
+	Material(const std::string &ID, const glm::vec3 & ambient, const glm::vec3 & diffuse, const glm::vec3 & specular, const glm::vec3 &transmit,
+			const glm::vec3 & emission, float shininess, float indexOfRefract, const std::string ambientTex, const std::string diffuseTex,
+			const std::string specularTex, const std::string normalTex)
+			: fID(ID), fAmbient(ambient), fDiffuse(diffuse), fSpecular(specular), fTransmittance(transmit), fEmission(emission),
+			fShininess(shininess), fIndexRefract(indexOfRefract), fAmbientTexName(ambientTex), fDiffuseTexName(diffuseTex), fSpecularTexName(specularTex), fNormalTexName(normalTex)
+	{
+	}
+
+	std::string fID;
+	glm::vec3 fAmbient;
+	glm::vec3 fDiffuse;
+	glm::vec3 fSpecular;
+	glm::vec3 fTransmittance;
+	glm::vec3 fEmission;
+	float fShininess;
+	float fIndexRefract;
+
+	std::string fAmbientTexName;
+	std::string fDiffuseTexName;
+	std::string fSpecularTexName;
+	std::string fNormalTexName;
+};
 
 struct Mesh
 {
@@ -11,6 +37,8 @@ struct Mesh
 	std::vector<unsigned short> fIndices;
 	std::vector<glm::vec3> fNormals;
 	std::vector<glm::vec2> fUVs;
+
+	Material fMat;
 };
 
 class IMeshAccess

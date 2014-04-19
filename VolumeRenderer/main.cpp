@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include "glut.h"
 #include <string>
+#include <functional>
 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -13,6 +14,7 @@
 #include "UserInput.h"
 #include "Camera.h"
 #include "MeshAccess.h"
+#include "Light.h"
 
 #define MODELLOADING 1
 
@@ -42,6 +44,7 @@ Shader *gShader = NULL;
 UserInput * gInput = NULL;
 Camera *gCamera = NULL;
 IMeshAccess *gMeshAccess = NULL;
+Light * gLights = NULL;
 
 std::vector<glm::vec3> gColors;
 std::vector<Mesh> gMeshes;
@@ -73,7 +76,16 @@ void UpdateRenderMat()
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
 
-	glUniform3f(lightID, 100.0, 100.0, 100.0);
+	if(gLights) {
+		std::tuple<glm::vec3, glm::vec3> & lightData = gLights->GetLight(0);
+
+		const int kLightPos = 0;
+		const int kLightIntensity = 0;
+		auto pos = std::get<kLightPos>(lightData);
+
+		glUniform3f(lightID, pos[0], pos[1], pos[2]);
+	}
+	
 }
 
 
@@ -83,12 +95,16 @@ void renderScene(void) {
 	UpdateRenderMat();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBindTexture(GL_TEXTURE_2D, gTextureID);
 	
 	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 		glBindVertexArray(gVAO_ID[i]);
 		glDrawElements(GL_TRIANGLES, gMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
 		glBindVertexArray(0);
 	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glutSwapBuffers();
 
@@ -270,7 +286,8 @@ GLuint loadBMP_custom(const char * imagepath)
 	unsigned char * data;
 
 	// Open the file
-	FILE * file = fopen(imagepath,"rb");
+	FILE * file = NULL;
+	fopen_s(&file, imagepath,"rb");
 	if (!file) {
 		printf("Image could not be opened\n");
 		return 0;
@@ -318,6 +335,8 @@ GLuint loadBMP_custom(const char * imagepath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	return textureID;
 }
 
@@ -333,13 +352,16 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
+	gLights = new Light();
+	gLights->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
+
 #if MODELLOADING
 	gTextureID = loadBMP_custom("./models/L200-OBJ/truck_color.bmp");
 
 	gMeshAccess = new MeshAccess;
 	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
-	gMeshAccess->Vertices(gMeshes);
+	gMeshAccess->GetMeshData(gMeshes);
 #else
 	std::vector<glm::vec3> verts;
 	LoadCube(verts);
@@ -371,6 +393,10 @@ int main(int argc, char **argv) {
 	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 
 		Mesh & mesh = gMeshes.at(i);
+		Material & mat = mesh.fMat;
+
+		// materials.
+
 		glBindVertexArray(gVAO_ID[i]);
 
 		GLuint vertexBuffer;

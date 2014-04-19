@@ -46,7 +46,7 @@ class IMeshAccess
 public:
 
 	virtual void LoadOBJFile(std::string & name, std::string &mtl_basepath) = 0;
-	virtual void Vertices(std::vector<Mesh> & outMeshes) = 0;
+	virtual void GetMeshData(std::vector<Mesh> & outMeshes) = 0;
 };
 
 class MeshAccess : public IMeshAccess
@@ -57,7 +57,7 @@ public:
 
 	void LoadOBJFile(std::string & name, std::string &mtl_basepath);
 
-	virtual void Vertices(std::vector<Mesh> & outMeshes);
+	virtual void GetMeshData(std::vector<Mesh> & outMeshes);
 
 	void Colors(size_t nColors, std::vector<float> & colors);
 

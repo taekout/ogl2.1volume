@@ -19,7 +19,7 @@ MeshAccess::~MeshAccess(void)
 	}
 }
 
-void MeshAccess::Vertices(std::vector<Mesh> & outMeshes)
+void MeshAccess::GetMeshData(std::vector<Mesh> & outMeshes)
 {
 	for(size_t i = 0 ; i < fShapes.size() ; i++) {
 		tinyobj::shape_t & sp = fShapes[i];

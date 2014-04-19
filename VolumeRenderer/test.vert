@@ -18,7 +18,7 @@ uniform vec3 lightPos;
 
 void main()
 {
-	fragNormal = gl_NormalMatrix * inNormals;
+	fragNormal = inNormals;
 
 	vec4 vertex = vec4(inPositions, 1.0);
 	gl_Position = vec4(Proj * View * Model * vertex);

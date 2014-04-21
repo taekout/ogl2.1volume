@@ -29,6 +29,11 @@ glm::mat4 Camera::GetView()
 	return fViewMat;
 }
 
+glm::vec3 Camera::GetEyePos()
+{
+	return fEyePos;
+}
+
 void Camera::SetCamera()
 {
 	fViewMat = glm::lookAt(

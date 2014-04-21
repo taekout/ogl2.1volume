@@ -10,11 +10,13 @@ in vec2 inUV;
 out vec3 fragNormal;
 out vec2 fragUV;
 out vec3 fragL;
+out vec3 V;
 
 uniform mat4 Proj;
 uniform mat4 View;
 uniform mat4 Model;
-uniform vec3 lightPos;
+uniform vec3 LightPos;
+uniform vec3 EyePos;
 
 void main()
 {
@@ -22,8 +24,9 @@ void main()
 
 	vec4 vertex = vec4(inPositions, 1.0);
 	gl_Position = vec4(Proj * View * Model * vertex);
+	V = normalize(EyePos - vec3(gl_Position));
 
-	fragL = normalize(lightPos - vec3(gl_Position));
+	fragL = normalize(LightPos - vec3(gl_Position));
 	fragUV = inUV;
 }
 

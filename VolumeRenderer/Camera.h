@@ -11,6 +11,7 @@ public:
 	glm::mat4 GetModel();
 	glm::mat4 GetProj();
 	glm::mat4 GetView();
+	glm::vec3 GetEyePos();
 
 	void SetCamera();
 	void SetCamera(glm::vec3 eyePos, glm::vec3 viewDir);

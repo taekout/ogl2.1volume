@@ -93,26 +93,6 @@ void UpdateRenderMat()
 }
 
 
-void renderScene(void) {
-	printOpenGLError();
-
-	UpdateRenderMat();
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glBindTexture(GL_TEXTURE_2D, gTextureID);
-	
-	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
-		glBindVertexArray(gVAO_ID[i]);
-		glDrawElements(GL_TRIANGLES, gMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
-		glBindVertexArray(0);
-	}
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glutSwapBuffers();
-
-}
 
 void Keyboard(unsigned char key, int x, int y)
 {
@@ -142,6 +122,7 @@ void MouseMotion(int x, int y)
 	glutPostRedisplay();
 }
 
+void renderScene(void);
 void InitGL()
 {
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
@@ -261,6 +242,25 @@ static const GLfloat g_cube_colors[] = {
 	0.982f,  0.099f,  0.879f
 };
 
+static const GLfloat gPlanes[] = {
+	-200.f, 0.f, -200.f, // tri1
+	200.f, 0.f, -200.f,
+	-200.f, 0.f, 200.f,
+	200.f, 0.f, 200.f,
+};
+
+static const unsigned short gPlaneInds[] = {
+	0, 1, 2,
+	2, 1, 3
+};
+
+static const GLfloat gPlaneNormals[] = {
+	0.f, 1.f, 0.f,
+	0.f, 1.f, 0.f,
+	0.f, 1.f, 0.f,
+	0.f, 1.f, 0.f,
+};
+
 
 void LoadCube(std::vector<glm::vec3> & verts)
 {
@@ -344,6 +344,31 @@ GLuint loadBMP_custom(const char * imagepath)
 	return textureID;
 }
 
+
+void renderScene(void) {
+	printOpenGLError();
+
+	UpdateRenderMat();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBindTexture(GL_TEXTURE_2D, gTextureID);
+
+	glBindVertexArray(gVAO_ID[0]);
+	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
+
+	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
+		glBindVertexArray(gVAO_ID[i + 1]);
+		glDrawElements(GL_TRIANGLES, gMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
+		glBindVertexArray(0);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glutSwapBuffers();
+
+}
+
 int main(int argc, char **argv) {
 	try {
 
@@ -392,7 +417,22 @@ int main(int argc, char **argv) {
 
 	if(gMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
 
-	glGenVertexArrays(gMeshes.size(), gVAO_ID);
+	glGenVertexArrays(gMeshes.size() + 1, gVAO_ID);
+
+	glBindVertexArray(gVAO_ID[0]);
+
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(gPlanes), gPlanes, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &gIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gPlaneInds), gPlaneInds, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &gNormalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(gPlaneNormals), gPlaneNormals, GL_STATIC_DRAW);
 
 	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 
@@ -401,7 +441,7 @@ int main(int argc, char **argv) {
 
 		// materials.
 
-		glBindVertexArray(gVAO_ID[i]);
+		glBindVertexArray(gVAO_ID[i + 1]);
 
 		GLuint vertexBuffer;
 		glGenBuffers(1, &vertexBuffer);
@@ -443,10 +483,9 @@ int main(int argc, char **argv) {
 		glBindBuffer(GL_ARRAY_BUFFER, gUVBuffer);
 		glVertexAttribPointer(gUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-
 	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 	//glEnableVertexAttribArray(gColorPos);
 	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);

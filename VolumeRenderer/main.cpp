@@ -402,7 +402,7 @@ int main(int argc, char **argv) {
 	const unsigned int kInUV = 2;
 	//const unsigned int kInColorID = 1;
 	gShader = new Shader();
-	gShader->setShaders("test.vert", "test.frag");
+	gShader->setShaders("texture.vert", "texture.frag");
 	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(gShader->GetProgram(), kInNormals, "inNormals");

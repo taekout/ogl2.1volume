@@ -366,7 +366,7 @@ void renderScene(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glutSwapBuffers();
-
+	gShader->ShaderFileChangeWatcher();
 }
 
 int main(int argc, char **argv) {
@@ -402,7 +402,7 @@ int main(int argc, char **argv) {
 	const unsigned int kInUV = 2;
 	//const unsigned int kInColorID = 1;
 	gShader = new Shader();
-	gShader->setShaders("texture.vert", "texture.frag");
+	gShader->setShaders(Shader::EShaderKind::eShaderTexture, "texture.vert", "texture.frag");
 	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(gShader->GetProgram(), kInNormals, "inNormals");

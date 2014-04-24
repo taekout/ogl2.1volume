@@ -158,8 +158,8 @@
   <ItemGroup>
     <None Include="litfog.frag" />
     <None Include="phong.vert" />
-    <None Include="test.frag" />
-    <None Include="test.vert" />
+    <None Include="texture.frag" />
+    <None Include="texture.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />

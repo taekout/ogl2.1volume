@@ -44,16 +44,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="test.vert">
-      <Filter>GLSL</Filter>
-    </None>
     <None Include="litfog.frag">
       <Filter>GLSL</Filter>
     </None>
     <None Include="phong.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="texture.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="texture.vert">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

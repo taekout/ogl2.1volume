@@ -7,7 +7,7 @@
 
 
 Shader::Shader(void)
-	: loc(0), v(0), f(0), f2(0), p(0)
+	: fShaderIndex(-1)
 {
 }
 
@@ -67,14 +67,17 @@ char * Shader::textFileRead(char  *fn) {
 
 std::string *Shader::ShaderFileRead(std::string filename, std::string shaderKind)
 {
+	//std::string vertFilename;
+	//std::string fragFilename;
+
 	std::string data = textFileRead((char *)filename.c_str());
 	std::string *final = textProcess(data);
-	if(shaderKind == "vertex shader") {
-		vertFilename = filename;
-	}
-	else if(shaderKind == "fragment shader") {
-		fragFilename = filename;
-	}
+	//if(shaderKind == "vertex shader") {
+	//	vertFilename = filename;
+	//}
+	//else if(shaderKind == "fragment shader") {
+	//	fragFilename = filename;
+	//}
 
 	// Register the shader files.
 	return final;
@@ -180,6 +183,8 @@ void Shader::printProgramInfoLog(GLuint obj)
 
 void Shader::ShaderFileChangeWatcher(void)
 {
+	ShaderData &sd = fShaderData[fShaderIndex];
+
 	static int count = 0;
 	count ++;
 	if(count != 100) {
@@ -188,19 +193,19 @@ void Shader::ShaderFileChangeWatcher(void)
 	count = 0;
 	struct _stat fileinfo;
 	// vertex shader file change detection
-	if(vertFilename.empty() == true) return;
-	if(_stat(vertFilename.c_str(), &fileinfo) != -1) {
+	if(sd.vertFilename.empty() == true) return;
+	if(_stat(sd.vertFilename.c_str(), &fileinfo) != -1) {
 		vertTimeStamp = fileinfo.st_mtime;
 		if(vertTimeStamp.IsChanged()) {
-			setShaders((char *)vertFilename.c_str(), (char *)fragFilename.c_str());
+			setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
 		}
 	}
 	// fragment shader file change detection
-	if(fragFilename.empty() == true) return;
-	if(_stat(fragFilename.c_str(), &fileinfo) != -1) {
+	if(sd.fragFilename.empty() == true) return;
+	if(_stat(sd.fragFilename.c_str(), &fileinfo) != -1) {
 		fragTimeStamp = fileinfo.st_mtime;
 		if(fragTimeStamp.IsChanged())
-			setShaders((char *)vertFilename.c_str(), (char *)fragFilename.c_str());
+			setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
 	}
 }
 
@@ -208,21 +213,28 @@ void Shader::ReloadVertShader(std::string vertShader)
 {
 }
 
-void Shader::setShaders(char *vertShader, char * fragShader) {
-	if(p != 0)
-	{
-		glDetachShader(p, v);
-		glDetachShader(p, f);
-		glDeleteShader(v);
-		glDeleteShader(f);
-		glDeleteShader(f2);
-		glDeleteProgram(p);
-		p = v = f = f2 = 0;
+void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
+
+	if(fShaderIndex != -1) {
+		ShaderData & shaderData = fShaderData[fShaderIndex];
+		if(shaderData.fProgramID != 0) {
+			glDetachShader(shaderData.fProgramID, shaderData.fVertShaderID);
+			glDetachShader(shaderData.fProgramID, shaderData.fFragShaderID);
+			glDeleteShader(shaderData.fVertShaderID);
+			glDeleteShader(shaderData.fFragShaderID);
+			glDeleteProgram(shaderData.fProgramID);
+			fShaderData.erase(fShaderData.begin() + fShaderIndex);
+		}
+
 	}
+	
+	GLuint programID = 0;
+	GLuint vertShaderID = 0;
+	GLuint fragShaderID = 0;
 	char *vs = NULL,*fs = NULL,*fs2 = NULL;
-	v = glCreateShader(GL_VERTEX_SHADER);
-	f = glCreateShader(GL_FRAGMENT_SHADER);
-	//f2 = glCreateShader(GL_FRAGMENT_SHADER);
+
+	vertShaderID = glCreateShader(GL_VERTEX_SHADER);
+	fragShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
 	std::string *vertData = ShaderFileRead(vertShader, "vertex shader");
 	vs = new char[vertData ->length() + 1];
@@ -233,28 +245,75 @@ void Shader::setShaders(char *vertShader, char * fragShader) {
 
 	const char * vv = vs;
 	const char * ff = fs;
-	glShaderSource(v, 1, &vv,NULL);
-	glShaderSource(f, 1, &ff,NULL);
+	glShaderSource(vertShaderID, 1, &vv,NULL);
+	glShaderSource(fragShaderID, 1, &ff,NULL);
 	free(vs);free(fs);
 
-	glCompileShader(v);
-	glCompileShader(f);
-	printShaderInfoLog(v);
-	printShaderInfoLog(f);
-	//printShaderInfoLog(f2);
-	p = glCreateProgram();
-	glAttachShader(p,v);
-	glAttachShader(p,f);
+	glCompileShader(vertShaderID);
+	glCompileShader(fragShaderID);
+	printShaderInfoLog(vertShaderID);
+	printShaderInfoLog(fragShaderID);
+	programID = glCreateProgram();
+	glAttachShader(programID, vertShaderID);
+	glAttachShader(programID, fragShaderID);
 
-	
+	ShaderData sd(kind, vertShaderID, fragShaderID, programID, std::string(vertShader), std::string(fragShader));
+	fShaderData.push_back(sd);
+	fShaderIndex = fShaderData.size() - 1;
+
 	delete vertData, fragData;
 }
 
 void Shader::LinkShaders()
 {
-	glLinkProgram(p);
-	printProgramInfoLog(p);
+	ShaderData & sd = fShaderData[fShaderIndex];
+	glLinkProgram(sd.fProgramID);
+	printProgramInfoLog(sd.fProgramID);
 
-	glUseProgram(p);
+	glUseProgram(sd.fProgramID);
 	printf("Use a new program.\n");
+}
+
+void Shader::UpdateUniform4fv(char *varName, float data1, float data2, float data3, float data4)
+{
+	ShaderData &sd = fShaderData[fShaderIndex];
+
+	GLint loc;
+	loc = glGetUniformLocation(sd.fProgramID, varName);
+	if(loc == -1)
+		return;
+	GLfloat dataToUpdate[4] = {data1, data2, data3, data4};
+	glUniform4fv(loc, 1, dataToUpdate);
+}
+void Shader::UpdateUniform1f(char *varName, float data)
+{
+	ShaderData &sd = fShaderData[fShaderIndex];
+
+	GLint loc;
+	loc = glGetUniformLocation(sd.fProgramID, varName);
+	if(loc == -1)
+		return;
+	glUniform1f(loc, data);
+}
+void Shader::UpdateUniform3fv(char *varName, float data1, float data2, float data3)
+{
+	ShaderData &sd = fShaderData[fShaderIndex];
+
+	GLint loc;
+	loc = glGetUniformLocation(sd.fProgramID, varName);
+	if(loc == -1)
+		return;
+	GLfloat dataToUpdate[3] = {data1, data2, data3};
+	glUniform3fv(loc, 1, dataToUpdate);
+}
+
+void Shader::UpdateUniformMat4(char *varName, float * data)
+{
+	ShaderData &sd = fShaderData[fShaderIndex];
+
+	GLint loc;
+	loc = glGetUniformLocation(sd.fProgramID, varName);
+	if(loc == -1)
+		return;
+	glUniformMatrix4fv(loc, 1, false, data);
 }

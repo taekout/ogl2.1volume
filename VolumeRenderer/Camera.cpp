@@ -61,19 +61,21 @@ void Camera::SetCamera(glm::vec3 eyePos, float horizonAngle, float verticalAngle
 
 void Camera::Print()
 {
+	return;
 	printf("Eye Pos : %f, %f, %f\n", fEyePos.x, fEyePos.y, fEyePos.z);
 	printf("Horizon Angle, Vertical Angle : %f, %f\n", fHorizonAngle, fVerticalAngle);
 }
 
 void Camera::Print(glm::vec3 eyePos, glm::vec2 angles)
 {
+	return;
 	printf("Eye Pos : %f, %f, %f\n", eyePos.x, eyePos.y, eyePos.z);
 	printf("Horizon Angle, Vertical Angle : %f, %f\n", angles.x, angles.y);
 }
 
-#define MOVE_SCALE  1.f
+#define MOVE_SCALE  0.05f
 
-void Camera::Move(direction dir)
+void Camera::Move(EDirection dir)
 {
 	switch(dir) {
 

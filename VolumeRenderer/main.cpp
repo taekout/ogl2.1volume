@@ -98,14 +98,21 @@ void Keyboard(unsigned char key, int x, int y)
 {
 	if(gInput)
 		gInput->Keyboard(key, x, y);
-	glutPostRedisplay();
+	//glutPostRedisplay();
+}
+
+void KeyboardUp(unsigned char key, int x, int y)
+{
+	if(gInput)
+		gInput->KeyboardUp(key, x, y);
+	//glutPostRedisplay();
 }
 
 void Keyboard(int key, int x, int y)
 {
 	if(gInput)
 		gInput->Keyboard(key, x, y);
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 
 void Mouse(int button, int state, int x, int y)
@@ -119,7 +126,7 @@ void MouseMotion(int x, int y)
 {
 	if(gInput)
 		gInput->MouseMotion(x, y);
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 
 void renderScene(void);
@@ -140,6 +147,7 @@ void InitGL()
 		gInput = new UserInput(gCamera);
 	}
 	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(KeyboardUp);
 	glutSpecialFunc(Keyboard);
 	glutMouseFunc(Mouse);
 	glutMotionFunc(MouseMotion);
@@ -344,10 +352,39 @@ GLuint loadBMP_custom(const char * imagepath)
 	return textureID;
 }
 
+void ActivateMoveIfKeyPressed()
+{
+	if(gInput->IsLeftPressed()) {
+		gInput->Move(EDirection::left);
+	}
+
+	if(gInput->IsRightPressed()) {
+		gInput->Move(EDirection::right);
+	}
+
+	if(gInput->IsUpPressed()) {
+		gInput->Move(EDirection::up);
+	}
+
+	if(gInput->IsDownPressed()) {
+		gInput->Move(EDirection::down);
+	}
+
+	if(gInput->IsBackPressed()) {
+		gInput->Move(EDirection::backward);
+	}
+
+	if(gInput->IsForewardPressed()) {
+		gInput->Move(EDirection::forward);
+	}
+}
+
 
 void renderScene(void) {
 	printOpenGLError();
 
+	ActivateMoveIfKeyPressed();
+	
 	UpdateRenderMat();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -366,7 +403,8 @@ void renderScene(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glutSwapBuffers();
-	gShader->ShaderFileChangeWatcher();
+	glutPostRedisplay();
+	//gShader->ShaderFileChangeWatcher();
 }
 
 int main(int argc, char **argv) {

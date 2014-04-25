@@ -1,8 +1,9 @@
+#include "Defs.h"
 #include "UserInput.h"
 #include "glut.h"
 #include "Camera.h"
 
-UserInput::UserInput(Camera * curCamera)
+UserInput::UserInput(Camera * curCamera) : fbUpPressed(false), fbDownPressed(false), fbRightPressed(false), fbLeftPressed(false), fbBackPressed(false), fbForePressed(false)
 {
 	fMouseHistory = new MouseHistory;
 	fCamera = curCamera;
@@ -14,6 +15,11 @@ UserInput::~UserInput(void)
 {
 	if(fMouseHistory)
 		delete fMouseHistory;
+}
+
+void UserInput::Move(EDirection dir)
+{
+	fCamera->Move(dir);
 }
 
 void UserInput::Mouse(int button, int state, int x, int y)
@@ -47,31 +53,37 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'a':
 	case 'A':
-		fCamera->Move(Camera::direction::left);
+		fCamera->Move(EDirection::left);
+		fbLeftPressed = true;
 		break;
 	case 'd':
 	case 'D':
-		fCamera->Move(Camera::direction::right);
+		fCamera->Move(EDirection::right);
+		fbRightPressed = true;
 		break;
 	case 's':
 	case 'S':
-		fCamera->Move(Camera::direction::backward);
+		fCamera->Move(EDirection::backward);
+		fbBackPressed = true;
 		break;
 	case 'w':
 	case 'W':
-		fCamera->Move(Camera::direction::forward);
+		fCamera->Move(EDirection::forward);
+		fbForePressed = true;
 		break;
 	case 'e':
 	case 'E':
 	case 'q':
 	case 'Q':
-		fCamera->Move(Camera::direction::up);
+		fCamera->Move(EDirection::up);
+		fbUpPressed = true;
 		break;
 	case 'c':
 	case 'C':
 	case 'z':
 	case 'Z':
-		fCamera->Move(Camera::direction::down);
+		fCamera->Move(EDirection::down);
+		fbDownPressed = true;
 		break;
 	case 'r':
 	case 'R':
@@ -83,21 +95,58 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 	}
 }
 
+void UserInput::KeyboardUp(unsigned char key, int x, int y)
+{
+	switch(key) 
+	{
+	case 'a':
+	case 'A':
+		fbLeftPressed = false;
+		break;
+	case 'd':
+	case 'D':
+		fbRightPressed = false;
+		break;
+	case 's':
+	case 'S':
+		fbBackPressed = false;
+		break;
+	case 'w':
+	case 'W':
+		fbForePressed = false;
+		break;
+	case 'e':
+	case 'E':
+	case 'q':
+	case 'Q':
+		fbUpPressed = false;
+		break;
+	case 'c':
+	case 'C':
+	case 'z':
+	case 'Z':
+		fbDownPressed = false;
+		break;
+	default:
+		break;
+	}
+}
+
 void UserInput::Keyboard(int key, int x, int y)
 {
 	switch(key) 
 	{
 	case GLUT_KEY_LEFT:
-		fCamera->Move(Camera::direction::left);
+		fCamera->Move(EDirection::left);
 		break;
 	case GLUT_KEY_RIGHT:
-		fCamera->Move(Camera::direction::right);
+		fCamera->Move(EDirection::right);
 		break;
 	case GLUT_KEY_DOWN:
-		fCamera->Move(Camera::direction::backward);
+		fCamera->Move(EDirection::backward);
 		break;
 	case GLUT_KEY_UP:
-		fCamera->Move(Camera::direction::forward);
+		fCamera->Move(EDirection::forward);
 		break;
 	default:
 		std::cout << "unknown key " << key << std::endl;

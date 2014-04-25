@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm.hpp>
+#include "Defs.h"
 
 class Camera
 {
@@ -19,15 +20,7 @@ public:
 	void Print();
 	void Print(glm::vec3 eyePos, glm::vec2 angles);
 
-	enum direction {
-		left,
-		right,
-		forward,
-		backward,
-		up,
-		down
-	};
-	void Move(direction dir);
+	void Move(EDirection dir);
 	void Rotate(const glm::vec2 & degree);
 
 protected:

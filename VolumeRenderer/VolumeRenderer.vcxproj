@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Defs.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="MeshAccess.h" />
     <ClInclude Include="Shader.h" />

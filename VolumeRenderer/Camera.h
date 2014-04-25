@@ -5,7 +5,7 @@
 class Camera
 {
 public:
-	Camera(const glm::vec3 & eyepos, const glm::vec3 & viewdir);
+	Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
 	~Camera(void);
 
 	glm::mat4 GetModel();
@@ -14,7 +14,10 @@ public:
 	glm::vec3 GetEyePos();
 
 	void SetCamera();
-	void SetCamera(glm::vec3 eyePos, glm::vec3 viewDir);
+	void SetCamera(glm::vec3 eyePos, float horizonAngle, float VerticalAngle);
+
+	void Print();
+	void Print(glm::vec3 eyePos, glm::vec2 angles);
 
 	enum direction {
 		left,
@@ -31,7 +34,8 @@ protected:
 
 	// camera position
 	glm::vec3 fEyePos;
-	glm::vec3 fViewDir;
+	float fHorizonAngle;
+	float fVerticalAngle;
 
 	// transformation matrices
 	glm::mat4 fViewMat;

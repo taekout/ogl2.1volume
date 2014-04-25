@@ -73,6 +73,10 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 	case 'Z':
 		fCamera->Move(Camera::direction::down);
 		break;
+	case 'r':
+	case 'R':
+		fCamera->SetCamera(glm::vec3(66.5f, 30.0f, 0.0f), -3.141592 / 2, 0);
+		break;
 	default:
 		std::cout << "unknown key " << key << std::endl;
 		break;

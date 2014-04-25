@@ -3,8 +3,10 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-Camera::Camera(const glm::vec3 & eyepos, const glm::vec3 & viewdir) : fEyePos(eyepos), fViewDir(viewdir)
+Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle) : fEyePos(eyepos)
 {
+	fHorizonAngle = horizonAngle;
+	fVerticalAngle = verticalAngle;
 	SetCamera();
 	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 100.f);
 }
@@ -36,18 +38,37 @@ glm::vec3 Camera::GetEyePos()
 
 void Camera::SetCamera()
 {
+	Print();
+	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
 	fViewMat = glm::lookAt(
 						fEyePos,
-						fEyePos + fViewDir,
+						fEyePos + viewDir,
 						glm::vec3(0,1,0));
 }
 
-void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
+void Camera::SetCamera(glm::vec3 eyePos, float horizonAngle, float verticalAngle)
 {
+	fEyePos = eyePos;
+	fHorizonAngle = horizonAngle;
+	fVerticalAngle = verticalAngle;
+	Print();
+	glm::vec3 viewDir(cos(verticalAngle) * sin(horizonAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizonAngle));
 	fViewMat = glm::lookAt(
 		eyePos,
 		eyePos + viewDir,
 		glm::vec3(0,1,0));
+}
+
+void Camera::Print()
+{
+	printf("Eye Pos : %f, %f, %f\n", fEyePos.x, fEyePos.y, fEyePos.z);
+	printf("Horizon Angle, Vertical Angle : %f, %f\n", fHorizonAngle, fVerticalAngle);
+}
+
+void Camera::Print(glm::vec3 eyePos, glm::vec2 angles)
+{
+	printf("Eye Pos : %f, %f, %f\n", eyePos.x, eyePos.y, eyePos.z);
+	printf("Horizon Angle, Vertical Angle : %f, %f\n", angles.x, angles.y);
 }
 
 #define MOVE_SCALE  1.f
@@ -96,10 +117,11 @@ void Camera::Move(direction dir)
 // Rotate view based on quaternion.
 void Camera::Rotate(const glm::vec2 & degree)
 {
-	glm::mat4 rotm(1.0f);
-	rotm = glm::rotate(rotm, degree.x * 0.1f, glm::vec3(0.0, 1.0, 0.0));
-	rotm = glm::rotate(rotm, degree.y * 0.1f, glm::vec3(0.0, 0.0, 1.0));
-	fViewDir = glm::mat3(rotm) * fViewDir;
+	const float mouseSpeed = 0.005f;
+	fVerticalAngle = fVerticalAngle + degree.y * mouseSpeed;
+	fHorizonAngle = fHorizonAngle + degree.x * mouseSpeed;
+	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
+	//viewDir = glm::mat3(rotm) * viewDir;
 	SetCamera();
 }
 

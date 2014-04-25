@@ -134,8 +134,8 @@ void InitGL()
 	//glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
 
-	glm::vec3 eyepos(50,45,45);
-	gCamera = new Camera(eyepos, glm::vec3(0) - eyepos);
+	glm::vec3 eyepos(66.5f, 30.0f, 0.0f);
+	gCamera = new Camera(eyepos, -3.141592 / 2, 0);
 	if(!gInput) {
 		gInput = new UserInput(gCamera);
 	}

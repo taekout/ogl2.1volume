@@ -26,7 +26,10 @@ public:
 	}
 	bool IsChanged()
 	{
+		return false;
+#if 0
 		return prevShaderFileTimeStamp != shaderFileTimeStamp;
+#endif
 	}
 
 	ShaderFileTimeStampDiff & operator = (__time64_t newTimeStamp)

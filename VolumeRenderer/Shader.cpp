@@ -185,12 +185,6 @@ void Shader::ShaderFileChangeWatcher(void)
 {
 	ShaderData &sd = fShaderData[fShaderIndex];
 
-	static int count = 0;
-	count ++;
-	if(count != 100) {
-		return;
-	}
-	count = 0;
 	struct _stat fileinfo;
 	// vertex shader file change detection
 	if(sd.vertFilename.empty() == true) return;

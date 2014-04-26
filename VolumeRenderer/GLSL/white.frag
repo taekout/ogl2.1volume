@@ -10,6 +10,6 @@ out vec4 outColor;
 void main()
 {
 	//float cosTheta = clamp( dot(fragNormal, fragL), 0.f, 1.f );
-	outColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+	outColor = vec4( clamp( dot(fragNormal, fragL), 0.f, 1.f ) );
 }
 

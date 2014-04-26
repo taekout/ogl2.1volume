@@ -47,19 +47,23 @@ void UpdateRenderMat()
 	glm::mat4 model = gCamera->GetModel();
 	glm::mat4 view = gCamera->GetView();
 	glm::mat4 proj = gCamera->GetProj();
+	glm::mat4 normalMat = glm::transpose(glm::inverse(view));
 
 	glm::vec3 eyePos = gCamera->GetEyePos();
 
 	GLuint projID = glGetUniformLocation(gShader->GetProgram(), "Proj");
 	GLuint viewID = glGetUniformLocation(gShader->GetProgram(), "View");
 	GLuint modelID = glGetUniformLocation(gShader->GetProgram(), "Model");
+	GLuint normalMatID = glGetUniformLocation(gShader->GetProgram(), "NormalMat");
 	GLuint eyePosID = glGetUniformLocation(gShader->GetProgram(), "EyePos");
+	
 
 	GLuint lightID = glGetUniformLocation(gShader->GetProgram(), "LightPos");
 
 	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(normalMatID, 1, GL_FALSE, &normalMat[0][0]);
 	glUniform3fv(eyePosID, 1, &eyePos[0]);
 
 	if(gLights) {

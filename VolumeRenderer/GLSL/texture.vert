@@ -17,20 +17,22 @@ out vec3 V;
 uniform mat4 Proj;
 uniform mat4 View;
 uniform mat4 Model;
+uniform mat4 NormalMat;
 uniform vec3 LightPos;
 uniform vec3 EyePos;
 
 void main()
 {
-	fragNormal = inNormals;
+	fragNormal = (NormalMat * vec4(inNormals, 0.0)).xyz;
 
-	vec4 vertex = vec4(inPositions, 1.0);
-	gl_Position = vec4(Proj * View * Model * vertex);
+	vec4 vertexInEye = vec4(View * Model * vec4(inPositions, 1.0f));
 #ifdef Blinn
 	V = normalize(EyePos - vec3(gl_Position));
 #endif
 
-	fragL = normalize(LightPos - vec3(gl_Position));
+	fragL = normalize(LightPos - vertexInEye.xyz);
 	fragUV = inUV;
+
+	gl_Position = Proj * vertexInEye;
 }
 

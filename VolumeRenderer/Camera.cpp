@@ -8,7 +8,7 @@ Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle
 	fHorizonAngle = horizonAngle;
 	fVerticalAngle = verticalAngle;
 	SetCamera();
-	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 100.f);
+	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 500.f);
 }
 
 

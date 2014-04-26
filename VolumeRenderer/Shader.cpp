@@ -26,7 +26,7 @@ Shader::Shader(void)
 	printOpenGLError();
 
 	LinkShaders();
-	glUseProgram(0);
+	UseProgram(eShaderNothing);
 	//EShaderKind::eShaderTexture
 	
 	
@@ -35,11 +35,11 @@ Shader::Shader(void)
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
 	glBindAttribLocation(GetProgram(), kInUV, "inUV");
-
+	
 	printOpenGLError();
-
+	
 	LinkShaders();
-	glUseProgram(0);
+	UseProgram(eShaderNothing);
 }
 
 
@@ -239,11 +239,11 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
 	if(fShaderIndex != -1) {
 		ShaderData & shaderData = fShaderData[fShaderIndex];
 		if(shaderData.fProgramID != 0) {
-			glDetachShader(shaderData.fProgramID, shaderData.fVertShaderID);
-			glDetachShader(shaderData.fProgramID, shaderData.fFragShaderID);
-			glDeleteShader(shaderData.fVertShaderID);
-			glDeleteShader(shaderData.fFragShaderID);
-			glDeleteProgram(shaderData.fProgramID);
+			//glDetachShader(shaderData.fProgramID, shaderData.fVertShaderID);
+			//glDetachShader(shaderData.fProgramID, shaderData.fFragShaderID);
+			//glDeleteShader(shaderData.fVertShaderID);
+			//glDeleteShader(shaderData.fFragShaderID);
+			//glDeleteProgram(shaderData.fProgramID);
 		}
 
 	}
@@ -290,12 +290,17 @@ void Shader::LinkShaders()
 	glLinkProgram(sd.fProgramID);
 	printProgramInfoLog(sd.fProgramID);
 
-	glUseProgram(sd.fProgramID);
-	printf("Use a new program.\n");
+	//glUseProgram(sd.fProgramID);
+	//printf("Use a new program.\n");
 }
 
 void Shader::UseProgram(EShaderKind kind)
 {
+	if(kind == eShaderNothing) {
+		glUseProgram(0);
+		return;
+	}
+	
 	fShaderIndex = kind;
 	glUseProgram(fShaderData[fShaderIndex].fProgramID);
 }

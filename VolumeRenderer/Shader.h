@@ -52,6 +52,7 @@ protected:
 public:
 
 	enum EShaderKind {
+		eShaderNothing = -1,
 		eShaderBasic = 0,
 		eShaderTexture,
 		eMaxShader

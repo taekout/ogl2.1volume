@@ -367,19 +367,19 @@ void renderScene(void) {
 
 	ActivateMoveIfKeyPressed();
 	
-	UpdateRenderMat();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	gShader->UseProgram(Shader::EShaderKind::eShaderBasic);
+	UpdateRenderMat();
 	glBindVertexArray(gVAO_ID[0]);
 	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
 
 	gShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+	UpdateRenderMat();
 	glBindTexture(GL_TEXTURE_2D, gTextureID);
-
+	
 	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 		glBindVertexArray(gVAO_ID[i + 1]);
 		glDrawElements(GL_TRIANGLES, gMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
@@ -445,6 +445,18 @@ int main(int argc, char **argv) {
 	glGenBuffers(1, &gNormalBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gPlaneNormals), gPlaneNormals, GL_STATIC_DRAW);
+
+	gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
+	gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
+
+	glEnableVertexAttribArray(gVertexPos);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+	glEnableVertexAttribArray(gNormalPos);
+	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+	glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glBindVertexArray(0);
 
 	gShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	printOpenGLError();

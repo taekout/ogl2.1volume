@@ -388,6 +388,7 @@ void renderScene(void) {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
+	gShader->UseProgram(Shader::eShaderNothing);
 
 	glutSwapBuffers();
 	glutPostRedisplay();

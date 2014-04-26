@@ -53,7 +53,8 @@ public:
 
 	enum EShaderKind {
 		eShaderBasic = 0,
-		eShaderTexture
+		eShaderTexture,
+		eMaxShader
 	};
 
 	struct ShaderData {
@@ -75,10 +76,12 @@ public:
 
 	virtual void setShaders(EShaderKind kind, char * vertShader, char *fragShader);
 	virtual void LinkShaders();
+
+	virtual void UseProgram(EShaderKind kind);
+
 	int textFileWrite(char *fn, char *s);
 	std::string *ShaderFileRead(std::string filename, std::string shaderKind);
 	void ShaderFileChangeWatcher(void);
-	void ReloadVertShader(std::string vertShader);
 	// Get Functions
 	GLuint GetProgram(void) { return (fShaderIndex != -1) ? fShaderData[fShaderIndex].fProgramID : 0; }
 	// Log Functions

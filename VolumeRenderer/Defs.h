@@ -8,3 +8,7 @@ enum EDirection {
 	up,
 	down
 };
+
+#define printOpenGLError() printOglError(__FILE__, __LINE__)
+
+int printOglError(char *file, int line);

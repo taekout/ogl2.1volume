@@ -120,7 +120,7 @@ void Camera::Move(EDirection dir)
 void Camera::Rotate(const glm::vec2 & degree)
 {
 	const float mouseSpeed = 0.005f;
-	fVerticalAngle = fVerticalAngle + degree.y * mouseSpeed;
+	fVerticalAngle = fVerticalAngle - degree.y * mouseSpeed;
 	fHorizonAngle = fHorizonAngle + degree.x * mouseSpeed;
 	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
 	//viewDir = glm::mat3(rotm) * viewDir;

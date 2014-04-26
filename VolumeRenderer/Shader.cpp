@@ -4,11 +4,42 @@
 #include <string.h>
 #include <fstream>
 #include <sstream>
+#include "Defs.h"
 
 
 Shader::Shader(void)
 	: fShaderIndex(-1)
 {
+	//EShaderKind::eShaderBasic
+	const unsigned int kOutColorID = 0;
+	const unsigned int kInPosID= 0;
+	const unsigned int kInNormals = 1;
+	const unsigned int kInUV = 2;
+
+	setShaders(Shader::EShaderKind::eShaderBasic, "./GLSL/white.vert", "./GLSL/white.frag");
+
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+
+	printOpenGLError();
+
+	LinkShaders();
+	glUseProgram(0);
+	//EShaderKind::eShaderTexture
+	
+	
+	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+
+	printOpenGLError();
+
+	LinkShaders();
+	glUseProgram(0);
 }
 
 
@@ -191,7 +222,7 @@ void Shader::ShaderFileChangeWatcher(void)
 	if(_stat(sd.vertFilename.c_str(), &fileinfo) != -1) {
 		vertTimeStamp = fileinfo.st_mtime;
 		if(vertTimeStamp.IsChanged()) {
-			setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
+			;//setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
 		}
 	}
 	// fragment shader file change detection
@@ -199,12 +230,8 @@ void Shader::ShaderFileChangeWatcher(void)
 	if(_stat(sd.fragFilename.c_str(), &fileinfo) != -1) {
 		fragTimeStamp = fileinfo.st_mtime;
 		if(fragTimeStamp.IsChanged())
-			setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
+			;//setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
 	}
-}
-
-void Shader::ReloadVertShader(std::string vertShader)
-{
 }
 
 void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
@@ -217,7 +244,6 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
 			glDeleteShader(shaderData.fVertShaderID);
 			glDeleteShader(shaderData.fFragShaderID);
 			glDeleteProgram(shaderData.fProgramID);
-			fShaderData.erase(fShaderData.begin() + fShaderIndex);
 		}
 
 	}
@@ -266,6 +292,12 @@ void Shader::LinkShaders()
 
 	glUseProgram(sd.fProgramID);
 	printf("Use a new program.\n");
+}
+
+void Shader::UseProgram(EShaderKind kind)
+{
+	fShaderIndex = kind;
+	glUseProgram(fShaderData[fShaderIndex].fProgramID);
 }
 
 void Shader::UpdateUniform4fv(char *varName, float data1, float data2, float data3, float data4)

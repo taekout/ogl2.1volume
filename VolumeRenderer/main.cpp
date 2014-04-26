@@ -18,25 +18,7 @@
 
 #define MODELLOADING 1
 
-#define printOpenGLError() printOglError(__FILE__, __LINE__)
 
-int printOglError(char *file, int line)
-{
-	//
-	// Returns 1 if an OpenGL error occurred, 0 otherwise.
-	//
-	GLenum glErr;
-	int    retCode = 0;
-
-	glErr = glGetError();
-	while (glErr != GL_NO_ERROR)
-	{
-		printf("glError in file %s @ line %d: %s\n", file, line, gluErrorString(glErr));
-		retCode = 1;
-		glErr = glGetError();
-	}
-	return retCode;
-}
 
 int width, height;
 
@@ -389,10 +371,14 @@ void renderScene(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindTexture(GL_TEXTURE_2D, gTextureID);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
+	gShader->UseProgram(Shader::EShaderKind::eShaderBasic);
 	glBindVertexArray(gVAO_ID[0]);
 	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
+
+	gShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+	glBindTexture(GL_TEXTURE_2D, gTextureID);
 
 	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 		glBindVertexArray(gVAO_ID[i + 1]);
@@ -401,6 +387,7 @@ void renderScene(void) {
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -434,28 +421,15 @@ int main(int argc, char **argv) {
 	LoadCube(verts);
 #endif
 
-	const unsigned int kOutColorID = 0;
-	const unsigned int kInPosID= 0;
-	const unsigned int kInNormals = 1;
-	const unsigned int kInUV = 2;
-	//const unsigned int kInColorID = 1;
-	gShader = new Shader();
-	gShader->setShaders(Shader::EShaderKind::eShaderTexture, "texture.vert", "texture.frag");
-	glBindFragDataLocation(gShader->GetProgram(), kOutColorID, "outColor");
-	glBindAttribLocation(gShader->GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(gShader->GetProgram(), kInNormals, "inNormals");
-	glBindAttribLocation(gShader->GetProgram(), kInUV, "inUV");
-	//glBindAttribLocation(gShader->GetProgram(), kInColorID, "inColors");
-
-	printOpenGLError();
-
-	gShader->LinkShaders();
-
+	gShader = new Shader();	
 	printOpenGLError();
 
 	if(gMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
 
 	glGenVertexArrays(gMeshes.size() + 1, gVAO_ID);
+
+	gShader->UseProgram(Shader::EShaderKind::eShaderBasic);
+	printOpenGLError();
 
 	glBindVertexArray(gVAO_ID[0]);
 
@@ -471,6 +445,9 @@ int main(int argc, char **argv) {
 	glGenBuffers(1, &gNormalBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gPlaneNormals), gPlaneNormals, GL_STATIC_DRAW);
+
+	gShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+	printOpenGLError();
 
 	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
 

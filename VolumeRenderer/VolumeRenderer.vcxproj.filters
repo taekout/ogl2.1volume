@@ -42,20 +42,9 @@
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="litfog.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="phong.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="texture.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="texture.vert">
-      <Filter>GLSL</Filter>
-    </None>
+    <ClCompile Include="Defs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -82,5 +71,25 @@
     <ClInclude Include="Defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GLSL\litfog.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\phong.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\texture.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\texture.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\white.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\white.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

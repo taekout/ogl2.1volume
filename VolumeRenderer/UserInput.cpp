@@ -5,6 +5,9 @@
 
 UserInput::UserInput(Camera * curCamera) : fbUpPressed(false), fbDownPressed(false), fbRightPressed(false), fbLeftPressed(false), fbBackPressed(false), fbForePressed(false)
 {
+	if( !curCamera )
+		throw "Camera is not initialized when user input is created.";
+
 	fMouseHistory = new MouseHistory;
 	fCamera = curCamera;
 	fButtonPressed = -1;

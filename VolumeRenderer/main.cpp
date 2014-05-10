@@ -95,41 +95,6 @@ void MouseMotion(int x, int y)
 	//glutPostRedisplay();
 }
 
-void renderScene(void);
-void InitGL()
-{
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(100,100);
-	glutInitWindowSize(320,320);
-	glutCreateWindow("Volume Raycasting 3D");
-
-	glutDisplayFunc(renderScene);
-	//glutIdleFunc(renderScene);
-	//glutReshapeFunc(changeSize);
-
-	glm::vec3 eyepos(66.5f, 30.0f, 0.0f);
-	gDC.fCamera = new Camera(eyepos, -3.141592 / 2, 0);
-	if(!gDC.fInput) {
-		gDC.fInput = new UserInput(gDC.fCamera);
-	}
-	glutKeyboardFunc(Keyboard);
-	glutKeyboardUpFunc(KeyboardUp);
-	glutSpecialFunc(Keyboard);
-	glutMouseFunc(Mouse);
-	glutMotionFunc(MouseMotion);
-	glewInit();
-
-	//glDisable(GL_CULL_FACE);
-	//glCullFace(GL_FRONT);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	//glEnable(GL_TEXTURE_3D);
-	//glEnable(GL_TEXTURE_2D);
-
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	
-}
 
 void EndGL() 
 {
@@ -379,6 +344,41 @@ void renderScene(void) {
 	//gDC.gShader->ShaderFileChangeWatcher();
 }
 
+void InitGL()
+{
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+	glutInitWindowPosition(100,100);
+	glutInitWindowSize(320,320);
+	glutCreateWindow("Volume Raycasting 3D");
+
+	glutDisplayFunc(renderScene);
+	//glutIdleFunc(renderScene);
+	//glutReshapeFunc(changeSize);
+
+	glm::vec3 eyepos(66.5f, 30.0f, 0.0f);
+	gDC.SetCamera(eyepos, -3.141592 / 2, 0);
+	gDC.AllocateInput();
+
+	glutKeyboardFunc(Keyboard);
+	glutKeyboardUpFunc(KeyboardUp);
+	glutSpecialFunc(Keyboard);
+	glutMouseFunc(Mouse);
+	glutMotionFunc(MouseMotion);
+	glewInit();
+
+	//glDisable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	//glEnable(GL_TEXTURE_3D);
+	//glEnable(GL_TEXTURE_2D);
+
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+
+}
+
+
 int main(int argc, char **argv) {
 	try {
 
@@ -391,8 +391,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	gDC.fLights = new Light();
-	gDC.fLights->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
+	gDC.AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 #if MODELLOADING
 	gDC.fTextureID = loadBMP_custom("./models/L200-OBJ/truck_color.bmp");

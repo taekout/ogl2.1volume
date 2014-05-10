@@ -19,6 +19,33 @@ public:
 	GraphicsEngine(void);
 	virtual ~GraphicsEngine(void);
 
+	void AllocateShader() {
+		fShader = new Shader();
+	}
+
+	void AllocateInput() {
+		if(!fInput) {
+			if(fCamera)
+				fInput = new UserInput(fCamera);
+			else
+				throw "Camera is NULL and trying to initialize user input object.";
+		}
+	}
+
+	void SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle) {
+		if(fCamera)
+			delete fCamera;
+		fCamera = new Camera(eyepos, horizonAngle, verticalAngle);
+	}
+
+	void AllocateMeshAccess() {
+	}
+
+	void AddLight(glm::vec3 & pos, glm::vec3 intensity) {
+		fLights = new Light();
+		fLights->AddLight(pos, intensity);
+	}
+
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
@@ -38,9 +65,7 @@ public:
 
 	GLuint fTextureID;
 
-	void AllocateShader() {
-		fShader = new Shader();
-	}
+	
 
 };
 

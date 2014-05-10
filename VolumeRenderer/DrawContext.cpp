@@ -12,6 +12,7 @@ GraphicsEngine::GraphicsEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), f
 	fori(fVAO_ID, 100) {
 		fVAO_ID[i] = -1;
 	}
+
 }
 
 

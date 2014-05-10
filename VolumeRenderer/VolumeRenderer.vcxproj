@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Defs.cpp" />
+    <ClCompile Include="DrawContext.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshAccess.cpp" />
@@ -159,6 +160,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Defs.h" />
+    <ClInclude Include="DrawContext.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="MeshAccess.h" />
     <ClInclude Include="Shader.h" />

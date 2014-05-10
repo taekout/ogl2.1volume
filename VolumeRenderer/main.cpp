@@ -16,49 +16,29 @@
 #include "MeshAccess.h"
 #include "Light.h"
 
+#include "DrawContext.h"
+
 #define MODELLOADING 1
 
-
-
-int width, height;
-
-Shader *gShader = NULL;
-UserInput * gInput = NULL;
-Camera *gCamera = NULL;
-IMeshAccess *gMeshAccess = NULL;
-Light * gLights = NULL;
-
-std::vector<glm::vec3> gColors;
-std::vector<Mesh> gMeshes;
-
-GLuint gVertexPos;
-GLuint gNormalPos;
-GLuint gUVPos;
-//GLuint gColorPos;
-GLuint gIndexBuffer;
-GLuint gNormalBuffer;
-GLuint gUVBuffer;
-GLuint gVAO_ID[100];
-
-GLuint gTextureID;
+GraphicsEngine gDC;
 
 void UpdateRenderMat()
 {
-	glm::mat4 model = gCamera->GetModel();
-	glm::mat4 view = gCamera->GetView();
-	glm::mat4 proj = gCamera->GetProj();
+	glm::mat4 model = gDC.fCamera->GetModel();
+	glm::mat4 view = gDC.fCamera->GetView();
+	glm::mat4 proj = gDC.fCamera->GetProj();
 	glm::mat4 normalMat = glm::transpose(glm::inverse(view));
 
-	glm::vec3 eyePos = gCamera->GetEyePos();
+	glm::vec3 eyePos = gDC.fCamera->GetEyePos();
 
-	GLuint projID = glGetUniformLocation(gShader->GetProgram(), "Proj");
-	GLuint viewID = glGetUniformLocation(gShader->GetProgram(), "View");
-	GLuint modelID = glGetUniformLocation(gShader->GetProgram(), "Model");
-	GLuint normalMatID = glGetUniformLocation(gShader->GetProgram(), "NormalMat");
-	GLuint eyePosID = glGetUniformLocation(gShader->GetProgram(), "EyePos");
+	GLuint projID = glGetUniformLocation(gDC.fShader->GetProgram(), "Proj");
+	GLuint viewID = glGetUniformLocation(gDC.fShader->GetProgram(), "View");
+	GLuint modelID = glGetUniformLocation(gDC.fShader->GetProgram(), "Model");
+	GLuint normalMatID = glGetUniformLocation(gDC.fShader->GetProgram(), "NormalMat");
+	GLuint eyePosID = glGetUniformLocation(gDC.fShader->GetProgram(), "EyePos");
 	
 
-	GLuint lightID = glGetUniformLocation(gShader->GetProgram(), "LightPos");
+	GLuint lightID = glGetUniformLocation(gDC.fShader->GetProgram(), "LightPos");
 
 	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
@@ -66,8 +46,8 @@ void UpdateRenderMat()
 	glUniformMatrix4fv(normalMatID, 1, GL_FALSE, &normalMat[0][0]);
 	glUniform3fv(eyePosID, 1, &eyePos[0]);
 
-	if(gLights) {
-		std::tuple<glm::vec3, glm::vec3> & lightData = gLights->GetLight(0);
+	if(gDC.fLights) {
+		std::tuple<glm::vec3, glm::vec3> & lightData = gDC.fLights->GetLight(0);
 
 		const int kLightPos = 0;
 		const int kLightIntensity = 0;
@@ -82,36 +62,36 @@ void UpdateRenderMat()
 
 void Keyboard(unsigned char key, int x, int y)
 {
-	if(gInput)
-		gInput->Keyboard(key, x, y);
+	if(gDC.fInput)
+		gDC.fInput->Keyboard(key, x, y);
 	//glutPostRedisplay();
 }
 
 void KeyboardUp(unsigned char key, int x, int y)
 {
-	if(gInput)
-		gInput->KeyboardUp(key, x, y);
+	if(gDC.fInput)
+		gDC.fInput->KeyboardUp(key, x, y);
 	//glutPostRedisplay();
 }
 
 void Keyboard(int key, int x, int y)
 {
-	if(gInput)
-		gInput->Keyboard(key, x, y);
+	if(gDC.fInput)
+		gDC.fInput->Keyboard(key, x, y);
 	//glutPostRedisplay();
 }
 
 void Mouse(int button, int state, int x, int y)
 {
-	if(gInput)
-		gInput->Mouse(button, state, x, y);
+	if(gDC.fInput)
+		gDC.fInput->Mouse(button, state, x, y);
 	glutPostRedisplay();
 }
 
 void MouseMotion(int x, int y)
 {
-	if(gInput)
-		gInput->MouseMotion(x, y);
+	if(gDC.fInput)
+		gDC.fInput->MouseMotion(x, y);
 	//glutPostRedisplay();
 }
 
@@ -128,9 +108,9 @@ void InitGL()
 	//glutReshapeFunc(changeSize);
 
 	glm::vec3 eyepos(66.5f, 30.0f, 0.0f);
-	gCamera = new Camera(eyepos, -3.141592 / 2, 0);
-	if(!gInput) {
-		gInput = new UserInput(gCamera);
+	gDC.fCamera = new Camera(eyepos, -3.141592 / 2, 0);
+	if(!gDC.fInput) {
+		gDC.fInput = new UserInput(gDC.fCamera);
 	}
 	glutKeyboardFunc(Keyboard);
 	glutKeyboardUpFunc(KeyboardUp);
@@ -265,7 +245,7 @@ void LoadCube(std::vector<glm::vec3> & verts)
 
 	for(size_t i = 0 ; i < sizeof(g_cube_colors) / sizeof(float) ; i+=3) {
 		// is the index correct?
-		gColors.push_back(glm::vec3(g_cube_colors[i], g_cube_colors[i+1], g_cube_colors[i+2]));
+		gDC.fColors.push_back(glm::vec3(g_cube_colors[i], g_cube_colors[i+1], g_cube_colors[i+2]));
 	}
 
 	for(size_t i = 0 ; i < sizeof(g_cube) / sizeof(float) / 3 ; i++) {
@@ -340,28 +320,28 @@ GLuint loadBMP_custom(const char * imagepath)
 
 void ActivateMoveIfKeyPressed()
 {
-	if(gInput->IsLeftPressed()) {
-		gInput->Move(EDirection::left);
+	if(gDC.fInput->IsLeftPressed()) {
+		gDC.fInput->Move(EDirection::left);
 	}
 
-	if(gInput->IsRightPressed()) {
-		gInput->Move(EDirection::right);
+	if(gDC.fInput->IsRightPressed()) {
+		gDC.fInput->Move(EDirection::right);
 	}
 
-	if(gInput->IsUpPressed()) {
-		gInput->Move(EDirection::up);
+	if(gDC.fInput->IsUpPressed()) {
+		gDC.fInput->Move(EDirection::up);
 	}
 
-	if(gInput->IsDownPressed()) {
-		gInput->Move(EDirection::down);
+	if(gDC.fInput->IsDownPressed()) {
+		gDC.fInput->Move(EDirection::down);
 	}
 
-	if(gInput->IsBackPressed()) {
-		gInput->Move(EDirection::backward);
+	if(gDC.fInput->IsBackPressed()) {
+		gDC.fInput->Move(EDirection::backward);
 	}
 
-	if(gInput->IsForewardPressed()) {
-		gInput->Move(EDirection::forward);
+	if(gDC.fInput->IsForewardPressed()) {
+		gDC.fInput->Move(EDirection::forward);
 	}
 }
 
@@ -375,28 +355,28 @@ void renderScene(void) {
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	gShader->UseProgram(Shader::EShaderKind::eShaderBasic);
+	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
 	UpdateRenderMat();
-	glBindVertexArray(gVAO_ID[0]);
+	glBindVertexArray(gDC.fVAO_ID[0]);
 	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
 
-	gShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	UpdateRenderMat();
-	glBindTexture(GL_TEXTURE_2D, gTextureID);
+	glBindTexture(GL_TEXTURE_2D, gDC.fTextureID);
 	
-	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
-		glBindVertexArray(gVAO_ID[i + 1]);
-		glDrawElements(GL_TRIANGLES, gMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
+	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
+		glBindVertexArray(gDC.fVAO_ID[i + 1]);
+		glDrawElements(GL_TRIANGLES, gDC.fMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
 		glBindVertexArray(0);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);
-	gShader->UseProgram(Shader::eShaderNothing);
+	gDC.fShader->UseProgram(Shader::eShaderNothing);
 
 	glutSwapBuffers();
 	glutPostRedisplay();
-	//gShader->ShaderFileChangeWatcher();
+	//gDC.gShader->ShaderFileChangeWatcher();
 }
 
 int main(int argc, char **argv) {
@@ -411,85 +391,85 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	gLights = new Light();
-	gLights->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
+	gDC.fLights = new Light();
+	gDC.fLights->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 #if MODELLOADING
-	gTextureID = loadBMP_custom("./models/L200-OBJ/truck_color.bmp");
+	gDC.fTextureID = loadBMP_custom("./models/L200-OBJ/truck_color.bmp");
 
-	gMeshAccess = new MeshAccess;
-	gMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
+	gDC.fMeshAccess = new MeshAccess;
+	gDC.fMeshAccess->LoadOBJFile(std::string("./models/L200-OBJ/L200-OBJ.obj"), std::string("./models/L200-OBJ/"));
 
-	gMeshAccess->GetMeshData(gMeshes);
+	gDC.fMeshAccess->GetMeshData(gDC.fMeshes);
 #else
 	std::vector<glm::vec3> verts;
 	LoadCube(verts);
 #endif
 
-	gShader = new Shader();	
+	gDC.AllocateShader();
 	printOpenGLError();
 
-	if(gMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
+	if(gDC.fMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
 
-	glGenVertexArrays(gMeshes.size() + 1, gVAO_ID);
+	glGenVertexArrays(gDC.fMeshes.size() + 1, gDC.fVAO_ID);
 
-	gShader->UseProgram(Shader::EShaderKind::eShaderBasic);
+	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
 	printOpenGLError();
 
-	glBindVertexArray(gVAO_ID[0]);
+	glBindVertexArray(gDC.fVAO_ID[0]);
 
 	GLuint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gPlanes), gPlanes, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &gIndexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+	glGenBuffers(1, &gDC.fIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gDC.fIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gPlaneInds), gPlaneInds, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &gNormalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+	glGenBuffers(1, &gDC.fNormalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gPlaneNormals), gPlaneNormals, GL_STATIC_DRAW);
 
-	gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
-	gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
+	gDC.fVertexPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inPositions");
+	gDC.fNormalPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inNormals");
 
-	glEnableVertexAttribArray(gVertexPos);
+	glEnableVertexAttribArray(gDC.fVertexPos);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glVertexAttribPointer(gDC.fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-	glEnableVertexAttribArray(gNormalPos);
-	glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
-	glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	glEnableVertexAttribArray(gDC.fNormalPos);
+	glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
+	glVertexAttribPointer(gDC.fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	glBindVertexArray(0);
 
-	gShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	printOpenGLError();
 
-	for(size_t i = 0 ; i < gMeshes.size() ; i++) {
+	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
 
-		Mesh & mesh = gMeshes.at(i);
+		Mesh & mesh = gDC.fMeshes.at(i);
 		Material & mat = mesh.fMat;
 
 		// materials.
 
-		glBindVertexArray(gVAO_ID[i + 1]);
+		glBindVertexArray(gDC.fVAO_ID[i + 1]);
 
 		GLuint vertexBuffer;
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, mesh.fVertices.size() * sizeof(glm::vec3), &mesh.fVertices[0], GL_STATIC_DRAW);
 
-		glGenBuffers(1, &gIndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIndexBuffer);
+		glGenBuffers(1, &gDC.fIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gDC.fIndexBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.fIndices.size() * sizeof(unsigned short), &mesh.fIndices[0], GL_STATIC_DRAW);
 
-		glGenBuffers(1, &gNormalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
+		glGenBuffers(1, &gDC.fNormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, mesh.fNormals.size() * sizeof(glm::vec3), &mesh.fNormals[0], GL_STATIC_DRAW);
 
-		glGenBuffers(1, &gUVBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, gUVBuffer);
+		glGenBuffers(1, &gDC.fUVBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gDC.fUVBuffer);
 		glBufferData(GL_ARRAY_BUFFER, mesh.fUVs.size() * sizeof(glm::vec2), &mesh.fUVs[0], GL_STATIC_DRAW);
 
 		/*GLuint colorBuffer;
@@ -498,22 +478,22 @@ int main(int argc, char **argv) {
 		glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
 		*/
 
-		gVertexPos = glGetAttribLocation(gShader->GetProgram(), "inPositions");
-		gNormalPos = glGetAttribLocation(gShader->GetProgram(), "inNormals");
-		gUVPos = glGetAttribLocation(gShader->GetProgram(), "inUV");
-		//gColorPos = glGetAttribLocation(gShader->GetProgram(), "inColors");
+		gDC.fVertexPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inPositions");
+		gDC.fNormalPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inNormals");
+		gDC.fUVPos = glGetAttribLocation(gDC.fShader->GetProgram(), "inUV");
+		//gColorPos = glGetAttribLocation(gDC.gShader->GetProgram(), "inColors");
 
-		glEnableVertexAttribArray(gVertexPos);
+		glEnableVertexAttribArray(gDC.fVertexPos);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(gVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glVertexAttribPointer(gDC.fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-		glEnableVertexAttribArray(gNormalPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gNormalBuffer);
-		glVertexAttribPointer(gNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glEnableVertexAttribArray(gDC.fNormalPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gDC.fNormalBuffer);
+		glVertexAttribPointer(gDC.fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-		glEnableVertexAttribArray(gUVPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gUVBuffer);
-		glVertexAttribPointer(gUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glEnableVertexAttribArray(gDC.fUVPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gDC.fUVBuffer);
+		glVertexAttribPointer(gDC.fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -532,15 +512,7 @@ int main(int argc, char **argv) {
 
 	EndGL();
 
-	if(gCamera)
-		delete gCamera;
-	if(gInput)
-		delete gInput;
-	if(gMeshAccess)
-		delete gMeshAccess;
-
 	}
-
 	catch(char * e) {
 		std::cout << e << std::endl;
 	}

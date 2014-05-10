@@ -1,5 +1,6 @@
 #pragma once
 #include "Defs.h"
+#include "Camera.h"
 #include <iostream>
 #include <stdlib.h>
 #include <ctime>
@@ -41,7 +42,6 @@ public:
 	}
 };
 
-class Camera;
 
 class UserInput 
 {

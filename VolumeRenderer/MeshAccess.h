@@ -44,7 +44,7 @@ struct Mesh
 class IMeshAccess
 {
 public:
-
+	virtual ~IMeshAccess() {}
 	virtual void LoadOBJFile(std::string & name, std::string &mtl_basepath) = 0;
 	virtual void GetMeshData(std::vector<Mesh> & outMeshes) = 0;
 };
@@ -53,7 +53,7 @@ class MeshAccess : public IMeshAccess
 {
 public:
 	MeshAccess(void);
-	~MeshAccess(void);
+	virtual ~MeshAccess(void);
 
 	void LoadOBJFile(std::string & name, std::string &mtl_basepath);
 

@@ -23,6 +23,8 @@ public:
 	void Move(EDirection dir);
 	void Rotate(const glm::vec2 & degree);
 
+	void SetMVPForDepth();
+
 protected:
 
 	// camera position

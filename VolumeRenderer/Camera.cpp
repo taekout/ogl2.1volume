@@ -127,6 +127,22 @@ void Camera::Rotate(const glm::vec2 & degree)
 	SetCamera();
 }
 
+
+void Camera::SetMVPForDepth()
+{
+	//glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+
+	// Compute the MVP matrix from the light's point of view
+	/*glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 200);
+	glm::mat4 depthViewMatrix = glm::lookAt(fEyePos, glm::vec3(0,0,0), glm::vec3(0,1,0));
+	glm::mat4 depthModelMatrix = glm::mat4(1.0);
+	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+
+	// Send our transformation to the currently bound shader,
+	// in the "MVP" uniform
+	glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0])*/
+}
+
 #if 0 
 
 namespace VGM

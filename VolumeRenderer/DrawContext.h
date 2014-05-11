@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Defs.h"
 #include "Shader.h"
 #include "UserInput.h"
 #include "MeshAccess.h"
@@ -38,7 +38,13 @@ public:
 		fCamera = new Camera(eyepos, horizonAngle, verticalAngle);
 	}
 
-	void AllocateMeshAccess() {
+	void AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName) {
+		fTextureID = loadBMP_custom((objPath + textureFileName).c_str());
+
+		fMeshAccess = new MeshAccess;
+		fMeshAccess->LoadOBJFile(objPath + objFileName, objPath);
+
+		fMeshAccess->GetMeshData(fMeshes);
 	}
 
 	void AddLight(glm::vec3 & pos, glm::vec3 intensity) {

@@ -153,6 +153,7 @@
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshAccess.cpp" />
+    <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="tiny_obj_loader.cc" />
@@ -165,6 +166,7 @@
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="MeshAccess.h" />
+    <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="tiny_obj_loader.h" />

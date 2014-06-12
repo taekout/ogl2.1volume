@@ -49,7 +49,7 @@ public:
 
 	void AddLight(glm::vec3 & pos, glm::vec3 intensity) {
 		fLights = new Light();
-		fLights->AddLight(pos, intensity);
+		fLights->AddLight(pos, glm::vec3(0) - pos, intensity);
 	}
 
 	Shader *fShader;

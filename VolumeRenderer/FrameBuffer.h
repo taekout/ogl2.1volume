@@ -6,5 +6,6 @@ public:
 	~FrameBuffer(void);
 
 	bool SetupRenderTarget(void);
+
 };
 

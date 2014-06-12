@@ -1,14 +1,17 @@
 #include "Camera.h"
+#include "Light.h"
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle) : fEyePos(eyepos)
+
+Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
+	 : fEyePos(eyepos), fov(45.0f), aspect(1.f), near(0.1f), far(500.f)
 {
 	fHorizonAngle = horizonAngle;
 	fVerticalAngle = verticalAngle;
 	SetCamera();
-	fProjMat = glm::perspective(45.0f, 1.0f, 0.1f, 500.f);
+	fProjMat = glm::perspective(Camera::fov, Camera::aspect, Camera::near, Camera::far);
 }
 
 
@@ -126,21 +129,24 @@ void Camera::Rotate(const glm::vec2 & degree)
 	//viewDir = glm::mat3(rotm) * viewDir;
 	SetCamera();
 }
-
-
-void Camera::SetMVPForDepth()
+void Camera::UpdateRenderMat(/*GraphicsEngine * ge*/)
 {
-	//glm::vec3 lightInvDir = glm::vec3(0.5f,2,2);
+}
+
+void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
+{
+	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
+	glm::vec3 lightInvDir = -viewDir; // ???
 
 	// Compute the MVP matrix from the light's point of view
-	/*glm::mat4 depthProjectionMatrix = glm::ortho<float>(-10, 10, -10, 10, -10, 200);
-	glm::mat4 depthViewMatrix = glm::lookAt(fEyePos, glm::vec3(0,0,0), glm::vec3(0,1,0));
+	glm::mat4 depthProjectionMatrix = glm::perspective(Camera::fov, Camera::aspect, Camera::near, Camera::far);
+	glm::mat4 depthViewMatrix = glm::lookAt(inLight->GetLightPos(0), inLight->GetLightDir(0), glm::vec3(0,1,0));
 	glm::mat4 depthModelMatrix = glm::mat4(1.0);
 	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
 
 	// Send our transformation to the currently bound shader,
 	// in the "MVP" uniform
-	glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0])*/
+	//glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0])
 }
 
 #if 0 

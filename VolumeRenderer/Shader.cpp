@@ -316,6 +316,7 @@ void Shader::UpdateUniform4fv(char *varName, float data1, float data2, float dat
 	GLfloat dataToUpdate[4] = {data1, data2, data3, data4};
 	glUniform4fv(loc, 1, dataToUpdate);
 }
+
 void Shader::UpdateUniform1f(char *varName, float data)
 {
 	ShaderData &sd = fShaderData[fShaderIndex];

@@ -3,6 +3,8 @@
 #include <glm.hpp>
 #include "Defs.h"
 
+class Light;
+
 class Camera
 {
 public:
@@ -23,7 +25,13 @@ public:
 	void Move(EDirection dir);
 	void Rotate(const glm::vec2 & degree);
 
-	void SetMVPForDepth();
+	void UpdateRenderMat(/*GraphicsEngine * ge*/);
+	void SetMVPForDepth(Light * inLight);
+
+	const float fov;
+	const float aspect;
+	const float near;
+	const float far;
 
 protected:
 
@@ -36,5 +44,10 @@ protected:
 	glm::mat4 fViewMat;
 	glm::mat4 fProjMat;
 	glm::mat4 fModelMat;
+
 };
 
+//float Camera::fov = 45.0f;
+//float Camera::aspect = 1.0f;
+//float Camera::near = 0.1f;
+//float Camera::far = 500.0f;

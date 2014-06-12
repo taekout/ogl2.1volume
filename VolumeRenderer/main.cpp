@@ -23,38 +23,27 @@
 GraphicsEngine gDC;
 
 
-void UpdateRenderMat()
+void UpdateRenderMat(GraphicsEngine & ge)
 {
-	glm::mat4 model = gDC.fCamera->GetModel();
-	glm::mat4 view = gDC.fCamera->GetView();
-	glm::mat4 proj = gDC.fCamera->GetProj();
+	glm::mat4 model = ge.fCamera->GetModel();
+	glm::mat4 view = ge.fCamera->GetView();
+	glm::mat4 proj = ge.fCamera->GetProj();
 	glm::mat4 normalMat = glm::transpose(glm::inverse(view));
 
-	glm::vec3 eyePos = gDC.fCamera->GetEyePos();
+	glm::vec3 eyePos = ge.fCamera->GetEyePos();
 
-	GLuint projID = glGetUniformLocation(gDC.fShader->GetProgram(), "Proj");
-	GLuint viewID = glGetUniformLocation(gDC.fShader->GetProgram(), "View");
-	GLuint modelID = glGetUniformLocation(gDC.fShader->GetProgram(), "Model");
-	GLuint normalMatID = glGetUniformLocation(gDC.fShader->GetProgram(), "NormalMat");
-	GLuint eyePosID = glGetUniformLocation(gDC.fShader->GetProgram(), "EyePos");
-	
+	ge.fShader->UpdateUniformMat4("Proj", &proj[0][0]);
+	ge.fShader->UpdateUniformMat4("View", &view[0][0]);
+	ge.fShader->UpdateUniformMat4("Model", &model[0][0]);
+	ge.fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
+	ge.fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
 
-	GLuint lightID = glGetUniformLocation(gDC.fShader->GetProgram(), "LightPos");
+	if(ge.fLights) {
+		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = ge.fLights->GetLight(0);
 
-	glUniformMatrix4fv(projID, 1, GL_FALSE, &proj[0][0]);
-	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(normalMatID, 1, GL_FALSE, &normalMat[0][0]);
-	glUniform3fv(eyePosID, 1, &eyePos[0]);
+		auto pos = std::get<Light::kLightPos>(lightData);
 
-	if(gDC.fLights) {
-		std::tuple<glm::vec3, glm::vec3> & lightData = gDC.fLights->GetLight(0);
-
-		const int kLightPos = 0;
-		const int kLightIntensity = 0;
-		auto pos = std::get<kLightPos>(lightData);
-
-		glUniform3f(lightID, pos[0], pos[1], pos[2]);
+		ge.fShader->UpdateUniform3fv("LightPos", pos[0], pos[1], pos[2]);
 	}
 	
 }
@@ -258,12 +247,12 @@ void renderScene(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
-	UpdateRenderMat();
+	UpdateRenderMat(gDC);
 	glBindVertexArray(gDC.fVAO_ID[0]);
 	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
-	UpdateRenderMat();
+	UpdateRenderMat(gDC);
 	glBindTexture(GL_TEXTURE_2D, gDC.fTextureID);
 	
 	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
@@ -437,7 +426,7 @@ int main(int argc, char **argv) {
 	printOpenGLError();
 
 	
-	UpdateRenderMat();
+	UpdateRenderMat(gDC);
 
 	glutMainLoop();
 

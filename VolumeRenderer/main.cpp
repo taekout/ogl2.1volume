@@ -16,38 +16,11 @@
 #include "MeshAccess.h"
 #include "Light.h"
 
-#include "DrawContext.h"
+#include "RenderEngine.h"
 
 #define MODELLOADING 1
 
 GraphicsEngine gDC;
-
-
-void UpdateRenderMat(GraphicsEngine & ge)
-{
-	glm::mat4 model = ge.fCamera->GetModel();
-	glm::mat4 view = ge.fCamera->GetView();
-	glm::mat4 proj = ge.fCamera->GetProj();
-	glm::mat4 normalMat = glm::transpose(glm::inverse(view));
-
-	glm::vec3 eyePos = ge.fCamera->GetEyePos();
-
-	ge.fShader->UpdateUniformMat4("Proj", &proj[0][0]);
-	ge.fShader->UpdateUniformMat4("View", &view[0][0]);
-	ge.fShader->UpdateUniformMat4("Model", &model[0][0]);
-	ge.fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
-	ge.fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
-
-	if(ge.fLights) {
-		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = ge.fLights->GetLight(0);
-
-		auto pos = std::get<Light::kLightPos>(lightData);
-
-		ge.fShader->UpdateUniform3fv("LightPos", pos[0], pos[1], pos[2]);
-	}
-	
-}
-
 
 
 void Keyboard(unsigned char key, int x, int y)
@@ -247,12 +220,12 @@ void renderScene(void) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
-	UpdateRenderMat(gDC);
+	gDC.ComputeRenderMat();
 	glBindVertexArray(gDC.fVAO_ID[0]);
 	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
 
 	gDC.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
-	UpdateRenderMat(gDC);
+	gDC.ComputeRenderMat();
 	glBindTexture(GL_TEXTURE_2D, gDC.fTextureID);
 	
 	for(size_t i = 0 ; i < gDC.fMeshes.size() ; i++) {
@@ -426,7 +399,7 @@ int main(int argc, char **argv) {
 	printOpenGLError();
 
 	
-	UpdateRenderMat(gDC);
+	gDC.ComputeRenderMat();
 
 	glutMainLoop();
 

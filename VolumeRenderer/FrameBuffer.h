@@ -7,5 +7,9 @@ public:
 
 	bool SetupRenderTarget(void);
 
+protected:
+
+	//std::map<int, int> fFramebuffers;
+	//GLuint fDepthTex;
 };
 

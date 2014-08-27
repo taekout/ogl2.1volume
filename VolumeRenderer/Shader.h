@@ -85,6 +85,7 @@ public:
 	void ShaderFileChangeWatcher(void);
 	// Get Functions
 	GLuint GetProgram(void) { return (fShaderIndex != -1) ? fShaderData[fShaderIndex].fProgramID : 0; }
+	GLuint GetProgram(EShaderKind kind) { return fShaderData[kind].fProgramID; }
 	// Log Functions
 	void printShaderInfoLog(GLuint obj);
 	void printProgramInfoLog(GLuint obj);

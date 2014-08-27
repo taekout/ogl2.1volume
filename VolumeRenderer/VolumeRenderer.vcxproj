@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Batch.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Defs.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
@@ -159,6 +160,7 @@
     <ClCompile Include="UserInput.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Batch.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Defs.h" />
     <ClInclude Include="RenderEngine.h" />

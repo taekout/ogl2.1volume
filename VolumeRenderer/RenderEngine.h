@@ -6,6 +6,8 @@
 #include "Light.h"
 #include "FrameBuffer.h"
 
+class Batch;
+
 class IGraphicsEngine
 {
 public:
@@ -28,6 +30,11 @@ public:
 
 	void ComputeRenderMat();
 
+	void ActivateMoveIfKeyPressed();
+
+	void CreateBatch(const std::vector<glm::vec3> & verts, const std::vector<unsigned int> & inds,
+		const std::vector<glm::vec3> & normals, const std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
+
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
@@ -46,14 +53,16 @@ public:
 	GLuint fIndexBuffer;
 	GLuint fNormalBuffer;
 	GLuint fUVBuffer;
-	GLuint fVAO_ID[100];
+	std::map<int, Batch *> fVAO;
 
 	GLuint fTextureID;
 
-	
+private:
+	void GLInit();
 
 };
 
+GraphicsEngine gRenderEngine;
 
 //Shader * DrawContext::gShader = NULL;
 //UserInput * DrawContext::gInput = NULL;

@@ -27,8 +27,6 @@ Shader::Shader(void)
 
 	LinkShaders();
 	UseProgram(eShaderNothing);
-	//EShaderKind::eShaderTexture
-	
 	
 	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
@@ -37,6 +35,13 @@ Shader::Shader(void)
 	glBindAttribLocation(GetProgram(), kInUV, "inUV");
 	
 	printOpenGLError();
+
+	LinkShaders();
+	UseProgram(eShaderNothing);
+
+	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
 	
 	LinkShaders();
 	UseProgram(eShaderNothing);

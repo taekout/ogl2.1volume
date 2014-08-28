@@ -54,7 +54,8 @@ public:
 	enum EShaderKind {
 		eShaderNothing = -1,
 		eShaderBasic = 0,
-		eShaderTexture,
+		eShaderTexture = 1,
+		eShaderShadow = 2,
 		eMaxShader
 	};
 

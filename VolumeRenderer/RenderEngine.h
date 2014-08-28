@@ -32,8 +32,8 @@ public:
 
 	void ActivateMoveIfKeyPressed();
 
-	void CreateBatch(const std::vector<glm::vec3> & verts, const std::vector<unsigned int> & inds,
-		const std::vector<glm::vec3> & normals, const std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
+	void CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
+		std::vector<glm::vec3> & inNormals, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
 
 	Shader *fShader;
 	UserInput * fInput ;

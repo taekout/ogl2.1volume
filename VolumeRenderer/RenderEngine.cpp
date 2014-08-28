@@ -27,7 +27,7 @@ void RenderScene()
 
 	for(size_t i = 0 ; i < gRenderEngine.fMeshes.size() ; i++) {
 		glBindVertexArray(gRenderEngine.fVAO_ID[i + 1]);
-		glDrawElements(GL_TRIANGLES, gRenderEngine.fMeshes[i].fIndices.size(), GL_UNSIGNED_SHORT, (void *) 0);
+		glDrawElements(GL_TRIANGLES, gRenderEngine.fMeshes[i].fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 		glBindVertexArray(0);
 	}
 

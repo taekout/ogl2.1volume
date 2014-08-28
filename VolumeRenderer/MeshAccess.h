@@ -34,7 +34,7 @@ struct Material
 struct Mesh
 {
 	std::vector<glm::vec3> fVertices;
-	std::vector<unsigned short> fIndices;
+	std::vector<unsigned int> fIndices;
 	std::vector<glm::vec3> fNormals;
 	std::vector<glm::vec2> fUVs;
 

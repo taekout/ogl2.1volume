@@ -55,7 +55,7 @@ void MeshAccess::GetMeshData(std::vector<Mesh> & outMeshes)
 			verts.push_back(glm::vec3(mh.positions[j], mh.positions[j+1], mh.positions[j+2]));
 		}
 
-		std::vector<unsigned short> & inds = outM.fIndices;
+		std::vector<unsigned int> & inds = outM.fIndices;
 		for(size_t j = 0 ; j < mh.indices.size() ; j++) {
 			inds.push_back(mh.indices[j]);
 		}

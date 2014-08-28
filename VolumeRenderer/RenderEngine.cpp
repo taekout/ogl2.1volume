@@ -1,5 +1,6 @@
 #include "RenderEngine.h"
 #include <tuple>
+#include <assert.h>
 
 #include <GL/glew.h>
 #include "glut.h"
@@ -247,42 +248,58 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
+	assert(inVerts.size() != 0 && inInds.size() != 0);
 
-	glGenBuffers(1, &fIndexBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
+	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture ) {
 
-	glGenBuffers(1, &fNormalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
+		fVertexPos = glGetAttribLocation(fShader->GetProgram(), "inPositions");
+		fNormalPos = glGetAttribLocation(fShader->GetProgram(), "inNormals");
+		
+		if( kind == Shader::eShaderTexture )
+			fUVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
+	}
 
-	glGenBuffers(1, &fUVBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
-	glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
+	if( inVerts.size() != 0 && inInds.size() != 0 ) {
 
-	fVertexPos = glGetAttribLocation(fShader->GetProgram(), "inPositions");
-	fNormalPos = glGetAttribLocation(fShader->GetProgram(), "inNormals");
-	fUVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
+		GLuint vertexBuffer;
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
 
-	glEnableVertexAttribArray(fVertexPos);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glEnableVertexAttribArray(fVertexPos);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-	glEnableVertexAttribArray(fNormalPos);
-	glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
-	glVertexAttribPointer(fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glGenBuffers(1, &fIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndexBuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
+	}
 
-	glEnableVertexAttribArray(fUVPos);
-	glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
-	glVertexAttribPointer(fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	if( inNormals.size() != 0 ) {
+
+		glGenBuffers(1, &fNormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(fNormalPos);
+		glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
+		glVertexAttribPointer(fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	}
+
+	if( inUVs.size() != 0 ) {
+
+		glGenBuffers(1, &fUVBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
+		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(fUVPos);
+		glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
+		glVertexAttribPointer(fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	}
 
 	Batch *batch = new Batch( vao, inVerts, inInds, inNormals, inGLTexID, inUVs, kind );
 	//Batch(unsigned int ID, const std::vector<glm::vec3> & vertices, const std::vector<unsigned int> & indices, std::vector<glm::vec3> & normals, unsigned int glTexID, std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
-	fVAOs.insert( std::pair<int, Batch *>((int)vao, batch) );
+	fVAOs.emplace( std::pair<int, Batch *>((int)vao, batch) );
 
 	printOpenGLError();
 

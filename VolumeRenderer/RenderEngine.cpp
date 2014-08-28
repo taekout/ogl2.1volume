@@ -243,61 +243,51 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 	
 	fShader->UseProgram(kind); // It might be better to use the program here just avoid opengl error message.
 
-	GLuint vaoID;
-	glGenVertexArrays(1, &vaoID);
-	glBindVertexArray(vaoID);
+	GLuint vao = -1;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
-	this->fVertexPos = glGetAttribLocation(fShader->GetProgram(kind), "inPositions");
-	this->fNormalPos = glGetAttribLocation(fShader->GetProgram(kind), "inNormals");
-	this->fUVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
 
-	if( !inVerts.empty() && !inInds.empty() ) {
+	glGenBuffers(1, &fIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
 
-		GLuint vertexBuffer;
-		glGenBuffers(1, &vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
+	glGenBuffers(1, &fNormalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
 
-		GLuint indexBuffer;
-		glGenBuffers(1, &indexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
+	glGenBuffers(1, &fUVBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
+	glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(fVertexPos);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-	}
+	fVertexPos = glGetAttribLocation(fShader->GetProgram(), "inPositions");
+	fNormalPos = glGetAttribLocation(fShader->GetProgram(), "inNormals");
+	fUVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
 
-	if( !inNormals.empty() ) {
+	glEnableVertexAttribArray(fVertexPos);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-		GLuint normalBuffer;
-		glGenBuffers(1, &normalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(fNormalPos);
+	glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
+	glVertexAttribPointer(fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-		glEnableVertexAttribArray(gRenderEngine->fNormalPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fNormalBuffer);
-		glVertexAttribPointer(gRenderEngine->fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-	}
+	glEnableVertexAttribArray(fUVPos);
+	glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
+	glVertexAttribPointer(fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
-	if( !inUVs.empty() ) {
+	Batch *batch = new Batch( vao, inVerts, inInds, inNormals, inGLTexID, inUVs, kind );
+	//Batch(unsigned int ID, const std::vector<glm::vec3> & vertices, const std::vector<unsigned int> & indices, std::vector<glm::vec3> & normals, unsigned int glTexID, std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
+	fVAOs.insert( std::pair<int, Batch *>((int)vao, batch) );
 
-		GLuint UVBuffer;
-		glGenBuffers(1, &UVBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, UVBuffer);
-		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
-
-		glEnableVertexAttribArray(gRenderEngine->fUVPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fUVBuffer);
-		glVertexAttribPointer(gRenderEngine->fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
-	}
+	printOpenGLError();
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // ??? Necessary?
 	glBindVertexArray(0);
-
-	Batch * batch = new Batch(vaoID, inVerts, inInds, inNormals, inGLTexID, inUVs, kind);
-	fVAOs.emplace(std::pair<int, Batch *>(vaoID, batch));
 }
 
 void GraphicsEngine::RenderBatch()

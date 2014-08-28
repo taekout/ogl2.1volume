@@ -175,6 +175,8 @@
   <ItemGroup>
     <None Include="GLSL\litfog.frag" />
     <None Include="GLSL\phong.vert" />
+    <None Include="GLSL\shadow.frag" />
+    <None Include="GLSL\shadow.vert" />
     <None Include="GLSL\texture.frag" />
     <None Include="GLSL\texture.vert" />
     <None Include="GLSL\white.frag" />

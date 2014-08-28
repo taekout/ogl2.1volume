@@ -25,10 +25,12 @@ public:
 	void AllocateShader();
 	void AllocateInput();
 	void SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
+	void SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
 	void AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName);
 	void AddLight(glm::vec3 & pos, glm::vec3 intensity);
 
 	void ComputeRenderMat();
+	void ComputeShadowMat();
 
 	void ActivateMoveIfKeyPressed();
 
@@ -40,6 +42,7 @@ public:
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
+	Camera *fLightCamera;
 	IMeshAccess *fMeshAccess;
 	Light * fLights;
 

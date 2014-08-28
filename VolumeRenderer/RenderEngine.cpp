@@ -30,7 +30,7 @@ IGraphicsEngine::IGraphicsEngine(void)
 }
 
 
-GraphicsEngine::GraphicsEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
+GraphicsEngine::GraphicsEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
 	fVertexPos(-1), fNormalPos(-1), fUVPos(-1), fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
 {
 	GLInit();
@@ -124,6 +124,8 @@ GraphicsEngine::~GraphicsEngine(void)
 		delete fInput;
 	if(fCamera)
 		delete fCamera;
+	if(fLightCamera)
+		delete fLightCamera;
 	if(fMeshAccess)
 		delete fMeshAccess;
 	if(fLights)
@@ -151,6 +153,13 @@ void GraphicsEngine::SetCamera(const glm::vec3 & eyepos, float horizonAngle, flo
 	if(fCamera)
 		delete fCamera;
 	fCamera = new Camera(eyepos, horizonAngle, verticalAngle);
+}
+
+void GraphicsEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
+{
+	if(fLightCamera)
+		delete fLightCamera;
+	fLightCamera = new Camera(eyepos, horizonAngle, verticalAngle);
 }
 
 void GraphicsEngine::AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName)
@@ -183,15 +192,10 @@ void GraphicsEngine::ComputeRenderMat()
 
 	// I should split this part later. Not good to put together computing and updating shader uniforms.
 	fShader->UpdateUniformMat4("Proj", &proj[0][0]);
-	printOpenGLError();
 	fShader->UpdateUniformMat4("View", &view[0][0]);
-	printOpenGLError();
 	fShader->UpdateUniformMat4("Model", &model[0][0]);
-	printOpenGLError();
 	fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
-	printOpenGLError();
 	fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
-	printOpenGLError();
 
 	if(fLights) {
 		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = fLights->GetLight(0);
@@ -200,7 +204,26 @@ void GraphicsEngine::ComputeRenderMat()
 
 		fShader->UpdateUniform3fv("LightPos", pos[0], pos[1], pos[2]);
 	}
-	printOpenGLError();
+}
+
+void GraphicsEngine::ComputeShadowMat()
+{
+	if(fLightCamera) {
+
+		glm::vec3 lightInvDir = fLightCamera->GetEyePos();
+
+		// Compute the MVP matrix from the light's point of view
+		glm::mat4 depthProjectionMatrix = fLightCamera->GetProj();
+		glm::mat4 depthViewMatrix = fLightCamera->GetView();
+		glm::mat4 depthModelMatrix = fLightCamera->GetModel();
+		//glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+
+		// Send our transformation to the currently bound shader,
+		// in the "MVP" uniform
+		fShader->UpdateUniformMat4("Proj", &depthProjectionMatrix[0][0]);
+		fShader->UpdateUniformMat4("View", &depthViewMatrix[0][0]);
+		fShader->UpdateUniformMat4("Model", &depthModelMatrix[0][0]);
+	}
 }
 
 
@@ -298,7 +321,6 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 	}
 
 	Batch *batch = new Batch( vao, inVerts, inInds, inNormals, inGLTexID, inUVs, kind );
-	//Batch(unsigned int ID, const std::vector<glm::vec3> & vertices, const std::vector<unsigned int> & indices, std::vector<glm::vec3> & normals, unsigned int glTexID, std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
 	fVAOs.emplace( std::pair<int, Batch *>((int)vao, batch) );
 
 	printOpenGLError();

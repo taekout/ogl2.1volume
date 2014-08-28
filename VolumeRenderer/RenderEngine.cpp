@@ -6,38 +6,22 @@
 
 #include "Batch.h"
 
+GraphicsEngine * gRenderEngine = NULL;
+
 void RenderScene()
 {
 	printOpenGLError();
 
-	gRenderEngine.ActivateMoveIfKeyPressed();
+	gRenderEngine->ActivateMoveIfKeyPressed();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	gRenderEngine.fShader->UseProgram(Shader::EShaderKind::eShaderBasic);
-	gRenderEngine.ComputeRenderMat();
-	glBindVertexArray(gRenderEngine.fVAO_ID[0]);
-	glDrawElements(GL_TRIANGLES, sizeof(gPlaneInds), GL_UNSIGNED_SHORT, (void *) 0);
-
-	gRenderEngine.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
-	gRenderEngine.ComputeRenderMat();
-	glBindTexture(GL_TEXTURE_2D, gRenderEngine.fTextureID);
-
-	for(size_t i = 0 ; i < gRenderEngine.fMeshes.size() ; i++) {
-		glBindVertexArray(gRenderEngine.fVAO_ID[i + 1]);
-		glDrawElements(GL_TRIANGLES, gRenderEngine.fMeshes[i].fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
-		glBindVertexArray(0);
-	}
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindVertexArray(0);
-	gRenderEngine.fShader->UseProgram(Shader::eShaderNothing);
+	gRenderEngine->RenderBatch();
 
 	glutSwapBuffers();
 	glutPostRedisplay();
 	//gDC.gShader->ShaderFileChangeWatcher();
+	printOpenGLError();
 }
 
 IGraphicsEngine::IGraphicsEngine(void)
@@ -48,10 +32,6 @@ IGraphicsEngine::IGraphicsEngine(void)
 GraphicsEngine::GraphicsEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
 	fVertexPos(-1), fNormalPos(-1), fUVPos(-1), fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
 {
-	fori(fVAO_ID, 100) {
-		fVAO_ID[i] = -1;
-	}
-
 	GLInit();
 }
 
@@ -59,48 +39,42 @@ GraphicsEngine::GraphicsEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), f
 
 void Keyboard(unsigned char key, int x, int y)
 {
-	if(gRenderEngine.fInput)
-		gRenderEngine.fInput->Keyboard(key, x, y);
+	if(gRenderEngine->fInput)
+		gRenderEngine->fInput->Keyboard(key, x, y);
 	//glutPostRedisplay();
 }
 
 void KeyboardUp(unsigned char key, int x, int y)
 {
-	if(gRenderEngine.fInput)
-		gRenderEngine.fInput->KeyboardUp(key, x, y);
+	if(gRenderEngine->fInput)
+		gRenderEngine->fInput->KeyboardUp(key, x, y);
 	//glutPostRedisplay();
 }
 
 void Keyboard(int key, int x, int y)
 {
-	if(gRenderEngine.fInput)
-		gRenderEngine.fInput->Keyboard(key, x, y);
+	if(gRenderEngine->fInput)
+		gRenderEngine->fInput->Keyboard(key, x, y);
 	//glutPostRedisplay();
 }
 
 void Mouse(int button, int state, int x, int y)
 {
-	if(gRenderEngine.fInput)
-		gRenderEngine.fInput->Mouse(button, state, x, y);
+	if(gRenderEngine->fInput)
+		gRenderEngine->fInput->Mouse(button, state, x, y);
 	glutPostRedisplay();
 }
 
 void MouseMotion(int x, int y)
 {
-	if(gRenderEngine.fInput)
-		gRenderEngine.fInput->MouseMotion(x, y);
+	if(gRenderEngine->fInput)
+		gRenderEngine->fInput->MouseMotion(x, y);
 	//glutPostRedisplay();
 }
 
 
 void GraphicsEngine::GLInit()
 {
-	if (glewIsSupported("GL_VERSION_3_1"))
-		printf("Ready for OpenGL 3.1.\n");
-	else {
-		printf("OpenGL 3.1 not supported\n");
-		exit(1);
-	}
 
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100,100);
@@ -130,6 +104,14 @@ void GraphicsEngine::GLInit()
 	//glEnable(GL_TEXTURE_2D);
 
 	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	if (glewIsSupported("GL_VERSION_3_1"))
+		printf("Ready for OpenGL 3.1.\n");
+	else {
+		printf("OpenGL 3.1 not supported\n");
+		exit(1);
+	}
+
 
 	AllocateShader();
 }
@@ -174,12 +156,15 @@ void GraphicsEngine::SetCamera(const glm::vec3 & eyepos, float horizonAngle, flo
 
 void GraphicsEngine::AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName)
 {
-	fTextureID = loadBMP_custom((objPath + textureFileName).c_str());
+	unsigned texID = loadBMP_custom((objPath + textureFileName).c_str());
 
 	fMeshAccess = new MeshAccess;
 	fMeshAccess->LoadOBJFile(objPath + objFileName, objPath);
 
 	fMeshAccess->GetMeshData(fMeshes);
+	for(auto it = fMeshes.begin() ; it != fMeshes.end() ; ++it) {
+		it->fMat.fGLTexID = texID;
+	}
 }
 
 void GraphicsEngine::AddLight(glm::vec3 & pos, glm::vec3 intensity)
@@ -250,10 +235,10 @@ void GraphicsEngine::ActivateMoveIfKeyPressed()
 
 
 void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
-				 std::vector<glm::vec3> & inNormals, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind)
+				 std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind)
 {
 	
-	fShader->UseProgram(kind); // I don't know why. It might be better to use the program here just avoid opengl error message.
+	fShader->UseProgram(kind); // It might be better to use the program here just avoid opengl error message.
 
 	GLuint vaoID;
 	glGenVertexArrays(1, &vaoID);
@@ -261,7 +246,7 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 
 	this->fVertexPos = glGetAttribLocation(fShader->GetProgram(kind), "inPositions");
 	this->fNormalPos = glGetAttribLocation(fShader->GetProgram(kind), "inNormals");
-	this->fUVPos = glGetAttribLocation(gRenderEngine.fShader->GetProgram(), "inUV");
+	this->fUVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
 
 	if( !inVerts.empty() && !inInds.empty() ) {
 
@@ -270,15 +255,14 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
 
-
-		glEnableVertexAttribArray(fVertexPos);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
 		GLuint indexBuffer;
 		glGenBuffers(1, &indexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(fVertexPos);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
 
 	if( !inNormals.empty() ) {
@@ -288,9 +272,9 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 		glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(gRenderEngine.fNormalPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine.fNormalBuffer);
-		glVertexAttribPointer(gRenderEngine.fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glEnableVertexAttribArray(gRenderEngine->fNormalPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fNormalBuffer);
+		glVertexAttribPointer(gRenderEngine->fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
 
 	if( !inUVs.empty() ) {
@@ -300,17 +284,40 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 		glBindBuffer(GL_ARRAY_BUFFER, UVBuffer);
 		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(gRenderEngine.fUVPos);
-		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine.fUVBuffer);
-		glVertexAttribPointer(gRenderEngine.fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glEnableVertexAttribArray(gRenderEngine->fUVPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fUVBuffer);
+		glVertexAttribPointer(gRenderEngine->fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // ??? Necessary?
 	glBindVertexArray(0);
 
-	Batch * batch = new Batch(vaoID, inVerts, inInds, inNormals, inUVs);
-	fVAO.emplace(std::pair<int, Batch *>(vaoID, batch));
+	Batch * batch = new Batch(vaoID, inVerts, inInds, inNormals, inGLTexID, inUVs, kind);
+	fVAOs.emplace(std::pair<int, Batch *>(vaoID, batch));
+}
+
+void GraphicsEngine::RenderBatch()
+{
+	
+	ComputeRenderMat();
+	printOpenGLError();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	for(auto it = fVAOs.begin() ; it != fVAOs.end() ; ++it) {
+
+		printOpenGLError();
+		Batch * batch = it->second;
+		fShader->UseProgram(batch->fProgram);
+		glBindVertexArray( batch->fID );
+		glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
+		//batch->
+		glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBindVertexArray(0);
+		printOpenGLError();
+
+	}
 }
 
 

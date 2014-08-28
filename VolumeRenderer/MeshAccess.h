@@ -6,13 +6,13 @@
 
 struct Material
 {
-	Material() : fDiffuse(1.0, 1.0, 1.0), fSpecular(1.0, 1.0, 1.0), fTransmittance(1.0, 1.0, 1.0), fEmission(1.0, 1.0, 1.0), fShininess(0.0f), fIndexRefract(0.f) {}
+	Material() : fDiffuse(1.0, 1.0, 1.0), fSpecular(1.0, 1.0, 1.0), fTransmittance(1.0, 1.0, 1.0), fEmission(1.0, 1.0, 1.0), fShininess(0.0f), fIndexRefract(0.f), fGLTexID(0) {}
 	
 	Material(const std::string &ID, const glm::vec3 & ambient, const glm::vec3 & diffuse, const glm::vec3 & specular, const glm::vec3 &transmit,
 			const glm::vec3 & emission, float shininess, float indexOfRefract, const std::string ambientTex, const std::string diffuseTex,
 			const std::string specularTex, const std::string normalTex)
 			: fID(ID), fAmbient(ambient), fDiffuse(diffuse), fSpecular(specular), fTransmittance(transmit), fEmission(emission),
-			fShininess(shininess), fIndexRefract(indexOfRefract), fAmbientTexName(ambientTex), fDiffuseTexName(diffuseTex), fSpecularTexName(specularTex), fNormalTexName(normalTex)
+			fShininess(shininess), fIndexRefract(indexOfRefract), fAmbientTexName(ambientTex), fDiffuseTexName(diffuseTex), fSpecularTexName(specularTex), fNormalTexName(normalTex), fGLTexID(0)
 	{
 	}
 
@@ -24,6 +24,7 @@ struct Material
 	glm::vec3 fEmission;
 	float fShininess;
 	float fIndexRefract;
+	unsigned int fGLTexID;
 
 	std::string fAmbientTexName;
 	std::string fDiffuseTexName;

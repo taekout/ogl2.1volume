@@ -33,7 +33,9 @@ public:
 	void ActivateMoveIfKeyPressed();
 
 	void CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
-		std::vector<glm::vec3> & inNormals, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
+		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
+
+	void RenderBatch();
 
 	Shader *fShader;
 	UserInput * fInput ;
@@ -53,16 +55,19 @@ public:
 	GLuint fIndexBuffer;
 	GLuint fNormalBuffer;
 	GLuint fUVBuffer;
-	std::map<int, Batch *> fVAO;
+	
 
 	GLuint fTextureID;
 
-private:
-	void GLInit();
+protected:
+	virtual void GLInit();
+
+	std::map<int, Batch *> fVAOs;
 
 };
 
-GraphicsEngine gRenderEngine;
+
+
 
 //Shader * DrawContext::gShader = NULL;
 //UserInput * DrawContext::gInput = NULL;

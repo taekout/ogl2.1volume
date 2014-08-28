@@ -20,6 +20,7 @@
 
 #define MODELLOADING 1
 
+extern GraphicsEngine * gRenderEngine;
 
 void CreatePlane()
 {
@@ -60,7 +61,7 @@ void CreatePlane()
 
 	std::vector<glm::vec2> UVs;
 
-	gRenderEngine.CreateBatch(verts, inds, normals, UVs, Shader::EShaderKind::eShaderBasic);
+	gRenderEngine->CreateBatch(verts, inds, normals, -1, UVs, Shader::EShaderKind::eShaderBasic);
 }
 
 
@@ -70,10 +71,12 @@ int main(int argc, char **argv) {
 
 	glutInit(&argc, argv);
 
-	gRenderEngine.AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
+	gRenderEngine = new GraphicsEngine();
+
+	gRenderEngine->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
 
 #if MODELLOADING
-	gRenderEngine.AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
+	gRenderEngine->AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
 #else
 	std::vector<glm::vec3> verts;
 	LoadCube(verts);
@@ -82,20 +85,21 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
-	if(gRenderEngine.fMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
+	if(gRenderEngine->fMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
 
-	CreatePlane();
+	//CreatePlane();
 
-	gRenderEngine.fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
+	//gRenderEngine->fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	printOpenGLError();
 
-	for(size_t i = 0 ; i < gRenderEngine.fMeshes.size() ; i++) {
+	for(size_t i = 0 ; i < gRenderEngine->fMeshes.size() ; i++) {
 
-		Mesh & mesh = gRenderEngine.fMeshes.at(i);
+		Mesh & mesh = gRenderEngine->fMeshes.at(i);
 		Material & mat = mesh.fMat;
-		gRenderEngine.CreateBatch(mesh.fVertices,
+		gRenderEngine->CreateBatch(mesh.fVertices,
 									mesh.fIndices,
 									mesh.fNormals,
+									mat.fGLTexID,
 									mesh.fUVs,
 									Shader::EShaderKind::eShaderTexture );
 
@@ -115,7 +119,7 @@ int main(int argc, char **argv) {
 	printOpenGLError();
 
 	
-	gRenderEngine.ComputeRenderMat();
+	gRenderEngine->ComputeRenderMat();
 
 	glutMainLoop();
 

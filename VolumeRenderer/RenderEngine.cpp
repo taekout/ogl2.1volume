@@ -112,8 +112,6 @@ void GraphicsEngine::GLInit()
 		exit(1);
 	}
 
-
-	AllocateShader();
 }
 
 
@@ -184,10 +182,15 @@ void GraphicsEngine::ComputeRenderMat()
 
 	// I should split this part later. Not good to put together computing and updating shader uniforms.
 	fShader->UpdateUniformMat4("Proj", &proj[0][0]);
+	printOpenGLError();
 	fShader->UpdateUniformMat4("View", &view[0][0]);
+	printOpenGLError();
 	fShader->UpdateUniformMat4("Model", &model[0][0]);
+	printOpenGLError();
 	fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
+	printOpenGLError();
 	fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
+	printOpenGLError();
 
 	if(fLights) {
 		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = fLights->GetLight(0);
@@ -196,7 +199,7 @@ void GraphicsEngine::ComputeRenderMat()
 
 		fShader->UpdateUniform3fv("LightPos", pos[0], pos[1], pos[2]);
 	}
-
+	printOpenGLError();
 }
 
 
@@ -299,8 +302,6 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 
 void GraphicsEngine::RenderBatch()
 {
-	
-	ComputeRenderMat();
 	printOpenGLError();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -309,6 +310,7 @@ void GraphicsEngine::RenderBatch()
 		printOpenGLError();
 		Batch * batch = it->second;
 		fShader->UseProgram(batch->fProgram);
+		ComputeRenderMat();
 		glBindVertexArray( batch->fID );
 		glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
 		//batch->

@@ -55,14 +55,14 @@ public:
 	GLuint fIndexBuffer;
 	GLuint fNormalBuffer;
 	GLuint fUVBuffer;
-	
+	std::map<int, Batch *> fVAOs;
 
 	GLuint fTextureID;
 
 protected:
 	virtual void GLInit();
 
-	std::map<int, Batch *> fVAOs;
+	
 
 };
 

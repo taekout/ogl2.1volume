@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "MeshAccess.h"
 #include "Light.h"
+#include "Batch.h"
 
 #include "RenderEngine.h"
 
@@ -82,7 +83,7 @@ int main(int argc, char **argv) {
 	LoadCube(verts);
 #endif
 
-
+	gRenderEngine->AllocateShader();
 	printOpenGLError();
 
 	if(gRenderEngine->fMeshes.size() > 99) { printf("too many meshes\n"); exit(-4); }
@@ -91,6 +92,7 @@ int main(int argc, char **argv) {
 
 	//gRenderEngine->fShader->UseProgram(Shader::EShaderKind::eShaderTexture);
 	printOpenGLError();
+/*
 
 	for(size_t i = 0 ; i < gRenderEngine->fMeshes.size() ; i++) {
 
@@ -110,16 +112,75 @@ int main(int argc, char **argv) {
 
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);*/
+
+	
+	for(size_t i = 0 ; i < gRenderEngine->fMeshes.size() ; i++) {
+
+		Mesh & mesh = gRenderEngine->fMeshes.at(i);
+		Material & mat = mesh.fMat;
+
+		// materials.
+		GLuint vao = -1;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		GLuint vertexBuffer;
+		glGenBuffers(1, &vertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, mesh.fVertices.size() * sizeof(glm::vec3), &mesh.fVertices[0], GL_STATIC_DRAW);
+
+		glGenBuffers(1, &gRenderEngine->fIndexBuffer);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gRenderEngine->fIndexBuffer);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.fIndices.size() * sizeof(unsigned int), &mesh.fIndices[0], GL_STATIC_DRAW);
+
+		glGenBuffers(1, &gRenderEngine->fNormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fNormalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, mesh.fNormals.size() * sizeof(glm::vec3), &mesh.fNormals[0], GL_STATIC_DRAW);
+
+		glGenBuffers(1, &gRenderEngine->fUVBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fUVBuffer);
+		glBufferData(GL_ARRAY_BUFFER, mesh.fUVs.size() * sizeof(glm::vec2), &mesh.fUVs[0], GL_STATIC_DRAW);
+
+		/*GLuint colorBuffer;
+		glGenBuffers(1, &colorBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+		glBufferData(GL_ARRAY_BUFFER, gColors.size() * sizeof(glm::vec3), &gColors[0], GL_STATIC_DRAW);
+		*/
+
+		gRenderEngine->fVertexPos = glGetAttribLocation(gRenderEngine->fShader->GetProgram(), "inPositions");
+		gRenderEngine->fNormalPos = glGetAttribLocation(gRenderEngine->fShader->GetProgram(), "inNormals");
+		gRenderEngine->fUVPos = glGetAttribLocation(gRenderEngine->fShader->GetProgram(), "inUV");
+		//gColorPos = glGetAttribLocation(gRenderEngine->gShader->GetProgram(), "inColors");
+
+		glEnableVertexAttribArray(gRenderEngine->fVertexPos);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(gRenderEngine->fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		glEnableVertexAttribArray(gRenderEngine->fNormalPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fNormalBuffer);
+		glVertexAttribPointer(gRenderEngine->fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		glEnableVertexAttribArray(gRenderEngine->fUVPos);
+		glBindBuffer(GL_ARRAY_BUFFER, gRenderEngine->fUVBuffer);
+		glVertexAttribPointer(gRenderEngine->fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+
+		Batch *batch = new Batch( (unsigned int)vao, mesh.fVertices, mesh.fIndices, mesh.fNormals, (unsigned int)mesh.fMat.fGLTexID, mesh.fUVs, Shader::eShaderTexture );
+		//Batch(unsigned int ID, const std::vector<glm::vec3> & vertices, const std::vector<unsigned int> & indices, std::vector<glm::vec3> & normals, unsigned int glTexID, std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
+		gRenderEngine->fVAOs.insert( std::pair<int, Batch *>((int)vao, batch) );
+
+		printOpenGLError();
+
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-	//glEnableVertexAttribArray(gColorPos);
-	//glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	//glVertexAttribPointer(gColorPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 
 	printOpenGLError();
 
 	
-	gRenderEngine->ComputeRenderMat();
+	//gRenderEngine->ComputeRenderMat();
+	printOpenGLError();
 
 	glutMainLoop();
 

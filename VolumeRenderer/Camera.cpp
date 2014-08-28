@@ -76,7 +76,7 @@ void Camera::Print(glm::vec3 eyePos, glm::vec2 angles)
 	printf("Horizon Angle, Vertical Angle : %f, %f\n", angles.x, angles.y);
 }
 
-#define MOVE_SCALE  0.05f
+#define MOVE_SCALE  0.5f
 
 void Camera::Move(EDirection dir)
 {

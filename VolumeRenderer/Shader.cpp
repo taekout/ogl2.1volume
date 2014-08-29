@@ -205,7 +205,20 @@ void Shader::ShaderFileChangeWatcher(void)
 	}
 }
 
-void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
+void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
+{
+	if(kind != -1) {
+		if(fShaderData.size() > kind) {
+			ShaderData & shaderData = fShaderData[kind];
+			if(shaderData.fProgramID != 0) {
+				glDetachShader(shaderData.fProgramID, shaderData.fVertShaderID);
+				glDetachShader(shaderData.fProgramID, shaderData.fFragShaderID);
+				glDeleteShader(shaderData.fVertShaderID);
+				glDeleteShader(shaderData.fFragShaderID);
+				glDeleteProgram(shaderData.fProgramID);
+			}
+		}
+	}
 
 	GLuint programID = 0;
 	GLuint vertShaderID = 0;
@@ -259,7 +272,7 @@ void Shader::CompileAllShaders()
 	printOpenGLError();
 
 	LinkShaders();
-	UseProgram(eShaderNothing);
+	UseProgram(eShaderBasic);
 
 	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
@@ -270,13 +283,14 @@ void Shader::CompileAllShaders()
 	printOpenGLError();
 
 	LinkShaders();
-	UseProgram(eShaderNothing);
+	UseProgram(eShaderTexture);
 
 	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outDepth");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
-
+	
 	LinkShaders();
+	UseProgram(eShaderShadow);
 	UseProgram(eShaderNothing);
 }
 

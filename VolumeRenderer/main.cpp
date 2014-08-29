@@ -19,8 +19,6 @@
 
 #include "RenderEngine.h"
 
-#define MODELLOADING 1
-
 extern RenderEngine * gRenderEngine;
 
 void CreatePlane();
@@ -35,15 +33,9 @@ int main(int argc, char **argv) {
 	glm::vec3 eyepos(66.5f, 30.0f, 0.0f);
 	gRenderEngine->SetCamera(eyepos, -3.141592 / 2, 0);
 	gRenderEngine->AllocateInput();
-
 	gRenderEngine->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
 
-#if MODELLOADING
 	gRenderEngine->AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
-#else
-	std::vector<glm::vec3> verts;
-	LoadCube(verts);
-#endif
 
 	gRenderEngine->AllocateShader();
 	printOpenGLError();

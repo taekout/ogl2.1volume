@@ -6,7 +6,7 @@
 
 
 Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
-	 : fEyePos(eyepos), fov(45.0f), aspect(1.f), near(0.1f), far(500.f)
+	 : fEyePos(eyepos), fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 {
 	fHorizonAngle = horizonAngle;
 	fVerticalAngle = verticalAngle;

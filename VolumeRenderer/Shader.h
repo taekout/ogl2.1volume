@@ -77,6 +77,7 @@ public:
 	~Shader(void);
 
 	virtual void setShaders(EShaderKind kind, char * vertShader, char *fragShader);
+	virtual void CompileAllShaders();
 	virtual void LinkShaders();
 
 	virtual void UseProgram(EShaderKind kind);

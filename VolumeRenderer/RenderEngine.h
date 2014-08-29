@@ -23,6 +23,7 @@ public:
 	virtual ~RenderEngine(void);
 
 	void AllocateShader();
+	void RecompileShaderIfNecessary();
 	void AllocateInput();
 	void SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
 	void SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);

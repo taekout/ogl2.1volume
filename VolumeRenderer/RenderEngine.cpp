@@ -22,6 +22,8 @@ void RenderScene()
 	glutSwapBuffers();
 	glutPostRedisplay();
 	//gDC.gShader->ShaderFileChangeWatcher();
+
+	gRenderEngine->RecompileShaderIfNecessary();
 	printOpenGLError();
 }
 
@@ -136,6 +138,15 @@ RenderEngine::~RenderEngine(void)
 void RenderEngine::AllocateShader()
 {
 	fShader = new Shader();
+}
+
+void RenderEngine::RecompileShaderIfNecessary()
+{
+	if(fInput && fInput->ShouldRecompileShader()) {
+		if(fShader)
+			fShader->CompileAllShaders();
+		fInput->ShouldRecompileShader(false);
+	}
 }
 
 void RenderEngine::AllocateInput()

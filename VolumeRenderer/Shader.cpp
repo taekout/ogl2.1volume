@@ -10,41 +10,7 @@
 Shader::Shader(void)
 	: fShaderIndex(-1)
 {
-	//EShaderKind::eShaderBasic
-	const unsigned int kOutColorID = 0;
-	const unsigned int kInPosID= 0;
-	const unsigned int kInNormals = 1;
-	const unsigned int kInUV = 2;
-
-	setShaders(Shader::EShaderKind::eShaderBasic, "./GLSL/white.vert", "./GLSL/white.frag");
-
-	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
-	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
-	glBindAttribLocation(GetProgram(), kInUV, "inUV");
-
-	printOpenGLError();
-
-	LinkShaders();
-	UseProgram(eShaderNothing);
-	
-	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
-	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
-	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
-	glBindAttribLocation(GetProgram(), kInUV, "inUV");
-	
-	printOpenGLError();
-
-	LinkShaders();
-	UseProgram(eShaderNothing);
-
-	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
-	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
-	
-	LinkShaders();
-	UseProgram(eShaderNothing);
+	CompileAllShaders();
 }
 
 
@@ -227,7 +193,7 @@ void Shader::ShaderFileChangeWatcher(void)
 	if(_stat(sd.vertFilename.c_str(), &fileinfo) != -1) {
 		vertTimeStamp = fileinfo.st_mtime;
 		if(vertTimeStamp.IsChanged()) {
-			;//setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
+			setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
 		}
 	}
 	// fragment shader file change detection
@@ -235,7 +201,7 @@ void Shader::ShaderFileChangeWatcher(void)
 	if(_stat(sd.fragFilename.c_str(), &fileinfo) != -1) {
 		fragTimeStamp = fileinfo.st_mtime;
 		if(fragTimeStamp.IsChanged())
-			;//setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
+			setShaders(EShaderKind::eShaderTexture, (char *)sd.vertFilename.c_str(), (char *)sd.fragFilename.c_str());
 	}
 }
 
@@ -287,6 +253,44 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
 	fShaderIndex = fShaderData.size() - 1;
 
 	delete vertData, fragData;
+}
+
+void Shader::CompileAllShaders()
+{
+	const unsigned int kOutColorID = 0;
+	const unsigned int kInPosID= 0;
+	const unsigned int kInNormals = 1;
+	const unsigned int kInUV = 2;
+
+	setShaders(Shader::EShaderKind::eShaderBasic, "./GLSL/white.vert", "./GLSL/white.frag");
+
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+
+	printOpenGLError();
+
+	LinkShaders();
+	UseProgram(eShaderNothing);
+
+	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+
+	printOpenGLError();
+
+	LinkShaders();
+	UseProgram(eShaderNothing);
+
+	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+
+	LinkShaders();
+	UseProgram(eShaderNothing);
 }
 
 void Shader::LinkShaders()

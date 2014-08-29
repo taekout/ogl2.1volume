@@ -64,6 +64,8 @@ public:
 	bool IsUpPressed() { return fbUpPressed; }
 	bool IsBackPressed() { return fbBackPressed; }
 	bool IsForewardPressed() { return fbForePressed; }
+	bool ShouldRecompileShader() { return fbRecompileShader; }
+	void ShouldRecompileShader(bool inRecompileShader) { fbRecompileShader = inRecompileShader; }
 	void Move(EDirection dir);
 
 protected:
@@ -77,6 +79,7 @@ protected:
 	bool fbLeftPressed;
 	bool fbBackPressed;
 	bool fbForePressed;
+	bool fbRecompileShader;
 
 };
 

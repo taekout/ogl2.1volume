@@ -88,10 +88,6 @@ void RenderEngine::GLInit()
 	//glutIdleFunc(renderScene);
 	//glutReshapeFunc(changeSize);
 
-	glm::vec3 eyepos(66.5f, 30.0f, 0.0f);
-	SetCamera(eyepos, -3.141592 / 2, 0);
-	AllocateInput();
-
 	glutKeyboardFunc(Keyboard);
 	glutKeyboardUpFunc(KeyboardUp);
 	glutSpecialFunc(Keyboard);

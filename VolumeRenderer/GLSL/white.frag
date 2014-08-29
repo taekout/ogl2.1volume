@@ -12,7 +12,7 @@ void main()
 	//float cosTheta = clamp( dot(fragNormal, fragL), 0.f, 1.f );
 	outColor = vec4( clamp( dot(fragNormal, fragL), 0.f, 1.f ) );
 
-	float d = gl_FragCoord.z;
+	/*float d = gl_FragCoord.z;
 	if(d > 0.9) {
 		outColor = vec4( d, d, d, 1.f );
 	}
@@ -27,6 +27,6 @@ void main()
 	}
 	else {
 		outColor = vec4( 0.f, 0.f, 0.f, 1.f );
-	}
+	}*/
 }
 

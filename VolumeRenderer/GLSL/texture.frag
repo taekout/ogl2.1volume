@@ -25,7 +25,7 @@ void main()
 	outColor.rgb = texture(imageTexSampler, fragUV).rgb;
 	outColor = vec4( outColor.rgb * (cosTheta), 1.0 );
 
-	float d = gl_FragCoord.z;
+	/*float d = gl_FragCoord.z;
 	if(d > 0.9) {
 		outColor = vec4( d, d, d, 1.f );
 	}
@@ -40,6 +40,6 @@ void main()
 	}
 	else {
 		outColor = vec4( 0.f, 0.f, 0.f, 1.f );
-	}
+	}*/
 }
 

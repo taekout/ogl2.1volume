@@ -24,6 +24,5 @@ void main()
 	float cosTheta = clamp( dot(fragNormal, fragL), 0.f, 1.f );
 	outColor.rgb = texture(imageTexSampler, fragUV).rgb;
 	outColor = vec4( outColor.rgb * (cosTheta), 1.0 );
-	outColor = vec4( 0.0, 0.0, 0.0, 1.0 );
 }
 

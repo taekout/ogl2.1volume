@@ -7,7 +7,7 @@
 
 #include "Batch.h"
 
-GraphicsEngine * gRenderEngine = NULL;
+RenderEngine * gRenderEngine = NULL;
 
 void RenderScene()
 {
@@ -30,7 +30,7 @@ IGraphicsEngine::IGraphicsEngine(void)
 }
 
 
-GraphicsEngine::GraphicsEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
+RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
 	fVertexPos(-1), fNormalPos(-1), fUVPos(-1), fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
 {
 	GLInit();
@@ -74,7 +74,7 @@ void MouseMotion(int x, int y)
 }
 
 
-void GraphicsEngine::GLInit()
+void RenderEngine::GLInit()
 {
 
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
@@ -116,7 +116,7 @@ void GraphicsEngine::GLInit()
 }
 
 
-GraphicsEngine::~GraphicsEngine(void)
+RenderEngine::~RenderEngine(void)
 {
 	if(fShader)
 		delete fShader;
@@ -133,12 +133,12 @@ GraphicsEngine::~GraphicsEngine(void)
 }
 
 
-void GraphicsEngine::AllocateShader()
+void RenderEngine::AllocateShader()
 {
 	fShader = new Shader();
 }
 
-void GraphicsEngine::AllocateInput()
+void RenderEngine::AllocateInput()
 {
 	if(!fInput) {
 		if(fCamera)
@@ -148,21 +148,21 @@ void GraphicsEngine::AllocateInput()
 	}
 }
 
-void GraphicsEngine::SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
+void RenderEngine::SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
 {
 	if(fCamera)
 		delete fCamera;
 	fCamera = new Camera(eyepos, horizonAngle, verticalAngle);
 }
 
-void GraphicsEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
+void RenderEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
 {
 	if(fLightCamera)
 		delete fLightCamera;
 	fLightCamera = new Camera(eyepos, horizonAngle, verticalAngle);
 }
 
-void GraphicsEngine::AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName)
+void RenderEngine::AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName)
 {
 	unsigned texID = loadBMP_custom((objPath + textureFileName).c_str());
 
@@ -175,13 +175,13 @@ void GraphicsEngine::AllocateMeshAccess(std::string textureFileName, std::string
 	}
 }
 
-void GraphicsEngine::AddLight(glm::vec3 & pos, glm::vec3 intensity)
+void RenderEngine::AddLight(glm::vec3 & pos, glm::vec3 intensity)
 {
 	fLights = new Light();
 	fLights->AddLight(pos, glm::vec3(0) - pos, intensity);
 }
 
-void GraphicsEngine::ComputeRenderMat()
+void RenderEngine::ComputeRenderMat()
 {
 	glm::mat4 model = fCamera->GetModel();
 	glm::mat4 view = fCamera->GetView();
@@ -206,7 +206,7 @@ void GraphicsEngine::ComputeRenderMat()
 	}
 }
 
-void GraphicsEngine::ComputeShadowMat()
+void RenderEngine::ComputeShadowMat()
 {
 	if(fLightCamera) {
 
@@ -227,13 +227,13 @@ void GraphicsEngine::ComputeShadowMat()
 }
 
 
-bool GraphicsEngine::SetupRenderTarget(const glm::vec3 & pos)
+bool RenderEngine::SetupRenderTarget(const glm::vec3 & pos)
 {
 	return fFramebuf.SetupRenderTarget();
 }
 
 
-void GraphicsEngine::ActivateMoveIfKeyPressed()
+void RenderEngine::ActivateMoveIfKeyPressed()
 {
 	if(fInput->IsLeftPressed()) {
 		fInput->Move(EDirection::left);
@@ -261,7 +261,7 @@ void GraphicsEngine::ActivateMoveIfKeyPressed()
 }
 
 
-void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
+void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
 				 std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind)
 {
 	
@@ -329,7 +329,7 @@ void GraphicsEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<u
 	glBindVertexArray(0);
 }
 
-void GraphicsEngine::RenderBatch()
+void RenderEngine::RenderBatch()
 {
 	printOpenGLError();
 	glBindTexture(GL_TEXTURE_2D, 0);

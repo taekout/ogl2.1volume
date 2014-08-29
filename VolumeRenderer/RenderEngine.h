@@ -16,11 +16,11 @@ public:
 };
 
 
-class GraphicsEngine : public IGraphicsEngine
+class RenderEngine : public IGraphicsEngine
 {
 public:
-	GraphicsEngine(void);
-	virtual ~GraphicsEngine(void);
+	RenderEngine(void);
+	virtual ~RenderEngine(void);
 
 	void AllocateShader();
 	void AllocateInput();

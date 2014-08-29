@@ -21,7 +21,7 @@
 
 #define MODELLOADING 1
 
-extern GraphicsEngine * gRenderEngine;
+extern RenderEngine * gRenderEngine;
 
 void CreatePlane();
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 
 	glutInit(&argc, argv);
 
-	gRenderEngine = new GraphicsEngine();
+	gRenderEngine = new RenderEngine();
 
 	gRenderEngine->AddLight(glm::vec3(100.f, 100.f, 100.f), glm::vec3(1.0f, 1.0f, 1.0f));
 

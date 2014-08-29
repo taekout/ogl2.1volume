@@ -12,6 +12,7 @@ RenderEngine * gRenderEngine = NULL;
 void RenderScene()
 {
 	printOpenGLError();
+	gRenderEngine->RecompileShaderIfNecessary();
 
 	gRenderEngine->ActivateMoveIfKeyPressed();
 
@@ -22,8 +23,7 @@ void RenderScene()
 	glutSwapBuffers();
 	glutPostRedisplay();
 	//gDC.gShader->ShaderFileChangeWatcher();
-
-	gRenderEngine->RecompileShaderIfNecessary();
+	
 	printOpenGLError();
 }
 
@@ -33,7 +33,7 @@ IGraphicsEngine::IGraphicsEngine(void)
 
 
 RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
-	fVertexPos(-1), fNormalPos(-1), fUVPos(-1), fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
+	fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
 {
 	GLInit();
 }
@@ -278,58 +278,64 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 	
 	fShader->UseProgram(kind); // It might be better to use the program here just avoid opengl error message.
 
-	GLuint vao = -1;
+	GLuint vao = -1, vertexPos = -1, normalPos = -1, UVPos = -1;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+	printOpenGLError();
+
 	assert(inVerts.size() != 0 && inInds.size() != 0);
 
-	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture ) {
+	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture || kind == Shader::eShaderShadow ) {
 
-		fVertexPos = glGetAttribLocation(fShader->GetProgram(), "inPositions");
-		fNormalPos = glGetAttribLocation(fShader->GetProgram(), "inNormals");
+		vertexPos = glGetAttribLocation(fShader->GetProgram(), "inPositions");
+		normalPos = glGetAttribLocation(fShader->GetProgram(), "inNormals");
 		
-		if( kind == Shader::eShaderTexture )
-			fUVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
+		UVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
 	}
+	printOpenGLError();
 
-	if( inVerts.size() != 0 && inInds.size() != 0 ) {
+
+	if( inVerts.size() != 0 && inInds.size() != 0 && vertexPos != -1 ) {
 
 		GLuint vertexBuffer;
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(fVertexPos);
+		glEnableVertexAttribArray(vertexPos);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glVertexAttribPointer(fVertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glVertexAttribPointer(vertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
 		glGenBuffers(1, &fIndexBuffer);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndexBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
 	}
+	printOpenGLError();
 
-	if( inNormals.size() != 0 ) {
+	if( inNormals.size() != 0 && normalPos != -1 ) {
 
 		glGenBuffers(1, &fNormalBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(fNormalPos);
+		glEnableVertexAttribArray(normalPos);
 		glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
-		glVertexAttribPointer(fNormalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glVertexAttribPointer(normalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
+	printOpenGLError();
 
-	if( inUVs.size() != 0 ) {
+	if( inUVs.size() != 0 && UVPos  != -1) {
 
 		glGenBuffers(1, &fUVBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
 		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
 
-		glEnableVertexAttribArray(fUVPos);
+		glEnableVertexAttribArray(UVPos);
 		glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
-		glVertexAttribPointer(fUVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glVertexAttribPointer(UVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
+	printOpenGLError();
 
 	Batch *batch = new Batch( vao, inVerts, inInds, inNormals, inGLTexID, inUVs, kind );
 	fVAOs.emplace( std::pair<int, Batch *>((int)vao, batch) );
@@ -352,8 +358,8 @@ void RenderEngine::RenderBatch()
 		fShader->UseProgram(batch->fProgram);
 		ComputeRenderMat();
 		glBindVertexArray( batch->fID );
-		glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
-		//batch->
+		if(batch->fGLTexID)
+			glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
 		glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindVertexArray(0);

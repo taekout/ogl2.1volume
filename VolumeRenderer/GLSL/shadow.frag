@@ -2,10 +2,10 @@
 
 precision highp float;
 
-out vec4 outColor;
+out float outDepth;
 
 void main()
 {
-	outColor = gl_FragCoord.z;
+	outDepth = gl_FragCoord.z;
 }
 

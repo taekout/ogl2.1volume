@@ -53,9 +53,6 @@ public:
 	std::vector<glm::vec3> fColors;
 	std::vector<Mesh> fMeshes;
 
-	GLint fVertexPos;
-	GLint fNormalPos;
-	GLint fUVPos;
 	GLuint fIndexBuffer;
 	GLuint fNormalBuffer;
 	GLuint fUVBuffer;

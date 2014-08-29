@@ -207,18 +207,6 @@ void Shader::ShaderFileChangeWatcher(void)
 
 void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader) {
 
-	if(fShaderIndex != -1) {
-		ShaderData & shaderData = fShaderData[fShaderIndex];
-		if(shaderData.fProgramID != 0) {
-			//glDetachShader(shaderData.fProgramID, shaderData.fVertShaderID);
-			//glDetachShader(shaderData.fProgramID, shaderData.fFragShaderID);
-			//glDeleteShader(shaderData.fVertShaderID);
-			//glDeleteShader(shaderData.fFragShaderID);
-			//glDeleteProgram(shaderData.fProgramID);
-		}
-
-	}
-	
 	GLuint programID = 0;
 	GLuint vertShaderID = 0;
 	GLuint fragShaderID = 0;
@@ -267,7 +255,6 @@ void Shader::CompileAllShaders()
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
-	glBindAttribLocation(GetProgram(), kInUV, "inUV");
 
 	printOpenGLError();
 
@@ -286,8 +273,8 @@ void Shader::CompileAllShaders()
 	UseProgram(eShaderNothing);
 
 	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outDepth");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
-	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
 
 	LinkShaders();
 	UseProgram(eShaderNothing);

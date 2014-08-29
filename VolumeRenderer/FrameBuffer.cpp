@@ -39,3 +39,8 @@ bool FrameBuffer::SetupRenderTarget(void)
 	return true;
 }
 
+void FrameBuffer::SetdownRenderTarget()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+

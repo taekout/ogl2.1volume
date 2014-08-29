@@ -6,6 +6,7 @@ public:
 	~FrameBuffer(void);
 
 	bool SetupRenderTarget(void);
+	void SetdownRenderTarget(void);
 
 protected:
 

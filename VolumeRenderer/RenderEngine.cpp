@@ -239,6 +239,11 @@ bool RenderEngine::SetupRenderTarget(const glm::vec3 & pos)
 	return fFramebuf.SetupRenderTarget();
 }
 
+void RenderEngine::SetdownRenderTarget()
+{
+	fFramebuf.SetdownRenderTarget();
+}
+
 
 void RenderEngine::ActivateMoveIfKeyPressed()
 {

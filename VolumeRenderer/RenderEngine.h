@@ -48,6 +48,7 @@ public:
 	Light * fLights;
 
 	bool SetupRenderTarget(const glm::vec3 & pos);
+	void SetdownRenderTarget();
 	FrameBuffer fFramebuf;
 
 	std::vector<glm::vec3> fColors;

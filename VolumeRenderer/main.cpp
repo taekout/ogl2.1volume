@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
 	printOpenGLError();
 
 	//gRenderEngine->SetupRenderTarget(gRenderEngine->fLightCamera->GetEyePos());
+	//gRenderEngine->RenderBatch();
+	//gRenderEngine->SetdownRenderTarget();
 
 
 	

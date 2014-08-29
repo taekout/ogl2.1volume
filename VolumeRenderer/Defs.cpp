@@ -8,6 +8,8 @@
 #include <fstream>
 #include <glm.hpp>
 
+#define GS_WIN 1
+
 int printOglError(char *file, int line)
 {
 	//
@@ -162,7 +164,7 @@ void GL_WriteTexturesToDisk()
 			char filename[256];
 			int len=0;
 #if GS_WIN
-			const char * logPath = "c:\\a\\";
+			const char * logPath = "d:\\a\\";
 #else
 			const char * logPath = "/a/";
 #endif

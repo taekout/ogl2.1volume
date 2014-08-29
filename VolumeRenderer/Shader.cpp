@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fstream>
 #include <sstream>
+#include <assert.h>
 #include "Defs.h"
 
 
@@ -208,7 +209,7 @@ void Shader::ShaderFileChangeWatcher(void)
 void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
 {
 	if(kind != -1) {
-		if(fShaderData.size() > kind) {
+		if((signed int)fShaderData.size() > kind) {
 			ShaderData & shaderData = fShaderData[kind];
 			if(shaderData.fProgramID != 0) {
 				glDetachShader(shaderData.fProgramID, shaderData.fVertShaderID);
@@ -251,13 +252,16 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
 
 	ShaderData sd(kind, vertShaderID, fragShaderID, programID, std::string(vertShader), std::string(fragShader));
 	fShaderData.push_back(sd);
-	fShaderIndex = fShaderData.size() - 1;
+	assert(kind == fShaderData.size() - 1);
+	fShaderIndex = kind;
 
 	delete vertData, fragData;
 }
 
 void Shader::CompileAllShaders()
 {
+	fShaderData.clear();
+
 	const unsigned int kOutColorID = 0;
 	const unsigned int kInPosID= 0;
 	const unsigned int kInNormals = 1;

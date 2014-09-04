@@ -90,7 +90,7 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 		break;
 	case 'r':
 	case 'R':
-		fCamera->SetCamera(glm::vec3(66.5f, 30.0f, 0.0f), -3.141592 / 2, 0);
+		fCamera->RevertCameraToResetPoint();
 		break;
 	case 'p':
 	case 'P':

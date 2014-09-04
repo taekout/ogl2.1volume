@@ -18,6 +18,7 @@ public:
 
 	void SetCamera();
 	void SetCamera(glm::vec3 eyePos, float horizonAngle, float VerticalAngle);
+	void RevertCameraToResetPoint();
 
 	void Print();
 	void Print(glm::vec3 eyePos, glm::vec2 angles);

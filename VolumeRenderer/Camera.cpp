@@ -6,10 +6,8 @@
 
 
 Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
-	 : fEyePos(eyepos), fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(200.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
+	 : fCurCamera(CameraData(eyepos, horizonAngle, verticalAngle)), fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(200.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 {
-	fHorizonAngle = horizonAngle;
-	fVerticalAngle = verticalAngle;
 	SetCamera();
 	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
 }
@@ -36,37 +34,31 @@ glm::mat4 Camera::GetView()
 
 glm::vec3 Camera::GetEyePos()
 {
-	return fEyePos;
+	return fCurCamera.fEyePos;
 }
 
 void Camera::SetCamera()
 {
 	Print();
-	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
+	glm::vec3 viewDir(cos(fCurCamera.fVerticalAngle) * sin(fCurCamera.fHorizonAngle), sin(fCurCamera.fVerticalAngle), cos(fCurCamera.fVerticalAngle) * cos(fCurCamera.fHorizonAngle));
 	fViewMat = glm::lookAt(
-						fEyePos,
-						fEyePos + viewDir,
+						fCurCamera.fEyePos,
+						fCurCamera.fEyePos + viewDir,
 						glm::vec3(0,1,0));
+	fResetCamera = fCurCamera;
 }
 
 void Camera::SetCamera(glm::vec3 eyePos, float horizonAngle, float verticalAngle)
 {
-	fEyePos = eyePos;
-	fHorizonAngle = horizonAngle;
-	fVerticalAngle = verticalAngle;
-	Print();
-	glm::vec3 viewDir(cos(verticalAngle) * sin(horizonAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizonAngle));
-	fViewMat = glm::lookAt(
-		eyePos,
-		eyePos + viewDir,
-		glm::vec3(0,1,0));
+	fCurCamera = CameraData(eyePos, horizonAngle, verticalAngle);
+	SetCamera();
 }
 
 void Camera::Print()
 {
 	return;
-	printf("Eye Pos : %f, %f, %f\n", fEyePos.x, fEyePos.y, fEyePos.z);
-	printf("Horizon Angle, Vertical Angle : %f, %f\n", fHorizonAngle, fVerticalAngle);
+	printf("Eye Pos : %f, %f, %f\n", fCurCamera.fEyePos.x, fCurCamera.fEyePos.y, fCurCamera.fEyePos.z);
+	printf("Horizon Angle, Vertical Angle : %f, %f\n", fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle);
 }
 
 void Camera::Print(glm::vec3 eyePos, glm::vec2 angles)
@@ -83,35 +75,35 @@ void Camera::Move(EDirection dir)
 	switch(dir) {
 
 	case left: {
-		fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
+		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
 	case right: {
-		fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]) * MOVE_SCALE;
+		fCurCamera.fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
 	case forward: {
-		fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
+		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 
 	case backward: {
-		fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
+		fCurCamera.fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 	case up: {
-		fEyePos += glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]) * MOVE_SCALE;
+		fCurCamera.fEyePos += glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
 	case down: {
-		fEyePos += glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]) * MOVE_SCALE;
+		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]) * MOVE_SCALE;
 		SetCamera();
 		}
 		break;
@@ -123,9 +115,9 @@ void Camera::Move(EDirection dir)
 void Camera::Rotate(const glm::vec2 & degree)
 {
 	const float mouseSpeed = 0.005f;
-	fVerticalAngle = fVerticalAngle - degree.y * mouseSpeed;
-	fHorizonAngle = fHorizonAngle + degree.x * mouseSpeed;
-	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
+	fCurCamera.fVerticalAngle = fCurCamera.fVerticalAngle - degree.y * mouseSpeed;
+	fCurCamera.fHorizonAngle = fCurCamera.fHorizonAngle + degree.x * mouseSpeed;
+	glm::vec3 viewDir(cos(fCurCamera.fVerticalAngle) * sin(fCurCamera.fHorizonAngle), sin(fCurCamera.fVerticalAngle), cos(fCurCamera.fVerticalAngle) * cos(fCurCamera.fHorizonAngle));
 	//viewDir = glm::mat3(rotm) * viewDir;
 	SetCamera();
 }
@@ -135,7 +127,7 @@ void Camera::UpdateRenderMat(/*GraphicsEngine * ge*/)
 
 void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
 {
-	glm::vec3 viewDir(cos(fVerticalAngle) * sin(fHorizonAngle), sin(fVerticalAngle), cos(fVerticalAngle) * cos(fHorizonAngle));
+	glm::vec3 viewDir(cos(fCurCamera.fVerticalAngle) * sin(fCurCamera.fHorizonAngle), sin(fCurCamera.fVerticalAngle), cos(fCurCamera.fVerticalAngle) * cos(fCurCamera.fHorizonAngle));
 	glm::vec3 lightInvDir = -viewDir; // ???
 
 	// Compute the MVP matrix from the light's point of view

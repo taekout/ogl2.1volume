@@ -38,9 +38,16 @@ public:
 protected:
 
 	// camera position
-	glm::vec3 fEyePos;
-	float fHorizonAngle;
-	float fVerticalAngle;
+	struct CameraData
+	{
+		glm::vec3 fEyePos;
+		float fHorizonAngle;
+		float fVerticalAngle;
+		CameraData() : fEyePos(0.f, 0.f, 0.f), fHorizonAngle(0.f), fVerticalAngle(0.f) {}
+		CameraData(const glm::vec3 & eyePos, float horizonAngle, float verticalAngle) : fEyePos(eyePos), fHorizonAngle(horizonAngle), fVerticalAngle(verticalAngle) {}
+	};
+	CameraData fCurCamera;
+	CameraData fResetCamera;
 
 	// transformation matrices
 	glm::mat4 fViewMat;

@@ -28,10 +28,12 @@ public:
 	void UpdateRenderMat(/*GraphicsEngine * ge*/);
 	void SetMVPForDepth(Light * inLight);
 
-	const float fov;
-	const float aspect;
-	const float near;
-	const float far;
+	const float fLeft;
+	const float fRight;
+	const float fBottom;
+	const float fTop;
+	const float fNear;
+	const float fFar;
 
 protected:
 

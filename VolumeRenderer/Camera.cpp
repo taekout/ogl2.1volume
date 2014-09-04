@@ -6,12 +6,12 @@
 
 
 Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
-	 : fEyePos(eyepos), fov(45.0f), aspect(1.f), near(20.f), far(70.f)
+	 : fEyePos(eyepos), fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(200.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 {
 	fHorizonAngle = horizonAngle;
 	fVerticalAngle = verticalAngle;
 	SetCamera();
-	fProjMat = glm::perspective(Camera::fov, Camera::aspect, Camera::near, Camera::far);
+	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
 }
 
 
@@ -139,7 +139,7 @@ void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
 	glm::vec3 lightInvDir = -viewDir; // ???
 
 	// Compute the MVP matrix from the light's point of view
-	glm::mat4 depthProjectionMatrix = glm::perspective(Camera::fov, Camera::aspect, Camera::near, Camera::far);
+	glm::mat4 depthProjectionMatrix = glm::ortho(Camera::fLeft, Camera::fRight, Camera::fBottom, Camera::fTop, Camera::fNear, Camera::fFar);
 	glm::mat4 depthViewMatrix = glm::lookAt(inLight->GetLightPos(0), inLight->GetLightDir(0), glm::vec3(0,1,0));
 	glm::mat4 depthModelMatrix = glm::mat4(1.0);
 	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;

@@ -143,7 +143,7 @@ int Shader::textFileWrite(char *fn, char *s) {
 	return(status);*/
 }
 
-void Shader::printShaderInfoLog(GLuint obj)
+void Shader::printShaderInfoLog(std::string shadername, GLuint obj)
 {
     int infologLength = 0;
     int charsWritten  = 0;
@@ -159,11 +159,11 @@ void Shader::printShaderInfoLog(GLuint obj)
         free(infoLog);
 
 		if(infologLength == 1)
-			printf("shader fine.\n");
+			printf("%s\n", (shadername + ": shader fine.").c_str());
     }
 }
 
-void Shader::printProgramInfoLog(GLuint obj)
+void Shader::printProgramInfoLog(std::string vertShaderName, std::string fragShaderName, GLuint obj)
 {
     int infologLength = 0;
     int charsWritten  = 0;
@@ -179,7 +179,7 @@ void Shader::printProgramInfoLog(GLuint obj)
         free(infoLog);
 
 		if(infologLength == 1)
-			printf("shader fine.\n");
+			printf("%s\n", (vertShaderName + ", " + fragShaderName + ": program fine.").c_str());
     }
 	
 }
@@ -244,8 +244,8 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
 
 	glCompileShader(vertShaderID);
 	glCompileShader(fragShaderID);
-	printShaderInfoLog(vertShaderID);
-	printShaderInfoLog(fragShaderID);
+	printShaderInfoLog(vertShader, vertShaderID);
+	printShaderInfoLog(fragShader, fragShaderID);
 	programID = glCreateProgram();
 	glAttachShader(programID, vertShaderID);
 	glAttachShader(programID, fragShaderID);
@@ -302,7 +302,7 @@ void Shader::LinkShaders()
 {
 	ShaderData & sd = fShaderData[fShaderIndex];
 	glLinkProgram(sd.fProgramID);
-	printProgramInfoLog(sd.fProgramID);
+	printProgramInfoLog(sd.vertFilename, sd.fragFilename, sd.fProgramID);
 
 	//glUseProgram(sd.fProgramID);
 	//printf("Use a new program.\n");

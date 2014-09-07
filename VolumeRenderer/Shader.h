@@ -89,8 +89,8 @@ public:
 	GLuint GetProgram(void) { return (fShaderIndex != -1) ? fShaderData[fShaderIndex].fProgramID : 0; }
 	GLuint GetProgram(EShaderKind kind) { return fShaderData[kind].fProgramID; }
 	// Log Functions
-	void printShaderInfoLog(GLuint obj);
-	void printProgramInfoLog(GLuint obj);
+	void printShaderInfoLog(std::string shadername, GLuint obj);
+	void printProgramInfoLog(std::string vertShaderName, std::string fragShaderName, GLuint obj);
 
 	// Update GL Variable Functions
 	void UpdateUniform4fv(char *varName, float data1, float data2, float data3, float data4);

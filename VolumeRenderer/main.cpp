@@ -23,6 +23,15 @@ extern RenderEngine * gRenderEngine;
 
 void CreatePlane();
 
+/*
+To do:
+1 make light directional light(Point light is not good for shadow maps.)
+2 SetCamera(eyepos, viewdir) instead of (eyepos, horizonangle, verticalangle)
+
+3 shadow map rendering. (SetCamera(lightPos, viewDir to the center))
+4 use shadow map to do light shaft.
+*/
+
 int main(int argc, char **argv) {
 	try {
 		/*

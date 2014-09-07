@@ -25,7 +25,9 @@ void CreatePlane();
 
 int main(int argc, char **argv) {
 	try {
-
+		/*
+		-0.61388, -0.49687, -0.61339
+		*/
 	glutInit(&argc, argv);
 
 	gRenderEngine = new RenderEngine();

@@ -162,6 +162,13 @@ void RenderEngine::SetCamera(const glm::vec3 & eyepos, float horizonAngle, float
 	fCamera = new Camera(eyepos, horizonAngle, verticalAngle);
 }
 
+void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
+{
+	if(fCamera)
+		delete fCamera;
+	fCamera = new Camera(eyepos, viewDir);
+}
+
 void RenderEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
 {
 	if(fLightCamera)

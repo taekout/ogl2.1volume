@@ -26,6 +26,7 @@ public:
 	void RecompileShaderIfNecessary();
 	void AllocateInput();
 	void SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
+	void SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir);
 	void SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
 	void AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName);
 	void AddLight(glm::vec3 & pos, glm::vec3 & lightDir, glm::vec3 intensity);

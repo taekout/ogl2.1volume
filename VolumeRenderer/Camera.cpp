@@ -13,6 +13,17 @@ Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle
 	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
 }
 
+Camera::Camera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
+	: fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(300.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
+{
+	float horizonAngle, verticalAngle;
+	ViewDirToSphericalAngles(viewDir, horizonAngle, verticalAngle);
+	fCurCamera = CameraData(eyepos, horizonAngle, verticalAngle);
+	fResetCamera = fCurCamera;
+	SetCamera();
+	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
+}
+
 
 Camera::~Camera(void)
 {
@@ -56,8 +67,8 @@ void Camera::SetCamera(glm::vec3 eyePos, float horizonAngle, float verticalAngle
 
 void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
 {
-	float verticalAngle = asin(viewDir.y);
-	float horizonAngle = asin( viewDir.x / cos(verticalAngle) );
+	float horizonAngle, verticalAngle;
+	ViewDirToSphericalAngles(viewDir, horizonAngle, verticalAngle);
 	fCurCamera = CameraData(eyePos, horizonAngle, verticalAngle);
 	SetCamera();
 }
@@ -153,6 +164,13 @@ void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
 	// Send our transformation to the currently bound shader,
 	// in the "MVP" uniform
 	//glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0])
+}
+
+void Camera::ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle)
+{
+	glm::vec3 normalizedViewDir = glm::normalize(viewDir);
+	verticalAngle = asin(normalizedViewDir.y);
+	horizonAngle = asin( normalizedViewDir.x / cos(verticalAngle) );
 }
 
 #if 0 

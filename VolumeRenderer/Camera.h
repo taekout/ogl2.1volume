@@ -9,6 +9,7 @@ class Camera
 {
 public:
 	Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
+	Camera(const glm::vec3 & eyepos, const glm::vec3 & viewDir);
 	~Camera(void);
 
 	glm::mat4 GetModel();
@@ -38,6 +39,8 @@ public:
 	const float fFar;
 
 protected:
+
+	void ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle);
 
 	// camera position
 	struct CameraData

@@ -182,10 +182,10 @@ void RenderEngine::AllocateMeshAccess(std::string textureFileName, std::string o
 	}
 }
 
-void RenderEngine::AddLight(glm::vec3 & pos, glm::vec3 intensity)
+void RenderEngine::AddLight(glm::vec3 & pos, glm::vec3 & lightDir, glm::vec3 intensity)
 {
 	fLights = new Light();
-	fLights->AddLight(pos, glm::vec3(0) - pos, intensity);
+	fLights->AddLight(pos, lightDir, intensity);
 }
 
 void RenderEngine::ComputeRenderMat()
@@ -207,9 +207,8 @@ void RenderEngine::ComputeRenderMat()
 	if(fLights) {
 		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = fLights->GetLight(0);
 
-		auto pos = std::get<Light::kLightPos>(lightData);
-
-		fShader->UpdateUniform3fv("LightPos", pos[0], pos[1], pos[2]);
+		auto lightDir = std::get<Light::kLightDir>(lightData);
+		fShader->UpdateUniform3fv("LightDir", -lightDir[0], -lightDir[1], -lightDir[2]);
 	}
 }
 

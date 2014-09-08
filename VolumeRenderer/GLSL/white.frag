@@ -3,14 +3,15 @@
 precision highp float;
 
 in vec3 fragNormal;
-in vec3 fragL;
+
+uniform vec3 LightDir;
 
 out vec4 outColor;
 
 void main()
 {
-	//float cosTheta = clamp( dot(fragNormal, fragL), 0.f, 1.f );
-	outColor = vec4( clamp( dot(fragNormal, fragL), 0.f, 1.f ) );
+	//float cosTheta = clamp( dot(fragNormal, LightDir), 0.f, 1.f );
+	outColor = vec4( clamp( dot(fragNormal, LightDir), 0.f, 1.f ) );
 
 	/*float d = gl_FragCoord.z;
 	if(d > 0.9) {

@@ -43,9 +43,10 @@ int main(int argc, char **argv) {
 
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
 	glm::vec3 lightPos(100.f, 100.f, 100.f);
+	glm::vec3 lightDir(glm::vec3(0) - lightPos);
 	gRenderEngine->SetCamera(eyePos, -3.141592 / 2, 0);
 	gRenderEngine->AllocateInput();
-	gRenderEngine->AddLight(lightPos, glm::vec3(1.0f, 1.0f, 1.0f));
+	gRenderEngine->AddLight(lightPos, lightDir, glm::vec3(1.0f, 1.0f, 1.0f));
 
 	gRenderEngine->AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
 

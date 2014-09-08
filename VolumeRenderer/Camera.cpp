@@ -6,7 +6,7 @@
 
 
 Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
-	 : fCurCamera(CameraData(eyepos, horizonAngle, verticalAngle)), fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(200.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
+	 : fCurCamera(CameraData(eyepos, horizonAngle, verticalAngle)), fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(300.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 {
 	fResetCamera = fCurCamera;
 	SetCamera();
@@ -50,6 +50,14 @@ void Camera::SetCamera()
 
 void Camera::SetCamera(glm::vec3 eyePos, float horizonAngle, float verticalAngle)
 {
+	fCurCamera = CameraData(eyePos, horizonAngle, verticalAngle);
+	SetCamera();
+}
+
+void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
+{
+	float verticalAngle = asin(viewDir.y);
+	float horizonAngle = asin( viewDir.x / cos(verticalAngle) );
 	fCurCamera = CameraData(eyePos, horizonAngle, verticalAngle);
 	SetCamera();
 }

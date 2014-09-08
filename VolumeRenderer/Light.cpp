@@ -12,7 +12,7 @@ Light::~Light(void)
 
 void Light::AddLight(const glm::vec3 & lightPos, const glm::vec3 & dir, const glm::vec3 & intensity)
 {
-	fLights.push_back(std::make_tuple(lightPos, dir, intensity));
+	fLights.push_back(std::make_tuple(lightPos, glm::normalize(dir), intensity));
 }
 
 std::tuple<glm::vec3, glm::vec3, glm::vec3> & Light::GetLight(size_t index)

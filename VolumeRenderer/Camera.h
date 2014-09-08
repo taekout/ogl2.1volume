@@ -16,6 +16,7 @@ public:
 	glm::mat4 GetProj();
 	glm::mat4 GetView();
 	glm::vec3 GetEyePos();
+	void GetSphericalAngles(float & horizonAngle, float & verticalAngle);
 
 	void SetCamera();
 	void SetCamera(glm::vec3 eyePos, float horizonAngle, float VerticalAngle);
@@ -38,9 +39,12 @@ public:
 	const float fNear;
 	const float fFar;
 
+	static void ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle);
+	static void SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, glm::vec3 & viewDir);
+
 protected:
 
-	void ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle);
+	
 
 	// camera position
 	struct CameraData

@@ -49,6 +49,12 @@ glm::vec3 Camera::GetEyePos()
 	return fCurCamera.fEyePos;
 }
 
+void Camera::GetSphericalAngles(float & horizonAngle, float & verticalAngle)
+{
+	horizonAngle = fCurCamera.fHorizonAngle;
+	verticalAngle = fCurCamera.fVerticalAngle;
+}
+
 void Camera::SetCamera()
 {
 	Print();
@@ -169,8 +175,13 @@ void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
 void Camera::ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle)
 {
 	glm::vec3 normalizedViewDir = glm::normalize(viewDir);
-	verticalAngle = asin(normalizedViewDir.y);
-	horizonAngle = asin( normalizedViewDir.x / cos(verticalAngle) );
+	horizonAngle = acos( normalizedViewDir.z / normalizedViewDir.length() );
+	verticalAngle = atan(normalizedViewDir.y / normalizedViewDir.x);
+}
+
+void Camera::SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, glm::vec3 & viewDir)
+{
+	viewDir = glm::vec3(cos(verticalAngle) * sin(horizonAngle), sin(verticalAngle) * sin(verticalAngle), cos(horizonAngle));
 }
 
 #if 0 

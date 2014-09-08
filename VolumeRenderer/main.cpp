@@ -35,7 +35,7 @@ To do:
 int main(int argc, char **argv) {
 	try {
 		/*
-		-0.61388, -0.49687, -0.61339
+		-0.609080136, 0.262330770, -0.705048561
 		*/
 	glutInit(&argc, argv);
 

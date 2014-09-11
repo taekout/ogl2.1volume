@@ -34,6 +34,12 @@ To do:
 
 int main(int argc, char **argv) {
 
+	glm::vec3 viewDir;
+	float hor, vert;
+	Camera::SphericalAnglesToViewDir(-2.35395503, -0.541688561, viewDir);
+	Camera::ViewDirToSphericalAngles(viewDir, hor, vert);
+
+
 	try {
 		/*
 		eye dir angles >

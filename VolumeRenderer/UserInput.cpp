@@ -36,7 +36,7 @@ void UserInput::Mouse(int button, int state, int x, int y)
 
 void UserInput::MouseMotion(int x, int y)
 {
-	glm::vec2 delta(fMousePos.x - x, y - fMousePos.y);
+	glm::vec2 delta(x - fMousePos.x, y - fMousePos.y);
 	fMousePos = glm::vec2(x, y);
 
 	switch(fButtonPressed) {

@@ -107,8 +107,8 @@ void Camera::Move(EDirection dir)
 	switch(dir) {
 
 	case left: {
-		//fCurCamera.fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
-		//SetCamera();
+		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
+		SetCamera();
 		}
 		break;
 

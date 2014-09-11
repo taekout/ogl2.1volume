@@ -81,22 +81,23 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////////////
 // Camera Utilities
 ///////////////////////////////////////////////////////////////////////////////////////
+
 namespace fpscam {
 
-#define mat4_type glm::detail::tmat4x4<T>
 	//template<typename T>
 	//using mat4_type = glm::detail::tmat4x4<T, glm::highp>;
-
-#define vec4_type glm::detail::tvec4<T>
+	typedef glm::mat4 mat4_type;
+	
 	//template<typename T>
 	//using vec4_type = glm::detail::tvec4<T, glm::highp>;
-
-#define vec3_type glm::detail::tvec3<T>
+	typedef glm::vec4 vec4_type;
+	
 	//template<typename T>
 	//using vec3_type = glm::detail::tvec3<T, glm::highp>;
+	typedef glm::vec3 vec3_type;
 
 	template<typename T>
-	void MoveForward(T amount, bool inParallelWithGround, mat4_type &viewMatrix) // If you want to move along on the ground, parallelWithGround = true.
+	void MoveForward(T amount, bool inParallelWithGround, T &viewMatrix) // If you want to move along on the ground, parallelWithGround = true.
 	{
 		if (inParallelWithGround)
 		{
@@ -205,5 +206,6 @@ namespace fpscam {
 		inOutViewMatrix = glm::affineInverse(cameraMat);
 	}
 } // end namespace fpscam
+
 
 

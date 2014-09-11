@@ -175,13 +175,14 @@ void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
 void Camera::ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle)
 {
 	glm::vec3 normalizedViewDir = glm::normalize(viewDir);
-	horizonAngle = acos( normalizedViewDir.z / normalizedViewDir.length() );
-	verticalAngle = atan(normalizedViewDir.y / normalizedViewDir.x);
+	horizonAngle = atan2(normalizedViewDir.y, normalizedViewDir.x);
+	verticalAngle = acos( normalizedViewDir.z / glm::length(normalizedViewDir) );
+	
 }
 
 void Camera::SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, glm::vec3 & viewDir)
 {
-	viewDir = glm::vec3(cos(verticalAngle) * sin(horizonAngle), sin(verticalAngle) * sin(verticalAngle), cos(horizonAngle));
+	viewDir = glm::vec3(sin(verticalAngle) * cos(horizonAngle), sin(verticalAngle) * sin(horizonAngle), cos(verticalAngle));
 }
 
 #if 0 

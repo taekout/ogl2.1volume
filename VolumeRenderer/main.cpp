@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
 	glm::vec3 lightPos(100.f, 100.f, 100.f);
-	glm::vec3 lightDir = Camera::SphericalAnglesToViewDir(-2.35395503, 2.56509);
+	glm::vec3 lightDir(-0.5935844, -0.503884, -0.6275010);
 	gRenderEngine->SetCamera(lightPos, lightDir);
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(lightPos, glm::vec3(0) - lightPos, glm::vec3(1.0f, 1.0f, 1.0f));

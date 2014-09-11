@@ -58,7 +58,8 @@ void Camera::GetSphericalAngles(float & horizonAngle, float & verticalAngle)
 void Camera::SetCamera()
 {
 	Print();
-	glm::vec3 viewDir(cos(fCurCamera.fVerticalAngle) * sin(fCurCamera.fHorizonAngle), sin(fCurCamera.fVerticalAngle), cos(fCurCamera.fVerticalAngle) * cos(fCurCamera.fHorizonAngle));
+	glm::vec3 viewDir;
+	Camera::SphericalAnglesToViewDir(fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle, viewDir);
 	fViewMat = glm::lookAt(
 						fCurCamera.fEyePos,
 						fCurCamera.fEyePos + viewDir,

@@ -240,7 +240,7 @@ void RenderEngine::ComputeShadowMat()
 }
 
 
-bool RenderEngine::SetupRenderTarget(const glm::vec3 & pos)
+bool RenderEngine::SetupRenderTarget()
 {
 	return fFramebuf.SetupRenderTarget();
 }

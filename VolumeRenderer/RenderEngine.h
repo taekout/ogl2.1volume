@@ -48,7 +48,7 @@ public:
 	IMeshAccess *fMeshAccess;
 	Light * fLights;
 
-	bool SetupRenderTarget(const glm::vec3 & pos);
+	bool SetupRenderTarget();
 	void SetdownRenderTarget();
 	FrameBuffer fFramebuf;
 

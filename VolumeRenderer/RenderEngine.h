@@ -39,6 +39,8 @@ public:
 	void CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
 		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
 
+	size_t BatchSize() { return fVAOs.size(); }
+
 	void RenderBatch();
 	void RenderBatch(size_t index, Shader::EShaderKind kind);
 

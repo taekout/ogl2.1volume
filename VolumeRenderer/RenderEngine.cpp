@@ -18,7 +18,11 @@ void RenderScene()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gRenderEngine->RenderBatch();
+	gRenderEngine->RenderBatch(0, Shader::eShaderBasic);
+	for(size_t i = 1 ; i < gRenderEngine->BatchSize() ; i++) {
+
+		gRenderEngine->RenderBatch(i, Shader::eShaderTexture);
+	}
 
 	glutSwapBuffers();
 	glutPostRedisplay();

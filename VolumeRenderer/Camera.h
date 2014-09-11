@@ -41,6 +41,7 @@ public:
 
 	static void ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle);
 	static void SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, glm::vec3 & viewDir);
+	static glm::vec3 SphericalAnglesToViewDir(float horizonAngle, float verticalAngle);
 
 protected:
 

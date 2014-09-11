@@ -185,6 +185,13 @@ void Camera::SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, g
 	viewDir = glm::vec3(sin(verticalAngle) * cos(horizonAngle), sin(verticalAngle) * sin(horizonAngle), cos(verticalAngle));
 }
 
+glm::vec3 Camera::SphericalAnglesToViewDir(float horizonAngle, float verticalAngle)
+{
+	glm::vec3 viewDir;
+	SphericalAnglesToViewDir(horizonAngle, verticalAngle, viewDir);
+	return viewDir;
+}
+
 #if 0 
 
 namespace VGM

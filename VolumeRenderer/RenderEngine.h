@@ -40,6 +40,7 @@ public:
 		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
 
 	void RenderBatch();
+	void RenderBatch(size_t index, Shader::EShaderKind kind);
 
 	Shader *fShader;
 	UserInput * fInput ;
@@ -58,7 +59,7 @@ public:
 	GLuint fIndexBuffer;
 	GLuint fNormalBuffer;
 	GLuint fUVBuffer;
-	std::map<int, Batch *> fVAOs;
+	std::vector<Batch *> fVAOs;
 
 	GLuint fTextureID;
 

@@ -345,7 +345,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 	printOpenGLError();
 
 	Batch *batch = new Batch( vao, inVerts, inInds, inNormals, inGLTexID, inUVs, kind );
-	fVAOs.emplace( std::pair<int, Batch *>((int)vao, batch) );
+	fVAOs.push_back( batch );
 
 	printOpenGLError();
 
@@ -361,7 +361,7 @@ void RenderEngine::RenderBatch()
 	for(auto it = fVAOs.begin() ; it != fVAOs.end() ; ++it) {
 
 		printOpenGLError();
-		Batch * batch = it->second;
+		Batch * batch = *it;
 		fShader->UseProgram(batch->fProgram);
 		ComputeRenderMat();
 		glBindVertexArray( batch->fID );
@@ -373,6 +373,26 @@ void RenderEngine::RenderBatch()
 		printOpenGLError();
 
 	}
+}
+
+void RenderEngine::RenderBatch(size_t index, Shader::EShaderKind kind)
+{
+	if(index >= fVAOs.size())
+		return;
+
+	printOpenGLError();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	Batch * batch = fVAOs.at(index);
+	fShader->UseProgram(kind);
+	ComputeRenderMat();
+	glBindVertexArray( batch->fID );
+	if(batch->fGLTexID != 0)
+		glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
+	glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindVertexArray(0);
+	printOpenGLError();
 }
 
 

@@ -26,8 +26,8 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 	fFov = 45.f;
 	fAspect = 1.f;
-	fNear = .1f;
-	fFar = 700.f;
+	fNear = 10.f;
+	fFar = 300.f;
 
 	fCurCamera = CameraData(eyepos, viewDir);
 	fResetCamera = fCurCamera;

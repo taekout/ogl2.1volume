@@ -159,13 +159,6 @@ void RenderEngine::AllocateInput()
 	}
 }
 
-void RenderEngine::SetCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
-{
-	if(fCamera)
-		delete fCamera;
-	fCamera = new Camera(eyepos, horizonAngle, verticalAngle);
-}
-
 void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 {
 	if(fCamera)
@@ -173,12 +166,14 @@ void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir
 	fCamera = new Camera(eyepos, viewDir);
 }
 
+/*
 void RenderEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
 {
 	if(fLightCamera)
 		delete fLightCamera;
 	fLightCamera = new Camera(eyepos, horizonAngle, verticalAngle);
 }
+*/
 
 void RenderEngine::AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName)
 {

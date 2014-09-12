@@ -5,28 +5,31 @@
 #include <gtc/type_ptr.hpp>
 
 
-Camera::Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
-	 : fCurCamera(CameraData(eyepos, horizonAngle, verticalAngle)), fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(300.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
-{
-	fResetCamera = fCurCamera;
-	SetCamera();
-	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
-}
-
 Camera::Camera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
-	: fLeft(-30.f), fRight(30.f), fBottom(-30.f), fTop(30.f), fNear(1.f), fFar(300.f)//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 {
-	float horizonAngle, verticalAngle;
-	ViewDirToSphericalAngles(viewDir, horizonAngle, verticalAngle);
-	fCurCamera = CameraData(eyepos, horizonAngle, verticalAngle);
-	fResetCamera = fCurCamera;
-	SetCamera();
-	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
+	Init(eyepos, viewDir);
 }
 
 
 Camera::~Camera(void)
 {
+}
+
+void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
+{
+	fLeft = -30.f;
+	fRight = 30.f;
+	fBottom = -30.f;
+	fTop = 30.f;
+	fNear = 1.f;
+	fFar = 300.f;
+	//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
+
+	fCurCamera = CameraData(eyepos, viewDir);
+	fResetCamera = fCurCamera;
+	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
+	fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 1, 0));
+	fModelMat = glm::mat4(1);
 }
 
 glm::mat4 Camera::GetModel()
@@ -49,48 +52,18 @@ glm::vec3 Camera::GetEyePos()
 	return fCurCamera.fEyePos;
 }
 
-void Camera::GetSphericalAngles(float & horizonAngle, float & verticalAngle)
-{
-	horizonAngle = fCurCamera.fHorizonAngle;
-	verticalAngle = fCurCamera.fVerticalAngle;
-}
-
-void Camera::SetCamera()
-{
-	Print();
-	glm::vec3 viewDir;
-	Camera::SphericalAnglesToViewDir(fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle, viewDir);
-	fViewMat = glm::lookAt(
-						fCurCamera.fEyePos,
-						fCurCamera.fEyePos + viewDir,
-						glm::vec3(0,1,0));
-}
-
-void Camera::SetCamera(glm::vec3 eyePos, float horizonAngle, float verticalAngle)
-{
-	fCurCamera = CameraData(eyePos, horizonAngle, verticalAngle);
-	SetCamera();
-}
-
-void Camera::SetCamera(glm::vec3 eyePos, glm::vec3 viewDir)
-{
-	float horizonAngle, verticalAngle;
-	ViewDirToSphericalAngles(viewDir, horizonAngle, verticalAngle);
-	fCurCamera = CameraData(eyePos, horizonAngle, verticalAngle);
-	SetCamera();
-}
-
 void Camera::RevertCameraToResetPoint()
 {
 	fCurCamera = fResetCamera;
-	SetCamera();
+	Init(fResetCamera.fEyePos, fResetCamera.fViewDir);
 }
 
 void Camera::Print()
 {
 	return;
 	printf("Eye Pos : %f, %f, %f\n", fCurCamera.fEyePos.x, fCurCamera.fEyePos.y, fCurCamera.fEyePos.z);
-	printf("Horizon Angle, Vertical Angle : %f, %f\n", fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle);
+	//printf("Horizon Angle, Vertical Angle : %f, %f\n", fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle);
+	printf("View Direction : %f, %f, %f\n", fCurCamera.fViewDir.x, fCurCamera.fViewDir.y, fCurCamera.fViewDir.z);
 }
 
 void Camera::Print(glm::vec3 eyePos, glm::vec2 angles)
@@ -107,36 +80,42 @@ void Camera::Move(EDirection dir)
 	switch(dir) {
 
 	case left: {
-		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
-		SetCamera();
+		fpscam::StrafeRight<float> (MOVE_SCALE, false, fViewMat);
+		//fCurCamera.fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
+		//SetCamera();
 		}
 		break;
 
 	case right: {
-		fCurCamera.fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]) * MOVE_SCALE;
-		SetCamera();
+		fpscam::StrafeRight<float> (-MOVE_SCALE, false, fViewMat);
+		//fCurCamera.fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]) * MOVE_SCALE;
+		//SetCamera();
 		}
 		break;
 
 	case forward: {
-		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
-		SetCamera();
+		fpscam::MoveForward<float> (MOVE_SCALE, false, fViewMat);
+		//fCurCamera.fEyePos += glm:vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
+		//SetCamera();
 		}
 		break;
 
 	case backward: {
-		fCurCamera.fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
-		SetCamera();
+		fpscam::MoveForward<float>(-MOVE_SCALE, false, fViewMat);
+		//fCurCamera.fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
+		//SetCamera();
 		}
 		break;
 	case up: {
-		fCurCamera.fEyePos += glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]) * MOVE_SCALE;
-		SetCamera();
+		fpscam::MoveUp<float> (-MOVE_SCALE, false, fViewMat); // false : upvector = (0,1,0).
+		//fCurCamera.fEyePos += glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]) * MOVE_SCALE;
+		//SetCamera();
 		}
 		break;
 	case down: {
-		fCurCamera.fEyePos += glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]) * MOVE_SCALE;
-		SetCamera();
+		fpscam::MoveUp<float> (MOVE_SCALE, false, fViewMat); // false : upvector = (0,1,0).
+		//fCurCamera.fEyePos += glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]) * MOVE_SCALE;
+		//SetCamera();
 		}
 		break;
 	}
@@ -146,33 +125,37 @@ void Camera::Move(EDirection dir)
 // Rotate view based on quaternion.
 void Camera::Rotate(const glm::vec2 & degree)
 {
-	const float mouseSpeed = 0.005f;
-	fCurCamera.fVerticalAngle = fCurCamera.fVerticalAngle + degree.y * mouseSpeed;
-	fCurCamera.fHorizonAngle = fCurCamera.fHorizonAngle + degree.x * mouseSpeed;
-	glm::vec3 viewDir;
-	Camera::SphericalAnglesToViewDir(fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle, viewDir);
-	//viewDir = glm::mat3(rotm) * viewDir;
-	SetCamera();
-}
-void Camera::UpdateRenderMat(/*GraphicsEngine * ge*/)
-{
+	const float mouseSpeed = 0.05f;
+
+	fpscam::LookUp<float> (mouseSpeed * degree.x, true, fViewMat);
+	fpscam::LookRight<float> (mouseSpeed* degree.y, true, fViewMat);
+	//fCurCamera.fVerticalAngle = fCurCamera.fVerticalAngle + degree.y * mouseSpeed;
+	//fCurCamera.fHorizonAngle = fCurCamera.fHorizonAngle + degree.x * mouseSpeed;
+	//glm::vec3 viewDir;
+	//Camera::SphericalAnglesToViewDir(fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle, viewDir);
+	////viewDir = glm::mat3(rotm) * viewDir;
+	//SetCamera();
 }
 
-void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
-{
-	glm::vec3 viewDir(cos(fCurCamera.fVerticalAngle) * sin(fCurCamera.fHorizonAngle), sin(fCurCamera.fVerticalAngle), cos(fCurCamera.fVerticalAngle) * cos(fCurCamera.fHorizonAngle));
-	glm::vec3 lightInvDir = -viewDir; // ???
-
-	// Compute the MVP matrix from the light's point of view
-	glm::mat4 depthProjectionMatrix = glm::ortho(Camera::fLeft, Camera::fRight, Camera::fBottom, Camera::fTop, Camera::fNear, Camera::fFar);
-	glm::mat4 depthViewMatrix = glm::lookAt(inLight->GetLightPos(0), inLight->GetLightDir(0), glm::vec3(0,1,0));
-	glm::mat4 depthModelMatrix = glm::mat4(1.0);
-	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-
-	// Send our transformation to the currently bound shader,
-	// in the "MVP" uniform
-	//glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0])
-}
+//void Camera::UpdateRenderMat(/*GraphicsEngine * ge*/)
+//{
+//}
+//
+//void Camera::SetMVPForDepth(Light * inLight) // Make it ILight.
+//{
+//	glm::vec3 viewDir(cos(fCurCamera.fVerticalAngle) * sin(fCurCamera.fHorizonAngle), sin(fCurCamera.fVerticalAngle), cos(fCurCamera.fVerticalAngle) * cos(fCurCamera.fHorizonAngle));
+//	glm::vec3 lightInvDir = -viewDir; // ???
+//
+//	// Compute the MVP matrix from the light's point of view
+//	glm::mat4 depthProjectionMatrix = glm::ortho(Camera::fLeft, Camera::fRight, Camera::fBottom, Camera::fTop, Camera::fNear, Camera::fFar);
+//	glm::mat4 depthViewMatrix = glm::lookAt(inLight->GetLightPos(0), inLight->GetLightDir(0), glm::vec3(0,1,0));
+//	glm::mat4 depthModelMatrix = glm::mat4(1.0);
+//	glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
+//
+//	// Send our transformation to the currently bound shader,
+//	// in the "MVP" uniform
+//	//glUniformMatrix4fv(depthMatrixID, 1, GL_FALSE, &depthMVP[0][0])
+//}
 
 void Camera::ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle)
 {

@@ -33,27 +33,17 @@ To do:
 */
 
 int main(int argc, char **argv) {
-
-
 	try {
-		/*
-		eye dir angles >
-		position = 66.5f, 30.0f, 0.0f
-		horizonAngle = -3.141592 / 2
-		verticalAngle = 0
 
-		light dir angles >
-		horizonAngle = -2.35395503
-		verticalAngle = -0.541688561
-		*/
 	glutInit(&argc, argv);
 
 	gRenderEngine = new RenderEngine();
 
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
+	glm::vec3 eyeDir(-1, 0, 0);
 	glm::vec3 lightPos(100.f, 100.f, 100.f);
 	glm::vec3 lightDir(-0.5935844, -0.503884, -0.6275010);
-	gRenderEngine->SetCamera(lightPos, lightDir);
+	gRenderEngine->SetCamera(eyePos, eyeDir);
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(lightPos, glm::vec3(0) - lightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 

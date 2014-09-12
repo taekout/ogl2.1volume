@@ -13,9 +13,10 @@ class Light;
 class Camera
 {
 public:
-	Camera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
 	Camera(const glm::vec3 & eyepos, const glm::vec3 & viewDir);
 	~Camera(void);
+
+	void Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir);
 
 	glm::mat4 GetModel();
 	glm::mat4 GetProj();
@@ -23,9 +24,6 @@ public:
 	glm::vec3 GetEyePos();
 	void GetSphericalAngles(float & horizonAngle, float & verticalAngle);
 
-	void SetCamera();
-	void SetCamera(glm::vec3 eyePos, float horizonAngle, float VerticalAngle);
-	void SetCamera(glm::vec3 eyePos, glm::vec3 viewDir);
 	void RevertCameraToResetPoint();
 
 	void Print();
@@ -34,15 +32,15 @@ public:
 	void Move(EDirection dir);
 	void Rotate(const glm::vec2 & degree);
 
-	void UpdateRenderMat(/*GraphicsEngine * ge*/);
-	void SetMVPForDepth(Light * inLight);
+	//void UpdateRenderMat(/*GraphicsEngine * ge*/);
+	//void SetMVPForDepth(Light * inLight);
 
-	const float fLeft;
-	const float fRight;
-	const float fBottom;
-	const float fTop;
-	const float fNear;
-	const float fFar;
+	float fLeft;
+	float fRight;
+	float fBottom;
+	float fTop;
+	float fNear;
+	float fFar;
 
 	static void ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle);
 	static void SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, glm::vec3 & viewDir);
@@ -50,16 +48,13 @@ public:
 
 protected:
 
-	
-
 	// camera position
 	struct CameraData
 	{
 		glm::vec3 fEyePos;
-		float fHorizonAngle;
-		float fVerticalAngle;
-		CameraData() : fEyePos(0.f, 0.f, 0.f), fHorizonAngle(0.f), fVerticalAngle(0.f) {}
-		CameraData(const glm::vec3 & eyePos, float horizonAngle, float verticalAngle) : fEyePos(eyePos), fHorizonAngle(horizonAngle), fVerticalAngle(verticalAngle) {}
+		glm::vec3 fViewDir;	// always should be normalized.
+		CameraData() : fEyePos(0.f, 0.f, 0.f), fViewDir(0, 0, 1) {}
+		CameraData(const glm::vec3 & eyePos, const glm::vec3 & viewDir) : fEyePos(eyePos), fViewDir(viewDir) {}
 	};
 	CameraData fCurCamera;
 	CameraData fResetCamera;
@@ -135,7 +130,7 @@ namespace fpscam {
 	}
 
 	template<typename T>
-	void MoveUp(T amount, bool inWorldUp, mat4_type & viewMatrix) // inWorldUp = true : 
+	void MoveUp(T amount, bool inWorldUp, mat4_type & viewMatrix) // inWorldUp = true : move upvector of the camera upvector. false : move upvector of the world.(= vec(0, 1, 0))
 	{
 		vec4_type moveVec = inWorldUp ? -amount * viewMatrix[2] : vec4_type(0, amount, 0, 0);
 		viewMatrix[3] += moveVec;

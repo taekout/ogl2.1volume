@@ -7,8 +7,11 @@
 #include <map>
 #include <fstream>
 #include <glm.hpp>
+#include "RenderEngine.h"
 
 #define GS_WIN 1
+
+extern RenderEngine * gRenderEngine;
 
 int printOglError(char *file, int line)
 {

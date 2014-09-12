@@ -5,6 +5,7 @@
 #include "MeshAccess.h"
 #include "Light.h"
 #include "FrameBuffer.h"
+#include "Batch.h"
 
 class Batch;
 
@@ -26,12 +27,12 @@ public:
 	void RecompileShaderIfNecessary();
 	void AllocateInput();
 	void SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir);
+	void SetTempCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir);
 	//void SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle);
 	void AllocateMeshAccess(std::string textureFileName, std::string objPath, std::string objFileName);
 	void AddLight(glm::vec3 & pos, glm::vec3 & lightDir, glm::vec3 intensity);
 
-	void ComputeRenderMat();
-	void ComputeShadowMat();
+	void ComputeRenderMat(Camera & cam);
 
 	void ActivateMoveIfKeyPressed();
 
@@ -39,17 +40,19 @@ public:
 		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
 
 	size_t BatchSize() { return fVAOs.size(); }
+	unsigned int BatchTexID(int index) { return fVAOs[index]->fGLTexID; }
 
-	void RenderBatch();
-	void RenderBatch(size_t index, Shader::EShaderKind kind);
+	void RenderBatch(Camera & cam);
+	void RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind);
 
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
-	Camera *fLightCamera;
+	Camera *fTempCamera;
 	IMeshAccess *fMeshAccess;
 	Light * fLights;
 
+	bool CreateRenderTarget();
 	bool SetupRenderTarget();
 	void SetdownRenderTarget();
 	FrameBuffer fFramebuf;

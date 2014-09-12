@@ -3,6 +3,8 @@
 precision highp float;
 
 in vec3 inPositions;
+in vec3 inNormals;
+in vec2 inUV;
 
 uniform mat4 Proj;
 uniform mat4 View;

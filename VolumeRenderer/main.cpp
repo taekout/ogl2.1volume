@@ -32,8 +32,7 @@ To do:
 4 use shadow map to do light shaft.
 */
 
-glm::vec3 gEyePos(66.5f, 30.0f, 0.0f);
-glm::vec3 gEyeDir(glm::vec3(0) - gEyePos);
+
 glm::vec3 gLightPos(100.f, 100.f, 100.f);
 glm::vec3 gLightDir(-0.5935844, -0.503884, -0.6275010);
 
@@ -44,8 +43,9 @@ int main(int argc, char **argv) {
 
 	gRenderEngine = new RenderEngine();
 
-	
-	gRenderEngine->SetCamera(gEyePos, gEyeDir);
+	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
+	glm::vec3 eyeDir(glm::vec3(0) - eyePos);
+	gRenderEngine->SetCamera(eyePos, eyeDir);
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(gLightPos, glm::vec3(0) - gLightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -58,6 +58,8 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
+	glActiveTexture(GL_TEXTURE0);
+
 	CreatePlane();
 
 	for(size_t i = 0 ; i < gRenderEngine->fMeshes.size() ; i++) {
@@ -67,6 +69,8 @@ int main(int argc, char **argv) {
 
 		gRenderEngine->CreateBatch(mesh.fVertices, mesh.fIndices, mesh.fNormals, mesh.fMat.fGLTexID, mesh.fUVs, Shader::EShaderKind::eShaderTexture);
 	}
+
+	gRenderEngine->CreateRenderTarget();
 
 	printOpenGLError();
 
@@ -98,6 +102,13 @@ void CreatePlane()
 		200.f, 0.f, 200.f,
 	};
 
+	const GLfloat gUVs[] = {
+		0, 0,
+		1, 0,
+		0, 1,
+		1, 1
+	};
+
 	const unsigned int gPlaneInds[] = {
 		0, 1, 2,
 		2, 1, 3
@@ -126,6 +137,9 @@ void CreatePlane()
 	}
 
 	std::vector<glm::vec2> UVs;
+	for( size_t i = 0 ; i < sizeof(gUVs) / sizeof(GLfloat) ; i += 2 ) {
+		UVs.push_back( glm::vec2(gUVs[i], gUVs[i+1]) );
+	}
 
 	gRenderEngine->CreateBatch(verts, inds, normals, 0, UVs, Shader::EShaderKind::eShaderBasic);
 }

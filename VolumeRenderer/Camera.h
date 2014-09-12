@@ -21,6 +21,7 @@ public:
 	glm::mat4 GetModel();
 	glm::mat4 GetProj();
 	glm::mat4 GetView();
+	void SetView(const glm::mat4 & inViewMat);
 	glm::vec3 GetEyePos();
 	glm::vec3 GetEyeDir();
 	void GetSphericalAngles(float & horizonAngle, float & verticalAngle);

@@ -272,6 +272,7 @@ void Shader::CompileAllShaders()
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
 
 	printOpenGLError();
 
@@ -292,9 +293,21 @@ void Shader::CompileAllShaders()
 	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outDepth");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
 	
 	LinkShaders();
 	UseProgram(eShaderShadow);
+
+	setShaders(Shader::eShaderBasicWithShadow, "./GLSL/whiteWithShadow.vert", "./GLSL/whiteWithShadow.frag");
+	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
+	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
+	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
+	glBindAttribLocation(GetProgram(), kInUV, "inUV");
+
+	LinkShaders();
+	UseProgram(eShaderBasicWithShadow);
+
 	UseProgram(eShaderNothing);
 }
 
@@ -317,6 +330,18 @@ void Shader::UseProgram(EShaderKind kind)
 	
 	fShaderIndex = kind;
 	glUseProgram(fShaderData[fShaderIndex].fProgramID);
+}
+
+void Shader::UpdateUniform1i(char *varName, unsigned int inData)
+{
+	ShaderData &sd = fShaderData[fShaderIndex];
+
+	GLint loc;
+	loc = glGetUniformLocation(sd.fProgramID, varName);
+	if(loc == -1)
+		return;
+	GLuint data = inData;
+	glUniform1i(loc, data);
 }
 
 void Shader::UpdateUniform4fv(char *varName, float data1, float data2, float data3, float data4)

@@ -115,5 +115,11 @@
     <None Include="GLSL\shadow.vert">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="GLSL\whiteWithShadow.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="GLSL\whiteWithShadow.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>

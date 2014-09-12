@@ -181,6 +181,8 @@
     <None Include="GLSL\texture.vert" />
     <None Include="GLSL\white.frag" />
     <None Include="GLSL\white.vert" />
+    <None Include="GLSL\whiteWithShadow.frag" />
+    <None Include="GLSL\whiteWithShadow.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

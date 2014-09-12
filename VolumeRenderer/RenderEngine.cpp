@@ -9,10 +9,9 @@
 
 RenderEngine * gRenderEngine = NULL;
 
-extern glm::vec3 gEyePos;
-extern glm::vec3 gEyeDir;
 extern glm::vec3 gLightPos;
 extern glm::vec3 gLightDir;
+
 
 void RenderScene()
 {
@@ -21,20 +20,34 @@ void RenderScene()
 
 	gRenderEngine->ActivateMoveIfKeyPressed();
 
-	//gRenderEngine->SetCamera(gLightPos, gLightDir);
-	//gRenderEngine->SetupRenderTarget();
-	//gRenderEngine->fCamera->GetEyeDir();
+	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
+	if(gRenderEngine->SetupRenderTarget() == false) {
+		throw "Framebuffer not properly setup.";
+		exit(-2);
+	}
+
 	printOpenGLError();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	printOpenGLError();
 
-	gRenderEngine->RenderBatch(0, Shader::eShaderBasic);
+	gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, 0, Shader::eShaderShadow);
 	for(size_t i = 1 ; i < gRenderEngine->BatchSize() ; i++) {
-
-		gRenderEngine->RenderBatch(i, Shader::eShaderTexture);
+	
+		gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, i, Shader::eShaderShadow);
 	}
 
-	//gRenderEngine->SetdownRenderTarget();
+	gRenderEngine->SetdownRenderTarget();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	printOpenGLError();
+
+	glBindTexture(GL_TEXTURE_2D, gRenderEngine->fFramebuf.DepthTexID());
+	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasicWithShadow);
+	for(size_t i = 1 ; i < gRenderEngine->BatchSize() ; i++) {
+		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderBasicWithShadow);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -48,7 +61,7 @@ IGraphicsEngine::IGraphicsEngine(void)
 }
 
 
-RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
+RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fTempCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
 	fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
 {
 	GLInit();
@@ -138,8 +151,8 @@ RenderEngine::~RenderEngine(void)
 		delete fInput;
 	if(fCamera)
 		delete fCamera;
-	if(fLightCamera)
-		delete fLightCamera;
+	if(fTempCamera)
+		delete fTempCamera;
 	if(fMeshAccess)
 		delete fMeshAccess;
 	if(fLights)
@@ -178,6 +191,13 @@ void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir
 	fCamera = new Camera(eyepos, viewDir);
 }
 
+void RenderEngine::SetTempCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
+{
+	if(fTempCamera)
+		delete fTempCamera;
+	fTempCamera = new Camera(eyepos, viewDir);
+}
+
 /*
 void RenderEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)
 {
@@ -206,14 +226,14 @@ void RenderEngine::AddLight(glm::vec3 & pos, glm::vec3 & lightDir, glm::vec3 int
 	fLights->AddLight(pos, lightDir, intensity);
 }
 
-void RenderEngine::ComputeRenderMat()
+void RenderEngine::ComputeRenderMat(Camera & cam)
 {
-	glm::mat4 model = fCamera->GetModel();
-	glm::mat4 view = fCamera->GetView();
-	glm::mat4 proj = fCamera->GetProj();
+	glm::mat4 model = cam.GetModel();
+	glm::mat4 view = cam.GetView();
+	glm::mat4 proj = cam.GetProj();
 	glm::mat4 normalMat = glm::transpose(glm::inverse(view));
 
-	glm::vec3 eyePos = fCamera->GetEyePos();
+	glm::vec3 eyePos = cam.GetEyePos();
 
 	// I should split this part later. Not good to put together computing and updating shader uniforms.
 	fShader->UpdateUniformMat4("Proj", &proj[0][0]);
@@ -221,6 +241,16 @@ void RenderEngine::ComputeRenderMat()
 	fShader->UpdateUniformMat4("Model", &model[0][0]);
 	fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
 	fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
+
+	fShader->UpdateUniform1i("imageTexSampler", 0); // glActiveTexture(GL_TEXTURE0) was called.
+	fShader->UpdateUniform1i("shadowMap", 0); // glActiveTexture(GL_TEXTURE0) was called.
+
+	glm::mat4 biasMatrix(
+		0.5, 0.0, 0.0, 0.0,
+		0.0, 0.5, 0.0, 0.0,
+		0.0, 0.0, 0.5, 0.0,
+		0.5, 0.5, 0.5, 1.0);
+	fShader->UpdateUniformMat4("BiasMat", &biasMatrix[0][0]);
 
 	if(fLights) {
 		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = fLights->GetLight(0);
@@ -230,26 +260,10 @@ void RenderEngine::ComputeRenderMat()
 	}
 }
 
-void RenderEngine::ComputeShadowMat()
+bool RenderEngine::CreateRenderTarget()
 {
-	if(fLightCamera) {
-
-		glm::vec3 lightInvDir = fLightCamera->GetEyePos();
-
-		// Compute the MVP matrix from the light's point of view
-		glm::mat4 depthProjectionMatrix = fLightCamera->GetProj();
-		glm::mat4 depthViewMatrix = fLightCamera->GetView();
-		glm::mat4 depthModelMatrix = fLightCamera->GetModel();
-		//glm::mat4 depthMVP = depthProjectionMatrix * depthViewMatrix * depthModelMatrix;
-
-		// Send our transformation to the currently bound shader,
-		// in the "MVP" uniform
-		fShader->UpdateUniformMat4("Proj", &depthProjectionMatrix[0][0]);
-		fShader->UpdateUniformMat4("View", &depthViewMatrix[0][0]);
-		fShader->UpdateUniformMat4("Model", &depthModelMatrix[0][0]);
-	}
+	return fFramebuf.CreateFrameBuffer();
 }
-
 
 bool RenderEngine::SetupRenderTarget()
 {
@@ -304,7 +318,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 
 	assert(inVerts.size() != 0 && inInds.size() != 0);
 
-	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture || kind == Shader::eShaderShadow ) {
+	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture || kind == Shader::eShaderShadow || kind == Shader::eShaderBasicWithShadow ) {
 
 		vertexPos = glGetAttribLocation(fShader->GetProgram(), "inPositions");
 		normalPos = glGetAttribLocation(fShader->GetProgram(), "inNormals");
@@ -364,7 +378,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 	glBindVertexArray(0);
 }
 
-void RenderEngine::RenderBatch()
+void RenderEngine::RenderBatch(Camera & cam)
 {
 	printOpenGLError();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -374,7 +388,7 @@ void RenderEngine::RenderBatch()
 		printOpenGLError();
 		Batch * batch = *it;
 		fShader->UseProgram(batch->fProgram);
-		ComputeRenderMat();
+		ComputeRenderMat(cam);
 		glBindVertexArray( batch->fID );
 		if(batch->fGLTexID)
 			glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
@@ -386,20 +400,19 @@ void RenderEngine::RenderBatch()
 	}
 }
 
-void RenderEngine::RenderBatch(size_t index, Shader::EShaderKind kind)
+void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind)
 {
 	if(index >= fVAOs.size())
 		return;
 
 	printOpenGLError();
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	Batch * batch = fVAOs.at(index);
 	fShader->UseProgram(kind);
-	ComputeRenderMat();
+	ComputeRenderMat(cam);
 	glBindVertexArray( batch->fID );
-	if(batch->fGLTexID != 0)
-		glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
+	//if(batch->fGLTexID != 0)
+	//	glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
 	glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);

@@ -26,13 +26,3 @@ public:
 protected:
 	std::map<unsigned int, ImageTex *> fTextures;
 };
-
-class FrameBuffer
-{
-	FrameBuffer(void) {}
-	virtual ~FrameBuffer(void) {}
-
-	bool Setup();
-
-};
-

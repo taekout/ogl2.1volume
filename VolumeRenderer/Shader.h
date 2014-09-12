@@ -56,6 +56,7 @@ public:
 		eShaderBasic = 0,
 		eShaderTexture = 1,
 		eShaderShadow = 2,
+		eShaderBasicWithShadow = 3,
 		eMaxShader
 	};
 
@@ -93,6 +94,7 @@ public:
 	void printProgramInfoLog(std::string vertShaderName, std::string fragShaderName, GLuint obj);
 
 	// Update GL Variable Functions
+	void UpdateUniform1i(char *varName, unsigned int data);
 	void UpdateUniform4fv(char *varName, float data1, float data2, float data3, float data4);
 	void UpdateUniform1f(char *varName, float data);
 	void UpdateUniform3fv(char *varName, float data1, float data2, float data3);

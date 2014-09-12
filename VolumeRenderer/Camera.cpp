@@ -34,7 +34,7 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	//fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
 	fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
 	//fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 0, 1));
-	fViewMat = glm::lookAt(eyepos, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
+	fViewMat = glm::lookAt(eyepos, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	fModelMat = glm::mat4(1);
 }
 
@@ -133,7 +133,7 @@ void Camera::Rotate(const glm::vec2 & degree)
 {
 	const float mouseSpeed = 0.5f;
 
-	fpscam::LookUp<float> (mouseSpeed * -degree.y, false, fViewMat);
+	fpscam::LookUp<float> (mouseSpeed * degree.y, true, fViewMat);
 	fpscam::LookRight<float> (mouseSpeed* degree.x, true, fViewMat);
 
 	//fpscam::OrbitRight(glm::vec3(0, 0, 0), -degree.x, fViewMat);

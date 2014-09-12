@@ -141,7 +141,7 @@ namespace fpscam {
 	template<typename T>
 	void LookRight(T degrees, bool rotateAboutWorldUp, mat4_type & viewMatrix) // rotateAboutWorldUp = true : camera will rotate around the camera up vector, not world up vector.
 	{
-		vec4_type rotVec = rotateAboutWorldUp ? viewMatrix[2] : vec4_type(0, 0, 1, 0);
+		vec4_type rotVec = rotateAboutWorldUp ? viewMatrix[1] : vec4_type(0, 1, 0, 0);
 		viewMatrix = glm::rotate(mat4_type(1), degrees, vec3_type(rotVec)) * viewMatrix;
 	}
 
@@ -151,24 +151,24 @@ namespace fpscam {
 		// camera's up vector in world space.
 		vec3_type up = vec3_type(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
 
-		mat4_type rotMat = glm::rotate(mat4_type(1), -degrees, vec3_type(1, 0, 0));
+		mat4_type rotMat = glm::rotate(mat4_type(1), degrees, vec3_type(1, 0, 0));
 
 		// the result of looking up, which could lead to an upside down view.
 		mat4_type rotatedViewMatrix = rotMat * viewMatrix;
 
-		if ( !inAllowUpsideDown && rotatedViewMatrix[2][1] < 0)
+		if ( !inAllowUpsideDown && rotatedViewMatrix[1][1] < 0)
 		{
 			// Result of lookup would be upside down.
 			// Recalculate the rotation angle so that the camera does not flip upside down.
 
-			// up vector projected on the the world XY plane
-			vec3_type projectedUp = glm::normalize(vec3_type(up.x, up.y, 0));;
+			// up vector projected on the the world XZ plane
+			vec3_type projectedUp = glm::normalize(vec3_type(up.x, 0, up.z));;
 
 			// camera's right vector in world space coords.
 			vec3_type right = vec3_type(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
 
 			// complicated math..
-			vec3_type cross = glm::cross(vec3_type(0, 0, 1), right);
+			vec3_type cross = glm::cross(vec3_type(0, 1, 0), right);
 			T sign = glm::sign(up.z) * ((glm::dot(cross, up) > 0) ? 1 : -1);
 
 			// Rebuild rotatedViewMatrix with a better 'degrees'

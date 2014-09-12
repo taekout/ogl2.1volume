@@ -9,6 +9,11 @@
 
 RenderEngine * gRenderEngine = NULL;
 
+extern glm::vec3 gEyePos;
+extern glm::vec3 gEyeDir;
+extern glm::vec3 gLightPos;
+extern glm::vec3 gLightDir;
+
 void RenderScene()
 {
 	printOpenGLError();
@@ -16,13 +21,20 @@ void RenderScene()
 
 	gRenderEngine->ActivateMoveIfKeyPressed();
 
+	//gRenderEngine->SetCamera(gLightPos, gLightDir);
+	//gRenderEngine->SetupRenderTarget();
+	gRenderEngine->fCamera->GetEyeDir();
+	printOpenGLError();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	printOpenGLError();
 
 	gRenderEngine->RenderBatch(0, Shader::eShaderBasic);
 	for(size_t i = 1 ; i < gRenderEngine->BatchSize() ; i++) {
 
 		gRenderEngine->RenderBatch(i, Shader::eShaderTexture);
 	}
+
+	//gRenderEngine->SetdownRenderTarget();
 
 	glutSwapBuffers();
 	glutPostRedisplay();

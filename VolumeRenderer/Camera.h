@@ -22,6 +22,7 @@ public:
 	glm::mat4 GetProj();
 	glm::mat4 GetView();
 	glm::vec3 GetEyePos();
+	glm::vec3 GetEyeDir();
 	void GetSphericalAngles(float & horizonAngle, float & verticalAngle);
 
 	void RevertCameraToResetPoint();
@@ -58,7 +59,6 @@ protected:
 		CameraData() : fEyePos(0.f, 0.f, 0.f), fViewDir(0, 0, 1) {}
 		CameraData(const glm::vec3 & eyePos, const glm::vec3 & viewDir) : fEyePos(eyePos), fViewDir(viewDir) {}
 	};
-	CameraData fCurCamera;
 	CameraData fResetCamera;
 
 	// transformation matrices
@@ -202,6 +202,21 @@ namespace fpscam {
 
 		inOutViewMatrix = glm::affineInverse(cameraMat);
 	}
+
+	template<typename T>
+	glm::vec3 GetEyePos(const mat4_type & inViewMatrix)
+	{
+		glm::mat4 inverseViewMat = glm::affineInverse(inViewMatrix);
+		return glm::swizzle(inverseViewMat[3], glm::X, glm::Y, glm::Z);
+	}
+
+	template<typename T>
+	glm::vec3 GetEyeDir(const mat4_type & inViewMatrix)
+	{
+		glm::mat4 inverseViewMat = - glm::affineInverse(inViewMatrix);
+		return glm::swizzle(inverseViewMat[2], glm::X, glm::Y, glm::Z);
+	}
+
 } // end namespace fpscam
 
 

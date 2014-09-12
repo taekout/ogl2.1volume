@@ -3,7 +3,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
-
+#include <gtc/swizzle.hpp>
 
 Camera::Camera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 {
@@ -29,8 +29,7 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	fNear = 10.f;
 	fFar = 300.f;
 
-	fCurCamera = CameraData(eyepos, viewDir);
-	fResetCamera = fCurCamera;
+	fResetCamera = CameraData(eyepos, viewDir);
 	//fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
 	fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
 	//fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 0, 1));
@@ -55,21 +54,22 @@ glm::mat4 Camera::GetView()
 
 glm::vec3 Camera::GetEyePos()
 {
-	return fCurCamera.fEyePos;
+	return fpscam::GetEyePos(fViewMat);
+}
+
+glm::vec3 Camera::GetEyeDir()
+{
+	return fpscam::GetEyeDir(fViewMat);
 }
 
 void Camera::RevertCameraToResetPoint()
 {
-	fCurCamera = fResetCamera;
 	Init(fResetCamera.fEyePos, fResetCamera.fViewDir);
 }
 
 void Camera::Print()
 {
 	return;
-	printf("Eye Pos : %f, %f, %f\n", fCurCamera.fEyePos.x, fCurCamera.fEyePos.y, fCurCamera.fEyePos.z);
-	//printf("Horizon Angle, Vertical Angle : %f, %f\n", fCurCamera.fHorizonAngle, fCurCamera.fVerticalAngle);
-	printf("View Direction : %f, %f, %f\n", fCurCamera.fViewDir.x, fCurCamera.fViewDir.y, fCurCamera.fViewDir.z);
 }
 
 void Camera::Print(glm::vec3 eyePos, glm::vec2 angles)
@@ -87,45 +87,32 @@ void Camera::Move(EDirection dir)
 
 	case left: {
 		fpscam::StrafeRight<float> (MOVE_SCALE, false, fViewMat);
-		//fCurCamera.fEyePos += glm::vec3(-fViewMat[0][0], -fViewMat[1][0], -fViewMat[2][0]) * MOVE_SCALE;
-		//SetCamera();
 		}
 		break;
 
 	case right: {
 		fpscam::StrafeRight<float> (-MOVE_SCALE, false, fViewMat);
-		//fCurCamera.fEyePos += glm::vec3(fViewMat[0][0], fViewMat[1][0], fViewMat[2][0]) * MOVE_SCALE;
-		//SetCamera();
 		}
 		break;
 
 	case forward: {
 		fpscam::MoveForward<float> (MOVE_SCALE, false, fViewMat);
-		//fCurCamera.fEyePos += glm:vec3(-fViewMat[0][2], -fViewMat[1][2], -fViewMat[2][2]) * MOVE_SCALE;
-		//SetCamera();
 		}
 		break;
 
 	case backward: {
 		fpscam::MoveForward<float>(-MOVE_SCALE, false, fViewMat);
-		//fCurCamera.fEyePos += glm::vec3(fViewMat[0][2], fViewMat[1][2], fViewMat[2][2]) * MOVE_SCALE;
-		//SetCamera();
 		}
 		break;
 	case up: {
 		fpscam::MoveUp<float> (-MOVE_SCALE, false, fViewMat); // false : upvector = (0,1,0).
-		//fCurCamera.fEyePos += glm::vec3(fViewMat[0][1], fViewMat[1][1], fViewMat[2][1]) * MOVE_SCALE;
-		//SetCamera();
 		}
 		break;
 	case down: {
 		fpscam::MoveUp<float> (MOVE_SCALE, false, fViewMat); // false : upvector = (0,1,0).
-		//fCurCamera.fEyePos += glm::vec3(-fViewMat[0][1], -fViewMat[1][1], -fViewMat[2][1]) * MOVE_SCALE;
-		//SetCamera();
 		}
 		break;
 	}
-	//fEyePos += inMov;
 }
 
 // Rotate view based on quaternion.

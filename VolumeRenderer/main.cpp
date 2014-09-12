@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 	gRenderEngine = new RenderEngine();
 
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
-	glm::vec3 eyeDir(-1, 0, 0);
+	glm::vec3 eyeDir(glm::vec3(0) - eyePos);
 	glm::vec3 lightPos(100.f, 100.f, 100.f);
 	glm::vec3 lightDir(-0.5935844, -0.503884, -0.6275010);
 	gRenderEngine->SetCamera(eyePos, eyeDir);

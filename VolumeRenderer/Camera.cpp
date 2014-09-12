@@ -24,11 +24,17 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	fNear = 1.f;
 	fFar = 300.f;
 	//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
+	fFov = 45.f;
+	fAspect = 1.f;
+	fNear = .1f;
+	fFar = 700.f;
 
 	fCurCamera = CameraData(eyepos, viewDir);
 	fResetCamera = fCurCamera;
-	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
-	fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 1, 0));
+	//fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
+	fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
+	//fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 0, 1));
+	fViewMat = glm::lookAt(eyepos, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
 	fModelMat = glm::mat4(1);
 }
 
@@ -125,10 +131,13 @@ void Camera::Move(EDirection dir)
 // Rotate view based on quaternion.
 void Camera::Rotate(const glm::vec2 & degree)
 {
-	const float mouseSpeed = 0.05f;
+	const float mouseSpeed = 0.5f;
 
-	fpscam::LookUp<float> (mouseSpeed * degree.x, true, fViewMat);
-	fpscam::LookRight<float> (mouseSpeed* degree.y, true, fViewMat);
+	fpscam::LookUp<float> (mouseSpeed * -degree.y, false, fViewMat);
+	fpscam::LookRight<float> (mouseSpeed* degree.x, true, fViewMat);
+
+	//fpscam::OrbitRight(glm::vec3(0, 0, 0), -degree.x, fViewMat);
+	//fpscam::OrbitUp(glm::vec3(0, 0, 0), -degree.y, fViewMat);
 	//fCurCamera.fVerticalAngle = fCurCamera.fVerticalAngle + degree.y * mouseSpeed;
 	//fCurCamera.fHorizonAngle = fCurCamera.fHorizonAngle + degree.x * mouseSpeed;
 	//glm::vec3 viewDir;

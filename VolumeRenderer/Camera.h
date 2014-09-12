@@ -41,6 +41,8 @@ public:
 	float fTop;
 	float fNear;
 	float fFar;
+	float fFov;
+	float fAspect;
 
 	static void ViewDirToSphericalAngles(const glm::vec3 & viewDir, float & horizonAngle, float &verticalAngle);
 	static void SphericalAnglesToViewDir(float horizonAngle, float verticalAngle, glm::vec3 & viewDir);

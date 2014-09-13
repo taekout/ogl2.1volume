@@ -1,0 +1,41 @@
+Load Shader - shadowmap shader 
+<based on use program>
+Get Matrix uniform loc
+Get attrib loc.
+
+Load texture uniform loc.(Also Gen/setup texture) ==> This is for debug purpose later. I can skip this.
+Get tex sampler loc.
+
+Load model
+Load model to VBO.
+
+Setup framebuffer. (With Gen depth tex and bind it.)
+
+Load shader and use program - this shader simply converts vertices to UV and show a texture in frag.
+
+Load shader and use program - this shader does final rendering of models with texture and shadow.\
+- get uniform loc, get attrib loc, 
+
+
+loop {
+
+	Bind framebuffer(setup viewport)
+	clear screen
+	use program - depth map generation
+	load uniform
+	setup attrib buffer (glVertexAttribPointer)
+	rendering (bind index buf(element buf) then glDrawElements)
+	
+	un-bind framebuffer(render to screen)
+	use program - normal rendering with texture and shadow
+	upload uniform data.
+	bind 2 textures(1 depth from shadow pass, 1 just some color texture.)
+	setup attrib buffer (glVertexAttribPointer)
+	rendering
+	
+	// For debug purpose, they render the depth map by using an extra shader.
+	Use program- just render the depth map.
+	rendering
+}
+
+

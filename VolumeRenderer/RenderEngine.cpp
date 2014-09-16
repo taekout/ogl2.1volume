@@ -27,22 +27,23 @@ void RenderScene()
 	gRenderEngine->SetupRenderTarget();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, 0, Shader::eShaderShadow, std::string(), -1, -1);
+	gRenderEngine->RenderBatch(*gRenderEngine->fLightCamera, 0, Shader::eShaderShadow, std::string(), -1, -1);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
-		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
+		gRenderEngine->RenderBatch(*gRenderEngine->fLightCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
 	}
 	gRenderEngine->SetdownRenderTarget();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasic, std::string(), -1, -1);
-	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
-		Batch * b = gRenderEngine->fVBOs[i];
-		int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
-		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
-		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
-	}
+	int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
+	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
+	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+	//for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
+	//	Batch * b = gRenderEngine->fVBOs[i];
+	//	int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
+	//	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
+	//	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+	//}
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -55,7 +56,7 @@ IGraphicsEngine::IGraphicsEngine(void)
 }
 
 
-RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fTempCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1), fTextureMgr(NULL)
+RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1), fTextureMgr(NULL)
 {
 	GLInit();
 	Init();
@@ -149,8 +150,8 @@ RenderEngine::~RenderEngine(void)
 		delete fInput;
 	if(fCamera)
 		delete fCamera;
-	if(fTempCamera)
-		delete fTempCamera;
+	if(fLightCamera)
+		delete fLightCamera;
 	if(fMeshAccess)
 		delete fMeshAccess;
 	if(fLights)
@@ -175,8 +176,8 @@ void RenderEngine::RecompileShaderIfNecessary()
 void RenderEngine::AllocateInput()
 {
 	if(!fInput) {
-		if(fCamera)
-			fInput = new UserInput(fCamera);
+		if(fCamera && fLightCamera)
+			fInput = new UserInput(fCamera, fLightCamera);
 		else
 			throw "Camera is NULL and trying to initialize user input object.";
 	}
@@ -191,9 +192,9 @@ void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir
 
 void RenderEngine::SetTempCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 {
-	if(fTempCamera)
-		delete fTempCamera;
-	fTempCamera = new Camera(eyepos, viewDir);
+	if(fLightCamera)
+		delete fLightCamera;
+	fLightCamera = new Camera(eyepos, viewDir);
 }
 
 /*

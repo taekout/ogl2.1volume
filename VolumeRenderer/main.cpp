@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
 	glm::vec3 eyeDir(glm::vec3(0) - eyePos);
 	gRenderEngine->SetCamera(eyePos, eyeDir);
+	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(gLightPos, glm::vec3(0) - gLightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 
@@ -68,11 +69,10 @@ int main(int argc, char **argv) {
 		gRenderEngine->CreateBatch(mesh.fVertices, mesh.fIndices, mesh.fNormals, mesh.fMat.fGLTexID, mesh.fUVs);
 	}
 
-	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
 	gRenderEngine->CreateRenderTarget();
 	gRenderEngine->SetupRenderTarget();
 	for(size_t i = 0 ; i < gRenderEngine->fVBOs.size() ; i++) {
-		gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
+		gRenderEngine->RenderBatch(*gRenderEngine->fLightCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
 	}
 
 	printOpenGLError();
@@ -89,6 +89,8 @@ int main(int argc, char **argv) {
 	}
 	return 0;
 }
+
+#define SHRINKPLANE 10
 
 
 void CreatePlane()
@@ -121,7 +123,7 @@ void CreatePlane()
 
 	std::vector<glm::vec3> verts;
 	for( size_t i = 0 ; i < sizeof(gPlanes) / sizeof(GLfloat) ; i += 3 ) {
-		verts.push_back( glm::vec3(gPlanes[i] , gPlanes[i+1], gPlanes[i+2]) );
+		verts.push_back( glm::vec3(gPlanes[i] /SHRINKPLANE, gPlanes[i+1]/SHRINKPLANE, gPlanes[i+2]/SHRINKPLANE) );
 	}
 
 	std::vector<unsigned int> inds;

@@ -52,7 +52,7 @@ public:
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
-	Camera *fTempCamera;
+	Camera *fLightCamera;
 	IMeshAccess *fMeshAccess;
 	Light * fLights;
 

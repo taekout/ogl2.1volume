@@ -48,9 +48,10 @@ class UserInput
 protected:
 	MouseHistory * fMouseHistory;
 	Camera * fCamera;
+	Camera * fLightCamera;
 
 public:
-	UserInput(Camera * curCamera);
+	UserInput(Camera * curCamera, Camera * lightCamera);
 	void Keyboard(unsigned char key, int x, int y);
 	void KeyboardUp(unsigned char key, int x, int y);
 	void Keyboard(int key, int x, int y);

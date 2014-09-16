@@ -32,10 +32,6 @@ To do:
 4 use shadow map to do light shaft.
 */
 
-
-glm::vec3 gLightPos(100.f, 100.f, 100.f);
-glm::vec3 gLightDir(-0.5935844, -0.503884, -0.6275010);
-
 int main(int argc, char **argv) {
 	try {
 
@@ -45,10 +41,11 @@ int main(int argc, char **argv) {
 
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
 	glm::vec3 eyeDir(glm::vec3(0) - eyePos);
-	gRenderEngine->SetCamera(eyePos, eyeDir);
-	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
+	glm::vec3 lightPos(100.f, 100.f, 100.f);
+	glm::vec3 lightDir(-0.5935844, -0.503884, -0.6275010);
+	gRenderEngine->SetCamera(eyePos, eyeDir, lightPos, lightDir);
 	gRenderEngine->AllocateInput();
-	gRenderEngine->AddLight(gLightPos, glm::vec3(0) - gLightPos, glm::vec3(1.0f, 1.0f, 1.0f));
+	gRenderEngine->AddLight(lightPos, glm::vec3(0) - lightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 
 	gRenderEngine->AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
 

@@ -10,10 +10,6 @@
 
 RenderEngine * gRenderEngine = NULL;
 
-extern glm::vec3 gLightPos;
-extern glm::vec3 gLightDir;
-
-
 void RenderScene()
 {
 	printOpenGLError();
@@ -23,7 +19,6 @@ void RenderScene()
 
 	printOpenGLError();
 
-	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
 	gRenderEngine->SetupRenderTarget();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -183,19 +178,17 @@ void RenderEngine::AllocateInput()
 	}
 }
 
-void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
+void RenderEngine::SetCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir,
+							 const glm::vec3 & lightPos, const glm::vec3 & lightViewDir)
 {
 	if(fCamera)
 		delete fCamera;
-	fCamera = new Camera(eyepos, viewDir);
-}
-
-void RenderEngine::SetTempCamera(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
-{
 	if(fLightCamera)
 		delete fLightCamera;
-	fLightCamera = new Camera(eyepos, viewDir);
+	fCamera = new Camera(eyepos, viewDir);
+	fLightCamera = new Camera(lightPos, lightViewDir);
 }
+
 
 /*
 void RenderEngine::SetLightCamera(const glm::vec3 & eyepos, float horizonAngle, float verticalAngle)

@@ -38,12 +38,12 @@ void RenderScene()
 	int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
 	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
 	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
-	//for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
-	//	Batch * b = gRenderEngine->fVBOs[i];
-	//	int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
-	//	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
-	//	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
-	//}
+	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
+		Batch * b = gRenderEngine->fVBOs[i];
+		int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
+		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
+		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+	}
 
 	glutSwapBuffers();
 	glutPostRedisplay();

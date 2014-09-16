@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-#define SHRINKPLANE 10
+#define SHRINKPLANE 1
 
 
 void CreatePlane()

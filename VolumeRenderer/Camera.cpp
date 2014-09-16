@@ -30,8 +30,9 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	fFar = 300.f;
 
 	fResetCamera = CameraData(eyepos, viewDir);
-	fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
-	//fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
+	fbCamInOrtho = false;
+	//fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
+	fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
 	fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 1, 0));
 	fModelMat = glm::mat4(1);
 }
@@ -54,6 +55,15 @@ glm::mat4 Camera::GetView()
 void Camera::SetView(const glm::mat4 & inViewMat)
 {
 	fViewMat = inViewMat;
+}
+
+void Camera::SetOrthoOrPerspective()
+{
+	if( fbCamInOrtho )
+		fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
+	else
+		fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
+	fbCamInOrtho = !fbCamInOrtho;
 }
 
 glm::vec3 Camera::GetEyePos()

@@ -22,6 +22,7 @@ public:
 	glm::mat4 GetProj();
 	glm::mat4 GetView();
 	void SetView(const glm::mat4 & inViewMat);
+	void SetOrthoOrPerspective();
 	glm::vec3 GetEyePos();
 	glm::vec3 GetEyeDir();
 	void GetSphericalAngles(float & horizonAngle, float & verticalAngle);
@@ -67,6 +68,7 @@ protected:
 	glm::mat4 fProjMat;
 	glm::mat4 fModelMat;
 
+	bool fbCamInOrtho;
 };
 
 //float Camera::fov = 45.0f;

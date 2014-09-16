@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
 	glm::vec3 eyePos(66.5f, 30.0f, 0.0f);
 	glm::vec3 eyeDir(glm::vec3(0) - eyePos);
-	gRenderEngine->SetCamera(eyePos, eyeDir);
+	gRenderEngine->SetCamera(gLightPos, gLightDir);
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(gLightPos, glm::vec3(0) - gLightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 

@@ -96,6 +96,10 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 	case 'P':
 		fbRecompileShader = true;
 		break;
+	case 'l':
+	case 'L':
+		fCamera->SetOrthoOrPerspective();
+		break;
 	default:
 		std::cout << "unknown key " << key << std::endl;
 		break;

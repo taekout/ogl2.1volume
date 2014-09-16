@@ -49,7 +49,6 @@ int main(int argc, char **argv) {
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(gLightPos, glm::vec3(0) - gLightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 
-	glActiveTexture(GL_TEXTURE0);
 	gRenderEngine->AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
 
 	gRenderEngine->AllocateShader();

@@ -1,15 +1,16 @@
 #pragma once
 
-#include <map>
+#include <vector>
 
 struct ImageTex
 {
-	unsigned int fID;
+	unsigned int fActiveTexNo; // glActiveTexture ID.
+	unsigned int fTexID; // GLTexture ID 
 	unsigned char * fData;
 	int fWidth;
 	int fHeight;
 
-	ImageTex(unsigned int ID, unsigned char * data, int width, int height) : fID(ID), fData(data), fWidth(width), fHeight(height) {}
+	ImageTex(unsigned int activeTexNo, unsigned int glTexID, unsigned char * data, int width, int height) : fActiveTexNo(activeTexNo), fTexID(glTexID), fData(data), fWidth(width), fHeight(height) {}
 };
 
 
@@ -22,5 +23,5 @@ public:
 	unsigned int CreateTexture(int width, int height, unsigned char * data);
 
 protected:
-	std::map<unsigned int, ImageTex *> fTextures; // ID, texture data.
+	std::vector<ImageTex *> fTextures; // ID, texture data.
 };

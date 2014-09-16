@@ -29,13 +29,10 @@ unsigned int TextureMgr::CreateTexture(int width, int height, unsigned char * da
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	if(fTextures.find(textureID) == fTextures.end()) {
-		ImageTex *tex = new ImageTex(textureID, data, width, height);
-		fTextures.insert(std::pair<unsigned int, ImageTex *>(textureID, tex));
-		return textureID;
-	}
+	glActiveTexture(GL_TEXTURE0 + fTextures.size());
 
-	throw "Texture ID already generated.";
+	ImageTex *tex = new ImageTex(fTextures.size(), textureID, data, width, height);
+	fTextures.push_back(tex);
 
 	return textureID;
 }

@@ -230,7 +230,7 @@ void RenderEngine::ComputeRenderMat(Camera & cam)
 	fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
 
 	fShader->UpdateUniform1i("imageTexSampler", 0); // glActiveTexture(GL_TEXTURE0) was called.
-	fShader->UpdateUniform1i("shadowMap", 0); // glActiveTexture(GL_TEXTURE0) was called.
+	fShader->UpdateUniform1i("shadowMap", 1); // glActiveTexture(GL_TEXTURE0) was called.
 
 	glm::mat4 biasMatrix(
 		0.5, 0.0, 0.0, 0.0,

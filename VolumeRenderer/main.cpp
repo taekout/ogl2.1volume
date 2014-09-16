@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	gRenderEngine->CreateRenderTarget();
 	gRenderEngine->SetupRenderTarget();
 	for(size_t i = 0 ; i < gRenderEngine->fVBOs.size() ; i++) {
-		gRenderEngine->RenderBatch(*gRenderEngine->fLightCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
+		gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), i, Shader::eShaderShadow, std::string(), -1, -1);
 	}
 
 	printOpenGLError();

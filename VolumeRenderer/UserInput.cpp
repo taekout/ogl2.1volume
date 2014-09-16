@@ -3,7 +3,7 @@
 #include "glut.h"
 #include "Camera.h"
 
-UserInput::UserInput(Camera * curCamera, Camera * lightCamera) : fbUpPressed(false), fbDownPressed(false), fbRightPressed(false), fbLeftPressed(false), fbBackPressed(false), fbForePressed(false), fbRecompileShader(false)
+UserInput::UserInput(Camera * curCamera, Camera * lightCamera) : fbUpPressed(false), fbDownPressed(false), fbRightPressed(false), fbLeftPressed(false), fbBackPressed(false), fbForePressed(false), fbRecompileShader(false), fbShowLightCamera(false)
 {
 	if( !curCamera )
 		throw "Camera is not initialized when user input is created.";
@@ -99,11 +99,14 @@ void UserInput::Keyboard(unsigned char key, int x, int y)
 	case 'P':
 		fbRecompileShader = true;
 		break;
-	case 'l':
-	case 'L':
+	case 'o':
+	case 'O':
 		fCamera->SetOrthoOrPerspective();
 		fLightCamera->SetOrthoOrPerspective();
 		break;
+	case 'l':
+	case 'L':
+		fbShowLightCamera = true;
 	default:
 		std::cout << "unknown key " << key << std::endl;
 		break;
@@ -142,6 +145,9 @@ void UserInput::KeyboardUp(unsigned char key, int x, int y)
 	case 'Z':
 		fbDownPressed = false;
 		break;
+	case 'l':
+	case 'L':
+		fbShowLightCamera = false;
 	default:
 		break;
 	}

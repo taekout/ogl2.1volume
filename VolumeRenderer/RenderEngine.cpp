@@ -22,22 +22,22 @@ void RenderScene()
 	gRenderEngine->SetupRenderTarget();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	gRenderEngine->RenderBatch(*gRenderEngine->fLightCamera, 0, Shader::eShaderShadow, std::string(), -1, -1);
+	gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), 0, Shader::eShaderShadow, std::string(), -1, -1);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
-		gRenderEngine->RenderBatch(*gRenderEngine->fLightCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
+		gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), i, Shader::eShaderShadow, std::string(), -1, -1);
 	}
 	gRenderEngine->SetdownRenderTarget();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
 	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
-	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+	gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), 0, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
 		int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
 		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
-		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+		gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
 	}
 
 	glutSwapBuffers();
@@ -267,7 +267,6 @@ void RenderEngine::SetdownRenderTarget()
 	fFramebuf.SetdownRenderTarget();
 }
 
-
 void RenderEngine::ActivateMoveIfKeyPressed()
 {
 	if(fInput->IsLeftPressed()) {
@@ -293,6 +292,19 @@ void RenderEngine::ActivateMoveIfKeyPressed()
 	if(fInput->IsForewardPressed()) {
 		fInput->Move(EDirection::forward);
 	}
+}
+
+Camera * RenderEngine::GetCamera()
+{
+	if(fInput->ShouldShowLightCamera())
+		return fLightCamera;
+	else
+		return fCamera;
+}
+
+Camera * RenderEngine::GetLightCamera()
+{
+	return fLightCamera;
 }
 
 void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,

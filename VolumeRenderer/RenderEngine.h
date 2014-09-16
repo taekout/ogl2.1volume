@@ -35,6 +35,8 @@ public:
 	void ComputeRenderMat(Camera & cam);
 
 	void ActivateMoveIfKeyPressed();
+	Camera * GetCamera();
+	Camera * GetLightCamera();
 
 	void CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
 		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs);
@@ -50,8 +52,6 @@ public:
 	TextureMgr * fTextureMgr;
 	Shader *fShader;
 	UserInput * fInput ;
-	Camera *fCamera ;
-	Camera *fLightCamera;
 	IMeshAccess *fMeshAccess;
 	Light * fLights;
 
@@ -75,7 +75,8 @@ protected:
 	virtual void GLInit();
 	virtual void Init();
 
-	
+	Camera *fCamera ;
+	Camera *fLightCamera;
 
 };
 

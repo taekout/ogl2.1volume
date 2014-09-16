@@ -22,12 +22,12 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	fBottom = -30.f;
 	fTop = 30.f;
 	fNear = 10.f;
-	fFar = 300.f;
+	fFar = 500.f;
 	//fov(45.0f), aspect(1.f), near(20.f), far(70.f)
 	fFov = 45.f;
 	fAspect = 1.f;
 	fNear = 40.f;
-	fFar = 300.f;
+	fFar = 500.f;
 
 	fResetCamera = CameraData(eyepos, viewDir);
 	fbCamInOrtho = false;

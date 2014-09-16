@@ -69,16 +69,12 @@ int main(int argc, char **argv) {
 	}
 
 	gRenderEngine->CreateRenderTarget();
+	gRenderEngine->SetupRenderTarget();
 
 	printOpenGLError();
 
-	//gRenderEngine->SetupRenderTarget(gRenderEngine->fLightCamera->GetEyePos());
-	//gRenderEngine->RenderBatch();
-	//gRenderEngine->SetdownRenderTarget();
+	gRenderEngine->SetdownRenderTarget();
 
-
-	
-	//gRenderEngine->ComputeRenderMat();
 	printOpenGLError();
 
 	glutMainLoop();

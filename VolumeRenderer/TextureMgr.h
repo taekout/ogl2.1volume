@@ -22,6 +22,5 @@ public:
 
 	unsigned int CreateTexture(int width, int height, unsigned char * data);
 
-protected:
 	std::vector<ImageTex *> fTextures; // ID, texture data.
 };

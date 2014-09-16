@@ -24,9 +24,9 @@ void RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasic);
-	size_t i = 1;
-	//glActiveTexture(GL_TEXTURE0);
-	for(Batch * b : gRenderEngine->fVBOs) {
+	glActiveTexture(GL_TEXTURE0);
+	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
+		Batch * b = gRenderEngine->fVBOs[i];
 		glBindTexture(GL_TEXTURE_2D, b->fGLTexID);
 		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i++, Shader::eShaderTexture);
 		glBindTexture(GL_TEXTURE_2D, 0);

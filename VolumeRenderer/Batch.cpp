@@ -1,15 +1,22 @@
 #include "Batch.h"
 
 
-Batch::Batch(unsigned int ID, std::vector<glm::vec3> & inVertices, std::vector<unsigned int> & inIndices, std::vector<glm::vec3> & normals, unsigned int glTexID, std::vector<glm::vec2> & UVs, Shader::EShaderKind kind)
+Batch::Batch(int vertexVBO, std::vector<glm::vec3> & inVertices,
+	  int indexVBO, std::vector<unsigned int> & inIndices,
+	  int normalVBO, std::vector<glm::vec3> & normals,
+	  int glTexID, int UVVBO, std::vector<glm::vec2> & UVs)
 {
-	fID = ID;
-	fVertices =inVertices;
+	fVertexVBO = vertexVBO;
+	fIndexVBO = indexVBO;
+	fNormalVBO = normalVBO;
+
+	fGLTexID = glTexID;
+	fUVVBO = UVVBO;
+
+	fVertices = inVertices;
 	fIndices = inIndices;
 	fNormals = normals;
 	fUVs = UVs;
-	fProgram = kind;
-	fGLTexID = glTexID;
 }
 
 

@@ -206,6 +206,11 @@ void Shader::ShaderFileChangeWatcher(void)
 	}
 }
 
+Shader::ShaderData Shader::GetShaderData(EShaderKind kind)
+{
+	return fShaderData[kind];
+}
+
 void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
 {
 	if(kind != -1) {
@@ -258,6 +263,17 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
 	delete vertData, fragData;
 }
 
+void GetAttribLocations(Shader::EShaderKind kind, int inProgramID, int & outVertexPos, int & outNormalPos, int & outUVPos)
+{
+	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture || kind == Shader::eShaderShadow || kind == Shader::eShaderBasicWithShadow ) {
+
+		outVertexPos = glGetAttribLocation(inProgramID, "inPositions");
+		outNormalPos = glGetAttribLocation(inProgramID, "inNormals");
+
+		outUVPos = glGetAttribLocation(inProgramID, "inUV");
+	}
+}
+
 void Shader::CompileAllShaders()
 {
 	fShaderData.clear();
@@ -266,6 +282,8 @@ void Shader::CompileAllShaders()
 	const unsigned int kInPosID= 0;
 	const unsigned int kInNormals = 1;
 	const unsigned int kInUV = 2;
+
+	int vertexPos = -1, normalPos = -1, UVPos = -1;
 
 	setShaders(Shader::EShaderKind::eShaderBasic, "./GLSL/white.vert", "./GLSL/white.frag");
 
@@ -278,6 +296,10 @@ void Shader::CompileAllShaders()
 
 	LinkShaders();
 	UseProgram(eShaderBasic);
+	GetAttribLocations(Shader::EShaderKind::eShaderBasic, GetProgram(), vertexPos, normalPos, UVPos);
+	fShaderData[Shader::EShaderKind::eShaderBasic].fVertexID = vertexPos;
+	fShaderData[Shader::EShaderKind::eShaderBasic].fNormalID = normalPos;
+	fShaderData[Shader::EShaderKind::eShaderBasic].fUVID = UVPos;
 
 	setShaders(Shader::EShaderKind::eShaderTexture, "./GLSL/texture.vert", "./GLSL/texture.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
@@ -289,6 +311,10 @@ void Shader::CompileAllShaders()
 
 	LinkShaders();
 	UseProgram(eShaderTexture);
+	GetAttribLocations(Shader::EShaderKind::eShaderTexture, GetProgram(), vertexPos, normalPos, UVPos);
+	fShaderData[Shader::EShaderKind::eShaderTexture].fVertexID = vertexPos;
+	fShaderData[Shader::EShaderKind::eShaderTexture].fNormalID = normalPos;
+	fShaderData[Shader::EShaderKind::eShaderTexture].fUVID = UVPos;
 
 	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outDepth");
@@ -298,6 +324,10 @@ void Shader::CompileAllShaders()
 	
 	LinkShaders();
 	UseProgram(eShaderShadow);
+	GetAttribLocations(Shader::EShaderKind::eShaderShadow, GetProgram(), vertexPos, normalPos, UVPos);
+	fShaderData[Shader::EShaderKind::eShaderShadow].fVertexID = vertexPos;
+	fShaderData[Shader::EShaderKind::eShaderShadow].fNormalID = normalPos;
+	fShaderData[Shader::EShaderKind::eShaderShadow].fUVID = UVPos;
 
 	setShaders(Shader::eShaderBasicWithShadow, "./GLSL/whiteWithShadow.vert", "./GLSL/whiteWithShadow.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");
@@ -307,6 +337,10 @@ void Shader::CompileAllShaders()
 
 	LinkShaders();
 	UseProgram(eShaderBasicWithShadow);
+	GetAttribLocations(Shader::EShaderKind::eShaderBasicWithShadow, GetProgram(), vertexPos, normalPos, UVPos);
+	fShaderData[Shader::EShaderKind::eShaderBasicWithShadow].fVertexID = vertexPos;
+	fShaderData[Shader::EShaderKind::eShaderBasicWithShadow].fNormalID = normalPos;
+	fShaderData[Shader::EShaderKind::eShaderBasicWithShadow].fUVID = UVPos;
 
 	UseProgram(eShaderNothing);
 }

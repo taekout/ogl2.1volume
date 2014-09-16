@@ -49,6 +49,7 @@ int main(int argc, char **argv) {
 	gRenderEngine->AllocateInput();
 	gRenderEngine->AddLight(gLightPos, glm::vec3(0) - gLightPos, glm::vec3(1.0f, 1.0f, 1.0f));
 
+	glActiveTexture(GL_TEXTURE0);
 	gRenderEngine->AllocateMeshAccess("truck_color.bmp", "./models/L200-OBJ/", "L200-OBJ.obj");
 
 	gRenderEngine->AllocateShader();
@@ -58,8 +59,6 @@ int main(int argc, char **argv) {
 
 	printOpenGLError();
 
-	glActiveTexture(GL_TEXTURE0);
-
 	CreatePlane();
 
 	for(size_t i = 0 ; i < gRenderEngine->fMeshes.size() ; i++) {
@@ -67,7 +66,7 @@ int main(int argc, char **argv) {
 		Mesh & mesh = gRenderEngine->fMeshes.at(i);
 		Material & mat = mesh.fMat;
 
-		gRenderEngine->CreateBatch(mesh.fVertices, mesh.fIndices, mesh.fNormals, mesh.fMat.fGLTexID, mesh.fUVs, Shader::EShaderKind::eShaderTexture);
+		gRenderEngine->CreateBatch(mesh.fVertices, mesh.fIndices, mesh.fNormals, mesh.fMat.fGLTexID, mesh.fUVs);
 	}
 
 	gRenderEngine->CreateRenderTarget();
@@ -123,7 +122,7 @@ void CreatePlane()
 
 	std::vector<glm::vec3> verts;
 	for( size_t i = 0 ; i < sizeof(gPlanes) / sizeof(GLfloat) ; i += 3 ) {
-		verts.push_back( glm::vec3(gPlanes[i], gPlanes[i+1], gPlanes[i+2]) );
+		verts.push_back( glm::vec3(gPlanes[i] , gPlanes[i+1], gPlanes[i+2]) );
 	}
 
 	std::vector<unsigned int> inds;
@@ -141,6 +140,6 @@ void CreatePlane()
 		UVs.push_back( glm::vec2(gUVs[i], gUVs[i+1]) );
 	}
 
-	gRenderEngine->CreateBatch(verts, inds, normals, 0, UVs, Shader::EShaderKind::eShaderBasic);
+	gRenderEngine->CreateBatch(verts, inds, normals, 0, UVs);
 }
 

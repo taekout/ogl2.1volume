@@ -20,38 +20,20 @@ void RenderScene()
 
 	gRenderEngine->ActivateMoveIfKeyPressed();
 
-	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
-	if(gRenderEngine->SetupRenderTarget() == false) {
-		throw "Framebuffer not properly setup.";
-		exit(-2);
-	}
-
 	printOpenGLError();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	printOpenGLError();
 
-	gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, 0, Shader::eShaderShadow);
-	for(size_t i = 1 ; i < gRenderEngine->BatchSize() ; i++) {
-	
-		gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, i, Shader::eShaderShadow);
+	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasic);
+	size_t i = 1;
+	//glActiveTexture(GL_TEXTURE0);
+	for(Batch * b : gRenderEngine->fVBOs) {
+		glBindTexture(GL_TEXTURE_2D, b->fGLTexID);
+		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i++, Shader::eShaderTexture);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-
-	gRenderEngine->SetdownRenderTarget();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	printOpenGLError();
-
-	glBindTexture(GL_TEXTURE_2D, gRenderEngine->fFramebuf.DepthTexID());
-	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasicWithShadow);
-	for(size_t i = 1 ; i < gRenderEngine->BatchSize() ; i++) {
-		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderBasicWithShadow);
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glutSwapBuffers();
 	glutPostRedisplay();
-	//gDC.gShader->ShaderFileChangeWatcher();
 	
 	printOpenGLError();
 }
@@ -61,8 +43,7 @@ IGraphicsEngine::IGraphicsEngine(void)
 }
 
 
-RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fTempCamera(NULL), fMeshAccess(NULL), fLights(NULL), 
-	fIndexBuffer(-1), fNormalBuffer(-1), fUVBuffer(-1), fTextureID(-1)
+RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fTempCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1)
 {
 	GLInit();
 }
@@ -303,18 +284,63 @@ void RenderEngine::ActivateMoveIfKeyPressed()
 	}
 }
 
-
 void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
-				 std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind)
+				 std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs)
 {
-	
-	fShader->UseProgram(kind); // It might be better to use the program here just avoid opengl error message.
+	printOpenGLError();
 
-	GLuint vao = -1, vertexPos = -1, normalPos = -1, UVPos = -1;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	assert(inVerts.size() != 0 && inInds.size() != 0);
+
+	unsigned int vertexVBO;
+	unsigned int indexVBO;
+	unsigned int normalVBO;
+	unsigned int UVVBO;
+
+	if( inVerts.size() != 0 && inInds.size() != 0 ) {
+
+		glGenBuffers(1, &vertexVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
+		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
+
+		glGenBuffers(1, &indexVBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
+	}
+	printOpenGLError();
+
+	if( inNormals.size() != 0 ) {
+
+		glGenBuffers(1, &normalVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
+		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
+	}
+	printOpenGLError();
+
+	if( inUVs.size() != 0 ) {
+
+		glGenBuffers(1, &UVVBO);
+		glBindBuffer(GL_ARRAY_BUFFER, UVVBO);
+		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
+	}
+	printOpenGLError();
+
+	Batch *batch = new Batch( vertexVBO, inVerts, indexVBO, inInds, normalVBO, inNormals, inGLTexID, UVVBO, inUVs );
+	fVBOs.push_back( batch );
 
 	printOpenGLError();
+
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+/*
+void RenderEngine::CreateBatchTmp(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
+				 std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind,
+				 unsigned int )
+{
+	fShader->UseProgram(kind); // It might be better to use the program here just avoid opengl error message.
+
+	GLuint vertexPos = -1, normalPos = -1, UVPos = -1;
 
 	assert(inVerts.size() != 0 && inInds.size() != 0);
 
@@ -325,94 +351,91 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 		
 		UVPos = glGetAttribLocation(fShader->GetProgram(), "inUV");
 	}
+	else
+		return;
+	
 	printOpenGLError();
-
 
 	if( inVerts.size() != 0 && inInds.size() != 0 && vertexPos != -1 ) {
 
-		GLuint vertexBuffer;
-		glGenBuffers(1, &vertexBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
-
 		glEnableVertexAttribArray(vertexPos);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		//glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glVertexAttribPointer(vertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-
-		glGenBuffers(1, &fIndexBuffer);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fIndexBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
 	}
 	printOpenGLError();
 
 	if( inNormals.size() != 0 && normalPos != -1 ) {
 
-		glGenBuffers(1, &fNormalBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
-		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
-
 		glEnableVertexAttribArray(normalPos);
-		glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
+		//glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
 		glVertexAttribPointer(normalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
 	printOpenGLError();
 
 	if( inUVs.size() != 0 && UVPos  != -1) {
 
-		glGenBuffers(1, &fUVBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
-		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
-
 		glEnableVertexAttribArray(UVPos);
-		glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
+		//glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
 		glVertexAttribPointer(UVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
 	}
-	printOpenGLError();
-
-	Batch *batch = new Batch( vao, inVerts, inInds, inNormals, inGLTexID, inUVs, kind );
-	fVAOs.push_back( batch );
-
 	printOpenGLError();
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
+*/
 
-void RenderEngine::RenderBatch(Camera & cam)
+void BindVBOForDrawing(const Shader::ShaderData & sd, Batch * batch, Shader::EShaderKind kind)
 {
 	printOpenGLError();
-	glBindTexture(GL_TEXTURE_2D, 0);
 
-	for(auto it = fVAOs.begin() ; it != fVAOs.end() ; ++it) {
+	if( sd.fVertexID != -1 && batch->fVertexVBO != -1 && batch->fIndexVBO != -1 ) {
 
-		printOpenGLError();
-		Batch * batch = *it;
-		fShader->UseProgram(batch->fProgram);
-		ComputeRenderMat(cam);
-		glBindVertexArray( batch->fID );
-		if(batch->fGLTexID)
-			glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
-		glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindVertexArray(0);
-		printOpenGLError();
-
+		GLuint vertexPos = sd.fVertexID;
+		glEnableVertexAttribArray(vertexPos);
+		glBindBuffer(GL_ARRAY_BUFFER, batch->fVertexVBO);
+		//glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		glVertexAttribPointer(vertexPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, batch->fIndexVBO);
 	}
+	printOpenGLError();
+
+	if( sd.fNormalID != -1 && batch->fNormalVBO != -1 ) {
+
+		GLuint normalPos = sd.fNormalID;
+		glEnableVertexAttribArray(normalPos);
+		glBindBuffer(GL_ARRAY_BUFFER, batch->fNormalVBO);
+		//glBindBuffer(GL_ARRAY_BUFFER, fNormalBuffer);
+		glVertexAttribPointer(normalPos, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	}
+	printOpenGLError();
+
+	if( sd.fUVID  != -1 && batch->fUVVBO != -1 ) {
+
+		GLuint UVPos = sd.fUVID;
+		glEnableVertexAttribArray(UVPos);
+		glBindBuffer(GL_ARRAY_BUFFER, batch->fUVVBO);
+		//glBindBuffer(GL_ARRAY_BUFFER, fUVBuffer);
+		glVertexAttribPointer(UVPos, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+	}
+	printOpenGLError();
 }
 
 void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind)
 {
-	if(index >= fVAOs.size())
+	if(index >= fVBOs.size())
 		return;
 
 	printOpenGLError();
 
-	Batch * batch = fVAOs.at(index);
+	Batch * batch = fVBOs.at(index);
 	fShader->UseProgram(kind);
 	ComputeRenderMat(cam);
-	glBindVertexArray( batch->fID );
 	//if(batch->fGLTexID != 0)
 	//	glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
+
+	BindVBOForDrawing(fShader->GetShaderData(kind), batch, kind);
+
 	glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindVertexArray(0);

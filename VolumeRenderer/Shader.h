@@ -63,11 +63,16 @@ public:
 	struct ShaderData {
 		ShaderData(EShaderKind kind, GLuint vertID, GLuint fragID, GLuint programID, std::string & vertFile, std::string & fragName)
 			: fKind(kind), fVertShaderID(vertID), fFragShaderID(fragID), fProgramID(programID), vertFilename(vertFile), fragFilename(fragName)
+			, fVertexID(-1), fNormalID(-1), fUVID(-1)
 		{}
 		EShaderKind fKind;
 		GLuint fVertShaderID;
 		GLuint fFragShaderID;
 		GLuint fProgramID;
+
+		int fVertexID;
+		int fNormalID;
+		int fUVID;
 
 		std::string vertFilename;
 		std::string fragFilename;
@@ -89,6 +94,7 @@ public:
 	// Get Functions
 	GLuint GetProgram(void) { return (fShaderIndex != -1) ? fShaderData[fShaderIndex].fProgramID : 0; }
 	GLuint GetProgram(EShaderKind kind) { return fShaderData[kind].fProgramID; }
+	ShaderData GetShaderData(EShaderKind kind);
 	// Log Functions
 	void printShaderInfoLog(std::string shadername, GLuint obj);
 	void printProgramInfoLog(std::string vertShaderName, std::string fragShaderName, GLuint obj);

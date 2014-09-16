@@ -37,12 +37,13 @@ public:
 	void ActivateMoveIfKeyPressed();
 
 	void CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
-		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
+		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs);
+	//void CreateBatchTmp(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
+	//	std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
 
-	size_t BatchSize() { return fVAOs.size(); }
-	unsigned int BatchTexID(int index) { return fVAOs[index]->fGLTexID; }
+	size_t BatchSize() { return fVBOs.size(); }
+	unsigned int BatchTexID(int index) { return fVBOs[index]->fGLTexID; }
 
-	void RenderBatch(Camera & cam);
 	void RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind);
 
 	Shader *fShader;
@@ -60,10 +61,11 @@ public:
 	std::vector<glm::vec3> fColors;
 	std::vector<Mesh> fMeshes;
 
-	GLuint fIndexBuffer;
-	GLuint fNormalBuffer;
-	GLuint fUVBuffer;
-	std::vector<Batch *> fVAOs;
+	//GLuint fVertexBuffer;
+	//GLuint fIndexBuffer;
+	//GLuint fNormalBuffer;
+	//GLuint fUVBuffer;
+	std::vector<Batch *> fVBOs;
 
 	GLuint fTextureID;
 

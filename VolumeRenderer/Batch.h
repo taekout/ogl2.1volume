@@ -7,10 +7,16 @@
 class Batch
 {
 public:
-	Batch(unsigned int ID, std::vector<glm::vec3> & inVertices, std::vector<unsigned int> & inIndices, std::vector<glm::vec3> & normals, unsigned int glTexID, std::vector<glm::vec2> & UVs, Shader::EShaderKind kind);
+	Batch(int vertexVBO, std::vector<glm::vec3> & inVertices,
+		int indexVBO, std::vector<unsigned int> & inIndices,
+		int normalVBO, std::vector<glm::vec3> & normals,
+		int glTexID, int UVVBO, std::vector<glm::vec2> & UVs);
 	~Batch(void);
 
-	unsigned int fID;
+	int fVertexVBO;
+	int fIndexVBO;
+	int fNormalVBO;
+	int fUVVBO;
 	std::vector<glm::vec3> fVertices;
 	std::vector<unsigned int> fIndices;
 	std::vector<glm::vec3> fNormals;

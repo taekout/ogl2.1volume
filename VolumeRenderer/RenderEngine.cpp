@@ -22,15 +22,26 @@ void RenderScene()
 	gRenderEngine->ActivateMoveIfKeyPressed();
 
 	printOpenGLError();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasic);
-	glActiveTexture(GL_TEXTURE0);
+	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
+	gRenderEngine->SetupRenderTarget();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, 0, Shader::eShaderShadow, std::string(), -1, -1);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
-		glBindTexture(GL_TEXTURE_2D, b->fGLTexID);
-		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture);
-		glBindTexture(GL_TEXTURE_2D, 0);
+		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderShadow, std::string(), -1, -1);
+	}
+	gRenderEngine->SetdownRenderTarget();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	gRenderEngine->RenderBatch(*gRenderEngine->fCamera, 0, Shader::eShaderBasic, std::string(), -1, -1);
+	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
+		Batch * b = gRenderEngine->fVBOs[i];
+		int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
+		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
+		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
 	}
 
 	glutSwapBuffers();
@@ -229,8 +240,8 @@ void RenderEngine::ComputeRenderMat(Camera & cam)
 	fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
 	fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
 
-	fShader->UpdateUniform1i("imageTexSampler", 0); // glActiveTexture(GL_TEXTURE0) was called.
-	fShader->UpdateUniform1i("shadowMap", 1); // glActiveTexture(GL_TEXTURE0) was called.
+	//fShader->UpdateUniform1i("imageTexSampler", 0); // glActiveTexture(GL_TEXTURE0) was called.
+	//fShader->UpdateUniform1i("shadowMap", 1); // glActiveTexture(GL_TEXTURE0) was called.
 
 	glm::mat4 biasMatrix(
 		0.5, 0.0, 0.0, 0.0,
@@ -330,7 +341,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 	}
 	printOpenGLError();
 
-	Batch *batch = new Batch( vertexVBO, inVerts, indexVBO, inInds, normalVBO, inNormals, inGLTexID, UVVBO, inUVs );
+	Batch *batch = new Batch( vertexVBO, inVerts, indexVBO, inInds, normalVBO, inNormals, UVVBO, inUVs );
 	fVBOs.push_back( batch );
 
 	printOpenGLError();
@@ -426,7 +437,7 @@ void BindVBOForDrawing(const Shader::ShaderData & sd, Batch * batch, Shader::ESh
 	printOpenGLError();
 }
 
-void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind)
+void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind, std::string & texSamplerName, int texActiveNo, int texID)
 {
 	if(index >= fVBOs.size())
 		return;
@@ -436,6 +447,12 @@ void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind k
 	Batch * batch = fVBOs.at(index);
 	fShader->UseProgram(kind);
 	ComputeRenderMat(cam);
+
+	if(texID != -1 && texSamplerName.compare("") != 0) {
+		glActiveTexture(GL_TEXTURE0 + texActiveNo);
+		fShader->UpdateUniform1i((char *)texSamplerName.c_str(), texActiveNo);
+		glBindTexture(GL_TEXTURE_2D, texID);
+	}
 
 	BindVBOForDrawing(fShader->GetShaderData(kind), batch, kind);
 

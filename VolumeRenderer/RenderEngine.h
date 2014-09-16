@@ -43,9 +43,10 @@ public:
 	//	std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs, Shader::EShaderKind kind);
 
 	size_t BatchSize() { return fVBOs.size(); }
-	unsigned int BatchTexID(int index) { return fVBOs[index]->fGLTexID; }
+	//unsigned int BatchActiveTexNo(int index) { return fVBOs[index]->fGLActiveTexNo; }
+	//unsigned int BatchTexID(int index) { return fVBOs[index]->fGLTexID; }
 
-	void RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind);
+	void RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind, std::string & texSamplerName, int texActiveNo, int texID);
 
 	TextureMgr * fTextureMgr;
 	Shader *fShader;

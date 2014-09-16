@@ -10,7 +10,7 @@ public:
 	Batch(int vertexVBO, std::vector<glm::vec3> & inVertices,
 		int indexVBO, std::vector<unsigned int> & inIndices,
 		int normalVBO, std::vector<glm::vec3> & normals,
-		int glTexID, int UVVBO, std::vector<glm::vec2> & UVs);
+		int UVVBO, std::vector<glm::vec2> & UVs);
 	~Batch(void);
 
 	int fVertexVBO;
@@ -21,7 +21,5 @@ public:
 	std::vector<unsigned int> fIndices;
 	std::vector<glm::vec3> fNormals;
 	std::vector<glm::vec2> fUVs;
-
-	unsigned int fGLTexID;
 };
 

@@ -28,7 +28,11 @@ bool FrameBuffer::SetupRenderTarget(void)
 	if(fFrameBufID == 0)
 		return false;
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	glGenTextures(1, &fDepthTextureID);
+	bool bJustCreated = false;
+	if(fDepthTextureID == 0) {
+		glGenTextures(1, &fDepthTextureID);
+		bJustCreated = true;
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, fFrameBufID);
 
 	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
@@ -40,9 +44,10 @@ bool FrameBuffer::SetupRenderTarget(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glActiveTexture(GL_TEXTURE0 + gRenderEngine->fTextureMgr->fTextures.size());
-	ImageTex * tex = new ImageTex(gRenderEngine->fTextureMgr->fTextures.size(), fDepthTextureID, NULL, width, height);
-	gRenderEngine->fTextureMgr->fTextures.push_back(tex);
+	if(bJustCreated) {
+		ImageTex * tex = new ImageTex(gRenderEngine->fTextureMgr->fTextures.size(), fDepthTextureID, NULL, width, height);
+		gRenderEngine->fTextureMgr->fTextures.push_back(tex);
+	}
 
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fDepthTextureID, 0);
 

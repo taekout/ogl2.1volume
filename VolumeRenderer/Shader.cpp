@@ -372,8 +372,10 @@ void Shader::UpdateUniform1i(char *varName, unsigned int inData)
 
 	GLint loc;
 	loc = glGetUniformLocation(sd.fProgramID, varName);
-	if(loc == -1)
+	if(loc == -1) {
+		throw "uniform update failed.";
 		return;
+	}
 	GLuint data = inData;
 	glUniform1i(loc, data);
 }

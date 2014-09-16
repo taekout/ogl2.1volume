@@ -28,7 +28,7 @@ void RenderScene()
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
 		glBindTexture(GL_TEXTURE_2D, b->fGLTexID);
-		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i++, Shader::eShaderTexture);
+		gRenderEngine->RenderBatch(*gRenderEngine->fCamera, i, Shader::eShaderTexture);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
@@ -329,8 +329,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 
 	printOpenGLError();
 
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 /*
@@ -431,14 +430,10 @@ void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind k
 	Batch * batch = fVBOs.at(index);
 	fShader->UseProgram(kind);
 	ComputeRenderMat(cam);
-	//if(batch->fGLTexID != 0)
-	//	glBindTexture(GL_TEXTURE_2D, batch->fGLTexID);
 
 	BindVBOForDrawing(fShader->GetShaderData(kind), batch, kind);
 
 	glDrawElements(GL_TRIANGLES, batch->fIndices.size(), GL_UNSIGNED_INT, (void *) 0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glBindVertexArray(0);
 	printOpenGLError();
 }
 

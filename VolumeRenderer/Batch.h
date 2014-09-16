@@ -23,6 +23,5 @@ public:
 	std::vector<glm::vec2> fUVs;
 
 	unsigned int fGLTexID;
-	Shader::EShaderKind fProgram;
 };
 

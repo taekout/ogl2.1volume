@@ -68,9 +68,9 @@ int main(int argc, char **argv) {
 
 	gRenderEngine->CreateRenderTarget();
 	gRenderEngine->SetupRenderTarget();
-	for(size_t i = 0 ; i < gRenderEngine->fVBOs.size() ; i++) {
-		gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), i, Shader::eShaderShadow, std::string(), -1, -1);
-	}
+	//for(size_t i = 0 ; i < gRenderEngine->fVBOs.size() ; i++) {
+	//	gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), i, Shader::eShaderShadow, std::string(), -1, -1);
+	//}
 
 	printOpenGLError();
 
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-#define SHRINKPLANE 1
+#define SHRINKPLANE 4
 
 
 void CreatePlane()

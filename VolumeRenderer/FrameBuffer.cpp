@@ -40,7 +40,7 @@ bool FrameBuffer::SetupRenderTarget(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glActiveTexture(GL_TEXTURE0 + 0);//gRenderEngine->fTextureMgr->fTextures.size());
+	glActiveTexture(GL_TEXTURE0 + gRenderEngine->fTextureMgr->fTextures.size());
 	ImageTex * tex = new ImageTex(gRenderEngine->fTextureMgr->fTextures.size(), fDepthTextureID, NULL, width, height);
 	gRenderEngine->fTextureMgr->fTextures.push_back(tex);
 

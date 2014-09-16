@@ -25,7 +25,7 @@ bool FrameBuffer::CreateFrameBuffer()
 
 bool FrameBuffer::SetupRenderTarget(void)
 {
-	if(fFrameBufID == 0 || fDepthTextureID == 0)
+	if(fFrameBufID == 0)
 		return false;
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
 	glGenTextures(1, &fDepthTextureID);

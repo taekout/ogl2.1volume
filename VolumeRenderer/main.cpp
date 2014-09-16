@@ -68,8 +68,12 @@ int main(int argc, char **argv) {
 		gRenderEngine->CreateBatch(mesh.fVertices, mesh.fIndices, mesh.fNormals, mesh.fMat.fGLTexID, mesh.fUVs);
 	}
 
+	gRenderEngine->SetTempCamera(gLightPos, gLightDir);
 	gRenderEngine->CreateRenderTarget();
 	gRenderEngine->SetupRenderTarget();
+	for(size_t i = 0 ; i < gRenderEngine->fVBOs.size() ; i++) {
+		gRenderEngine->RenderBatch(*gRenderEngine->fTempCamera, i, Shader::eShaderShadow);
+	}
 
 	printOpenGLError();
 

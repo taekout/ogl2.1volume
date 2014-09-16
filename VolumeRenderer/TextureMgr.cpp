@@ -10,11 +10,12 @@ TextureMgr::~TextureMgr(void)
 {
 }
 
-void TextureMgr::LoadTexture(int width, int height, unsigned char * data)
+
+unsigned int TextureMgr::CreateTexture(int width, int height, unsigned char * data)
 {
 	// Create one OpenGL texture
 	
-	GLuint textureID;
+	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
@@ -26,10 +27,16 @@ void TextureMgr::LoadTexture(int width, int height, unsigned char * data)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	if(fTextures.find(textureID) != fTextures.end()) {
+	glBindTexture(GL_TEXTURE_2D, 0);
 
+	if(fTextures.find(textureID) == fTextures.end()) {
 		ImageTex *tex = new ImageTex(textureID, data, width, height);
-		fTextures[textureID] = tex;
+		fTextures.insert(std::pair<unsigned int, ImageTex *>(textureID, tex));
+		return textureID;
 	}
+
+	throw "Texture ID already generated.";
+
+	return textureID;
 }
 

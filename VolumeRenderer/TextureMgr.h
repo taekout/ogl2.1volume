@@ -19,10 +19,8 @@ public:
 	TextureMgr(void);
 	virtual ~TextureMgr(void);
 
-	void LoadTexture(int width, int height, unsigned char * data);
-
-	//static 
+	unsigned int CreateTexture(int width, int height, unsigned char * data);
 
 protected:
-	std::map<unsigned int, ImageTex *> fTextures;
+	std::map<unsigned int, ImageTex *> fTextures; // ID, texture data.
 };

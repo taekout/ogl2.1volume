@@ -6,6 +6,7 @@
 #include "glut.h"
 
 #include "Batch.h"
+#include "TextureMgr.h"
 
 RenderEngine * gRenderEngine = NULL;
 
@@ -43,9 +44,10 @@ IGraphicsEngine::IGraphicsEngine(void)
 }
 
 
-RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fTempCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1)
+RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fTempCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1), fTextureMgr(NULL)
 {
 	GLInit();
+	Init();
 }
 
 
@@ -85,6 +87,10 @@ void MouseMotion(int x, int y)
 	//glutPostRedisplay();
 }
 
+void RenderEngine::Init()
+{
+	fTextureMgr = new TextureMgr();
+}
 
 void RenderEngine::GLInit()
 {

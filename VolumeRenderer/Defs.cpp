@@ -8,6 +8,7 @@
 #include <fstream>
 #include <glm.hpp>
 #include "RenderEngine.h"
+#include "TextureMgr.h"
 
 #define GS_WIN 1
 
@@ -236,7 +237,9 @@ unsigned int loadBMP_custom(const char * imagepath)
 	fclose(file);
 
 	// Create one OpenGL texture
-	GLuint textureID;
+	unsigned int textureID = gRenderEngine->fTextureMgr->CreateTexture(width, height, data);
+
+	/*GLuint textureID;
 	glGenTextures(1, &textureID);
 
 	// "Bind" the newly created texture : all future texture functions will modify this texture
@@ -248,7 +251,7 @@ unsigned int loadBMP_custom(const char * imagepath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);*/
 
 	return textureID;
 }

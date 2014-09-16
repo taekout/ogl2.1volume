@@ -8,6 +8,7 @@
 #include "Batch.h"
 
 class Batch;
+class TextureMgr;
 
 class IGraphicsEngine
 {
@@ -46,6 +47,7 @@ public:
 
 	void RenderBatch(Camera & cam, size_t index, Shader::EShaderKind kind);
 
+	TextureMgr * fTextureMgr;
 	Shader *fShader;
 	UserInput * fInput ;
 	Camera *fCamera ;
@@ -71,6 +73,7 @@ public:
 
 protected:
 	virtual void GLInit();
+	virtual void Init();
 
 	
 

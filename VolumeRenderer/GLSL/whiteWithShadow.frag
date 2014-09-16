@@ -18,7 +18,7 @@ void main()
 	if ( texture( shadowMap, ShadowCoord.xy ).z  <  ShadowCoord.z)
 		visibility = 0.5;
 
-	outColor = vec4( clamp( dot(fragNormal, LightDir) * visibility, 0.f, 1.f ) );
-	//outColor = vec4( texture(imageTexSampler, fragUV).r, 0., 0., 1.f );
+	outColor = vec4( clamp( dot(fragNormal, LightDir) * visibility, 0., 1. ) );
+	//outColor = vec4( texture(imageTexSampler, fragUV).r, 0., 0., 1. );
 }
 

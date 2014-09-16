@@ -23,7 +23,7 @@ void main()
 {
 	fragNormal = (NormalMat * vec4(inNormals, 0.0)).xyz;
 
-	vec4 vertexInEye = vec4(View * Model * vec4(inPositions, 1.0f));
+	vec4 vertexInEye = vec4(View * Model * vec4(inPositions, 1.0));
 #ifdef Blinn
 	V = normalize(EyePos - vec3(gl_Position));
 #endif

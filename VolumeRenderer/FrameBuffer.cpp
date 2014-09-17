@@ -33,11 +33,11 @@ bool FrameBuffer::SetupRenderTarget(void)
 		glGenTextures(1, &fDepthTextureID);
 		bJustCreated = true;
 	}
+	int width = 1024, height = 1024;
 	glBindFramebuffer(GL_FRAMEBUFFER, fFrameBufID);
+	glViewport(0, 0, width, height);
 
 	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
-
-	int width = 1024, height = 1024;
 	glBindTexture(GL_TEXTURE_2D, fDepthTextureID);
 	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -62,5 +62,6 @@ bool FrameBuffer::SetupRenderTarget(void)
 void FrameBuffer::SetdownRenderTarget()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, gRenderEngine->WindowWidth(), gRenderEngine->WindowHeight());
 }
 

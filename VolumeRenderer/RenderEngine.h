@@ -38,6 +38,11 @@ public:
 	Camera * GetCamera();
 	Camera * GetLightCamera();
 
+	int WindowWidth() { return fWidth; }
+	int WindowHeight() { return fHeight; }
+	void WindowWidth(int inWidth) { fWidth = inWidth; }
+	void WindowHeight(int inHeight) { fHeight = inHeight; }
+
 	void CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
 		std::vector<glm::vec3> & inNormals, unsigned int inGLTexID, std::vector<glm::vec2> & inUVs);
 	//void CreateBatchTmp(std::vector<glm::vec3> & inVerts, std::vector<unsigned int> & inInds,
@@ -77,6 +82,8 @@ protected:
 
 	Camera *fCamera ;
 	Camera *fLightCamera;
+
+	int fWidth, fHeight; // for glViewport.
 
 };
 

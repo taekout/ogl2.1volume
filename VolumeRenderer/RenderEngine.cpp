@@ -46,12 +46,19 @@ void RenderScene()
 	printOpenGLError();
 }
 
+void ChangeSize(int width, int height)
+{
+	gRenderEngine->WindowWidth(width);
+	gRenderEngine->WindowHeight(height);
+	glViewport(0, 0, width, height);
+}
+
 IGraphicsEngine::IGraphicsEngine(void)
 {
 }
 
 
-RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1), fTextureMgr(NULL)
+RenderEngine::RenderEngine() : fShader(NULL), fInput(NULL), fCamera(NULL), fLightCamera(NULL), fMeshAccess(NULL), fLights(NULL), fTextureID(-1), fTextureMgr(NULL), fWidth(0), fHeight(0)
 {
 	GLInit();
 	Init();
@@ -109,7 +116,7 @@ void RenderEngine::GLInit()
 
 	glutDisplayFunc(RenderScene);
 	//glutIdleFunc(renderScene);
-	//glutReshapeFunc(changeSize);
+	glutReshapeFunc(ChangeSize);
 
 	glutKeyboardFunc(Keyboard);
 	glutKeyboardUpFunc(KeyboardUp);
@@ -243,6 +250,12 @@ void RenderEngine::ComputeRenderMat(Camera & cam)
 		0.0, 0.0, 0.5, 0.0,
 		0.5, 0.5, 0.5, 1.0);
 	fShader->UpdateUniformMat4("BiasMat", &biasMatrix[0][0]);
+
+
+#ifdef _DEBUG
+	glm::vec4 testVec = proj * view * model * glm::vec4(100.f, 100.f, 100.f, 1.f);
+	glm::vec4 testVec2 = biasMatrix * proj * view * model * glm::vec4(100.f, 100.f, 100.f, 1.f);
+#endif
 
 	if(fLights) {
 		std::tuple<glm::vec3, glm::vec3, glm::vec3> & lightData = fLights->GetLight(0);

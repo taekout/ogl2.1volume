@@ -16,6 +16,7 @@ uniform mat4 View;
 uniform mat4 Model;
 uniform mat4 NormalMat;
 uniform vec3 EyePos;
+uniform mat4 DepthMVP;
 
 uniform mat4 BiasMat;
 
@@ -28,7 +29,7 @@ void main()
 
 	gl_Position = MVP * vec4(inPositions, 1.0);
 
-	mat4 BiasMVP = BiasMat * MVP;
+	mat4 BiasMVP = BiasMat * DepthMVP;
 
 	ShadowCoord = BiasMVP * vec4(inPositions, 1.0);
 }

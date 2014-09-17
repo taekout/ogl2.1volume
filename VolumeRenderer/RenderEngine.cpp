@@ -32,12 +32,12 @@ void RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
 	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
-	gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), 0, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+	gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), 0, Shader::eShaderBasicWithShadow, std::string("shadowMap"), activeTexNo, texID);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
-		int texID = gRenderEngine->fTextureMgr->fTextures[0]->fTexID;
-		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[0]->fActiveTexNo;
-		gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), i, Shader::eShaderTexture, std::string("imageTexSampler"), activeTexNo, texID);
+		int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
+		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
+		gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), i, Shader::eShaderBasicWithShadow, std::string("shadowMap"), activeTexNo, texID);
 	}
 
 	glutSwapBuffers();
@@ -240,6 +240,9 @@ void RenderEngine::ComputeRenderMat(Camera & cam)
 	fShader->UpdateUniformMat4("Model", &model[0][0]);
 	fShader->UpdateUniformMat4("NormalMat", &normalMat[0][0]);
 	fShader->UpdateUniform3fv("EyePos", eyePos[0], eyePos[1], eyePos[2]);
+
+	glm::mat4 DepthMVP = gRenderEngine->GetLightCamera()->GetProj() * gRenderEngine->GetLightCamera()->GetView() * gRenderEngine->GetLightCamera()->GetModel();
+	fShader->UpdateUniformMat4("DepthMVP", &DepthMVP[0][0]);
 
 	//fShader->UpdateUniform1i("imageTexSampler", 0); // glActiveTexture(GL_TEXTURE0) was called.
 	//fShader->UpdateUniform1i("shadowMap", 1); // glActiveTexture(GL_TEXTURE0) was called.

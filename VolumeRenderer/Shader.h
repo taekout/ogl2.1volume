@@ -55,7 +55,7 @@ public:
 		eShaderNothing = -1,
 		eShaderBasic = 0,
 		eShaderTexture = 1,
-		eShaderShadow = 2,
+		eShaderShadowMapGeneration = 2,
 		eShaderBasicWithShadow = 3,
 		eMaxShader
 	};

@@ -265,7 +265,7 @@ void Shader::setShaders(EShaderKind kind, char *vertShader, char * fragShader)
 
 void GetAttribLocations(Shader::EShaderKind kind, int inProgramID, int & outVertexPos, int & outNormalPos, int & outUVPos)
 {
-	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture || kind == Shader::eShaderShadow || kind == Shader::eShaderBasicWithShadow ) {
+	if( kind == Shader::eShaderBasic || kind == Shader::eShaderTexture || kind == Shader::eShaderShadowMapGeneration || kind == Shader::eShaderBasicWithShadow ) {
 
 		outVertexPos = glGetAttribLocation(inProgramID, "inPositions");
 		outNormalPos = glGetAttribLocation(inProgramID, "inNormals");
@@ -316,18 +316,18 @@ void Shader::CompileAllShaders()
 	fShaderData[Shader::EShaderKind::eShaderTexture].fNormalID = normalPos;
 	fShaderData[Shader::EShaderKind::eShaderTexture].fUVID = UVPos;
 
-	setShaders(Shader::eShaderShadow, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
+	setShaders(Shader::eShaderShadowMapGeneration, "./GLSL/shadow.vert", "./GLSL/shadow.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outDepth");
 	glBindAttribLocation(GetProgram(), kInPosID, "inPositions");
 	glBindAttribLocation(GetProgram(), kInNormals, "inNormals");
 	glBindAttribLocation(GetProgram(), kInUV, "inUV");
 	
 	LinkShaders();
-	UseProgram(eShaderShadow);
-	GetAttribLocations(Shader::EShaderKind::eShaderShadow, GetProgram(), vertexPos, normalPos, UVPos);
-	fShaderData[Shader::EShaderKind::eShaderShadow].fVertexID = vertexPos;
-	fShaderData[Shader::EShaderKind::eShaderShadow].fNormalID = normalPos;
-	fShaderData[Shader::EShaderKind::eShaderShadow].fUVID = UVPos;
+	UseProgram(eShaderShadowMapGeneration);
+	GetAttribLocations(Shader::EShaderKind::eShaderShadowMapGeneration, GetProgram(), vertexPos, normalPos, UVPos);
+	fShaderData[Shader::EShaderKind::eShaderShadowMapGeneration].fVertexID = vertexPos;
+	fShaderData[Shader::EShaderKind::eShaderShadowMapGeneration].fNormalID = normalPos;
+	fShaderData[Shader::EShaderKind::eShaderShadowMapGeneration].fUVID = UVPos;
 
 	setShaders(Shader::eShaderBasicWithShadow, "./GLSL/whiteWithShadow.vert", "./GLSL/whiteWithShadow.frag");
 	glBindFragDataLocation(GetProgram(), kOutColorID, "outColor");

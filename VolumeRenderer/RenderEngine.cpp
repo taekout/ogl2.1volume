@@ -14,18 +14,16 @@ void RenderScene()
 {
 	printOpenGLError();
 	gRenderEngine->RecompileShaderIfNecessary();
-
 	gRenderEngine->ActivateMoveIfKeyPressed();
-
 	printOpenGLError();
 
 	gRenderEngine->SetupRenderTarget();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), 0, Shader::eShaderShadow, std::string(), -1, -1);
+	gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), 0, Shader::eShaderShadowMapGeneration, std::string(), -1, -1);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
-		gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), i, Shader::eShaderShadow, std::string(), -1, -1);
+		gRenderEngine->RenderBatch(*gRenderEngine->GetLightCamera(), i, Shader::eShaderShadowMapGeneration, std::string(), -1, -1);
 	}
 	gRenderEngine->SetdownRenderTarget();
 
@@ -243,9 +241,6 @@ void RenderEngine::ComputeRenderMat(Camera & cam)
 
 	glm::mat4 DepthMVP = gRenderEngine->GetLightCamera()->GetProj() * gRenderEngine->GetLightCamera()->GetView() * gRenderEngine->GetLightCamera()->GetModel();
 	fShader->UpdateUniformMat4("DepthMVP", &DepthMVP[0][0]);
-
-	//fShader->UpdateUniform1i("imageTexSampler", 0); // glActiveTexture(GL_TEXTURE0) was called.
-	//fShader->UpdateUniform1i("shadowMap", 1); // glActiveTexture(GL_TEXTURE0) was called.
 
 	glm::mat4 biasMatrix(
 		0.5, 0.0, 0.0, 0.0,
@@ -470,7 +465,7 @@ void RenderEngine::RenderBatch(Camera & cam, size_t index, Shader::EShaderKind k
 	fShader->UseProgram(kind);
 	ComputeRenderMat(cam);
 
-	if(texID != -1 && texSamplerName.compare("") != 0) {
+	if(texActiveNo != -1 && texID != -1 && texSamplerName.compare("") != 0) {
 		glActiveTexture(GL_TEXTURE0 + texActiveNo);
 		fShader->UpdateUniform1i((char *)texSamplerName.c_str(), texActiveNo);
 		glBindTexture(GL_TEXTURE_2D, texID);

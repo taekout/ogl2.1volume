@@ -335,18 +335,18 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 
 	assert(inVerts.size() != 0 && inInds.size() != 0);
 
-	unsigned int vertexVBO;
-	unsigned int indexVBO;
-	unsigned int normalVBO;
-	unsigned int UVVBO;
+	int vertexVBO = -1;
+	int indexVBO = -1;
+	int normalVBO = -1;
+	int UVVBO = -1;
 
 	if( inVerts.size() != 0 && inInds.size() != 0 ) {
 
-		glGenBuffers(1, &vertexVBO);
+		glGenBuffers(1, (unsigned int *)&vertexVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexVBO);
 		glBufferData(GL_ARRAY_BUFFER, inVerts.size() * sizeof(glm::vec3), &inVerts[0], GL_STATIC_DRAW);
 
-		glGenBuffers(1, &indexVBO);
+		glGenBuffers(1, (unsigned int *)&indexVBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexVBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, inInds.size() * sizeof(unsigned int), &inInds[0], GL_STATIC_DRAW);
 	}
@@ -354,7 +354,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 
 	if( inNormals.size() != 0 ) {
 
-		glGenBuffers(1, &normalVBO);
+		glGenBuffers(1, (unsigned int *)&normalVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, normalVBO);
 		glBufferData(GL_ARRAY_BUFFER, inNormals.size() * sizeof(glm::vec3), &inNormals[0], GL_STATIC_DRAW);
 	}
@@ -362,7 +362,7 @@ void RenderEngine::CreateBatch(std::vector<glm::vec3> & inVerts, std::vector<uns
 
 	if( inUVs.size() != 0 ) {
 
-		glGenBuffers(1, &UVVBO);
+		glGenBuffers(1, (unsigned int *)&UVVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, UVVBO);
 		glBufferData(GL_ARRAY_BUFFER, inUVs.size() * sizeof(glm::vec2), &inUVs[0], GL_STATIC_DRAW);
 	}

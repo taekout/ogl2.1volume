@@ -22,6 +22,7 @@
 extern RenderEngine * gRenderEngine;
 
 void CreatePlane();
+void CreateTriangle();
 
 /*
 To do:
@@ -57,6 +58,7 @@ int main(int argc, char **argv) {
 	printOpenGLError();
 
 	CreatePlane();
+	CreateTriangle();
 
 	for(size_t i = 0 ; i < gRenderEngine->fMeshes.size() ; i++) {
 
@@ -129,6 +131,54 @@ void CreatePlane()
 	for( size_t i = 0 ; i < sizeof(gUVs) / sizeof(GLfloat) ; i += 2 ) {
 		UVs.push_back( glm::vec2(gUVs[i], gUVs[i+1]) );
 	}
+
+	gRenderEngine->CreateBatch(verts, inds, normals, 0, UVs);
+}
+
+void CreateTriangle()
+{
+	const GLfloat gTriangles[] = {
+		0.f, 20.f, 0.f, // tri1
+		10.f, 20.f, 40.f,
+		10.f, 20.f, -10.f
+	};
+
+	//const GLfloat gUVs[] = {
+	//	0, 0,
+	//	1, 0,
+	//	0, 1,
+	//	1, 1
+	//};
+
+	const unsigned int gPlaneInds[] = {
+		0, 1, 2
+	};
+
+	const GLfloat gPlaneNormals[] = {
+		0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 1.f, 0.f,
+	};
+
+	std::vector<glm::vec3> verts;
+	for( size_t i = 0 ; i < sizeof(gTriangles) / sizeof(GLfloat) ; i += 3 ) {
+		verts.push_back( glm::vec3(gTriangles[i], gTriangles[i+1], gTriangles[i+2]) );
+	}
+
+	std::vector<unsigned int> inds;
+	for( size_t i = 0 ; i < sizeof(gPlaneInds) / sizeof(unsigned int) ; i ++ ) {
+		inds.push_back( gPlaneInds[i] );
+	}
+
+	std::vector<glm::vec3> normals;
+	for( size_t i = 0 ; i < sizeof(gPlaneNormals) / sizeof(GLfloat) ; i += 3 ) {
+		normals.push_back( glm::vec3(gPlaneNormals[i], gPlaneNormals[i+1], gPlaneNormals[i+2]) );
+	}
+
+	std::vector<glm::vec2> UVs;
+	//for( size_t i = 0 ; i < sizeof(gUVs) / sizeof(GLfloat) ; i += 2 ) {
+	//	UVs.push_back( glm::vec2(gUVs[i], gUVs[i+1]) );
+	//}
 
 	gRenderEngine->CreateBatch(verts, inds, normals, 0, UVs);
 }

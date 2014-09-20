@@ -10,6 +10,16 @@
 
 RenderEngine * gRenderEngine = NULL;
 
+inline int GetTexID(int texNo)
+{
+	return (gRenderEngine->fTextureMgr->fTextures.size() > texNo) ? gRenderEngine->fTextureMgr->fTextures[texNo]->fTexID : -1;
+}
+
+inline int GetTexActiveNo(int texNo)
+{
+	return (gRenderEngine->fTextureMgr->fTextures.size() > texNo) ? gRenderEngine->fTextureMgr->fTextures[texNo]->fActiveTexNo : -1;
+}
+
 void RenderScene()
 {
 	printOpenGLError();
@@ -28,13 +38,13 @@ void RenderScene()
 	gRenderEngine->SetdownRenderTarget();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
-	int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
+	int texID = GetTexID(1);
+	int activeTexNo = GetTexActiveNo(1);
 	gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), 0, Shader::eShaderBasicWithShadow, std::string("shadowMap"), activeTexNo, texID);
 	for(size_t i = 1 ; i < gRenderEngine->fVBOs.size() ; i++) {
 		Batch * b = gRenderEngine->fVBOs[i];
-		int texID = gRenderEngine->fTextureMgr->fTextures[1]->fTexID;
-		int activeTexNo = gRenderEngine->fTextureMgr->fTextures[1]->fActiveTexNo;
+		texID = GetTexID(1);
+		activeTexNo = GetTexActiveNo(1);
 		gRenderEngine->RenderBatch(*gRenderEngine->GetCamera(), i, Shader::eShaderBasicWithShadow, std::string("shadowMap"), activeTexNo, texID);
 	}
 

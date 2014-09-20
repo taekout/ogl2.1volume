@@ -22,6 +22,7 @@ inline int GetTexActiveNo(int texNo)
 
 void RenderScene()
 {
+	// Problem is that the shadow map is left-right flipped. Why?
 	printOpenGLError();
 	gRenderEngine->RecompileShaderIfNecessary();
 	gRenderEngine->ActivateMoveIfKeyPressed();

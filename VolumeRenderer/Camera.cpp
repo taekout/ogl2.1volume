@@ -17,6 +17,8 @@ Camera::~Camera(void)
 
 void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 {
+	if(glm::length(viewDir) == 0)
+		throw "camera view direction cannot be 0.";
 	fLeft = -30.f;
 	fRight = 30.f;
 	fBottom = -30.f;

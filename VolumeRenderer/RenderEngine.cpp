@@ -260,10 +260,12 @@ void RenderEngine::ComputeRenderMat(Camera & cam)
 		0.5, 0.5, 0.5, 1.0);
 	fShader->UpdateUniformMat4("BiasMat", &biasMatrix[0][0]);
 
-
 #ifdef _DEBUG
-	glm::vec4 testVec = proj * view * model * glm::vec4(100.f, 100.f, 100.f, 1.f);
-	glm::vec4 testVec2 = biasMatrix * proj * view * model * glm::vec4(100.f, 100.f, 100.f, 1.f);
+	glm::vec4 testVec = view * model * glm::vec4(100.f, 100.f, 100.f, 1.f);
+	glm::vec4 testVec2 = proj * testVec;
+	glm::vec4 testVec3  = biasMatrix * proj * view * model * glm::vec4(100.f, 100.f, 100.f, 1.f);
+
+	glm::mat4 testMVP = proj * view * model;
 #endif
 
 	if(fLights) {

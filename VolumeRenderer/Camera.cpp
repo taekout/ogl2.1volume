@@ -31,11 +31,12 @@ void Camera::Init(const glm::vec3 & eyepos, const glm::vec3 & viewDir)
 	fNear = 40.f;
 	fFar = 500.f;
 
-	fResetCamera = CameraData(eyepos, viewDir);
+	glm::vec3 normalizedViewDir = glm::normalize(viewDir);
+	fResetCamera = CameraData(eyepos, normalizedViewDir);
 	fbCamInOrtho = false;
 	//fProjMat = glm::ortho(fLeft, fRight, fBottom, fTop, fNear, fFar);
 	fProjMat = glm::perspective(fFov, fAspect, fNear, fFar);
-	fViewMat = glm::lookAt(eyepos, eyepos + viewDir, glm::vec3(0, 1, 0));
+	fViewMat = glm::lookAt(eyepos, eyepos + normalizedViewDir, glm::vec3(0, 1, 0));
 	fModelMat = glm::mat4(1);
 }
 
